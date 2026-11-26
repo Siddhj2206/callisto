@@ -87,4 +87,28 @@ ShellRoot {
         target: "overview"
         function toggle(): void { OverviewState.toggle(); }
     }
+
+    // Live theme application: the theme engine writes user-resolved tokens
+    // here when the settings app changes accent/contrast/mode. watchChanges
+    // re-fires onLoaded on every write, so accent changes repaint the whole
+    // shell in the same frame the engine writes — no restart, no re-login.
+    FileView {
+        id: userTokens
+        path: Quickshell.env("HOME") + "/.config/callisto/tokens.json"
+        watchChanges: true
+        atomicWrites: true
+        blockLoading: false
+        onFileChanged: reload()
+        onLoaded: {
+            try {
+                Theme.applyUserTokens(JSON.parse(text()));
+            } catch (e) {
+                console.warn("triton: user tokens unparseable, keeping compiled defaults:", e);
+            }
+        }
+        onLoadFailed: {
+            // No user tokens yet — compiled defaults apply. Normal before
+            // the first settings change.
+        }
+    }
 }

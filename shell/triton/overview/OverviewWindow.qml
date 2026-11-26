@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Wayland
 import QtQuick
+import ".."
 import "../services"
 
 // Overview surface: fullscreen overlay over live windows. Compositor

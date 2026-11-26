@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Wayland
 import QtQuick
+import ".."
 import "../services"
 
 // Clipboard surface: fullscreen overlay with the 35% scrim and the centered

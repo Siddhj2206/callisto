@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Wayland
 import QtQuick
+import ".."
 import "../services"
 
 // Power menu surface: fullscreen overlay capturing all input. Wallpaper blur

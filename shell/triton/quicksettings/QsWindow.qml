@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Wayland
 import QtQuick
+import ".."
 import "../services"
 
 // Quick settings surface: drop-down panel under the right island (Main demo

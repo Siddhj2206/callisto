@@ -7,6 +7,6 @@
 # NOTE: the pin must use the codename (n=trixie-backports), not the archive
 # key — backports' Release file declares Suite: stable-backports, so
 # "release a=trixie-backports" matches nothing and the pin silently no-ops.
-Package: hyprland hyprland-* quickshell uwsm libaquamarine* libhypr* libxkbcommon* libinput* libwayland*
+Package: hyprland hyprland-* hypridle hyprlock hyprsunset hyprpolkitagent xdg-desktop-portal-hyprland quickshell uwsm libaquamarine* libhypr* libxkbcommon* libinput* libwayland*
 Pin: release n=trixie-backports
 Pin-Priority: 600

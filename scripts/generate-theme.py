@@ -107,9 +107,13 @@ def main() -> int:
         prop = re.sub(r"_([a-z])", lambda m: m.group(1).upper(), name)
         if re.match(r"on[A-Z]", prop):
             prop = prop.lower()
-        lines.append(f'    readonly property color {prop}: "{v.upper()}"')
+        # Mutable, not readonly: the settings app's theme engine writes
+        # ~/.config/callisto/tokens.json and the shell re-applies it live via
+        # applyUserTokens() below. Reassigning these by hand is still
+        # forbidden — the engine is the only writer.
+        lines.append(f'    property color {prop}: "{v.upper()}"')
         if prop != name and not re.match(r"on[A-Z]", re.sub(r"_([a-z])", lambda m: m.group(1).upper(), name)):
-            lines.append(f'    readonly property color {name}: "{v.upper()}"')
+            lines.append(f'    property color {name}: "{v.upper()}"')
 
     lines += [
         "",
@@ -174,6 +178,29 @@ def main() -> int:
         f'    readonly property string waveViewBox: "{wave["viewBox"]}"',
         f'    readonly property int waveLobes: {wave["lobes"]}',
         f'    readonly property string wavePath: "{wave_path}"',
+        "",
+        "    // ---- Live re-application (the no-dotfiles contract) ----",
+        "    // The theme engine (callisto-apply) writes user-resolved tokens to",
+        "    // ~/.config/callisto/tokens.json; shell.qml watches that file and",
+        "    // calls this with its parsed content. Property naming mirrors the",
+        "    // snake_case -> camelCase rules above, including the on* lowering.",
+        "    function applyUserTokens(parsed) {",
+        "        const dark = parsed && parsed.color && parsed.color.dark;",
+        "        if (!dark)",
+        "            return;",
+        "        for (const key of Object.keys(dark)) {",
+        "            const value = dark[key];",
+        "            if (typeof value !== \"string\" || !/^#[0-9A-Fa-f]{6}$/.test(value))",
+        "                continue;",
+        '            let prop = key.replace(/_([a-z])/g, (m, c) => c.toUpperCase());',
+        '            if (/^on[A-Z]/.test(prop))',
+        '                prop = prop.toLowerCase();',
+        "            if (prop in this)",
+        '                this[prop] = value.toUpperCase();',
+        "            if (key in this && key !== prop)",
+        '                this[key] = value.toUpperCase();',
+        "        }",
+        "    }",
         "}",
         "",
     ]

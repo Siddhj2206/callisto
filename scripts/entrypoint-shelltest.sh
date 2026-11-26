@@ -35,6 +35,14 @@ mkdir -p "$XDG_RUNTIME_DIR" /home/triton/.cache /home/triton/shots
 # small. Config is regenerated every boot — never edited by hand.
 # QS_ENTRY selects the entry point: shell.qml production, devshell.qml harness.
 QS_ENTRY="${QS_ENTRY:-shell.qml}"
+# Seed user tokens before the shell boots — the production order
+# (callisto-apply runs at session start, before qs). Mirrors the real
+# boot flow so live-watch behavior is exercised in the harness.
+if [[ -n "${SEED_TOKENS:-}" ]]; then
+    mkdir -p /home/triton/.config/callisto
+    cp "$SEED_TOKENS" /home/triton/.config/callisto/tokens.json
+fi
+
 cat > /home/triton/sway.conf <<EOF
 output HEADLESS-1 resolution 1920x1080 position 0,0
 output * bg #111318 solid_color

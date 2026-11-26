@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "appearance": {
+    "mode": "dark",
+    "accent": "planet",
+    "contrast": 0.0,
+    "material": "mica",
+    "wallpaper": "/usr/share/backgrounds/callisto/wallpaper.jpg"
+  },
+  "shell": {
+    "barPosition": "top",
+    "clockFormat": "24h",
+    "reduceMotion": false
+  },
+  "windows": {
+    "focusFollowsMouse": true,
+    "workspaceSwipe": true
+  },
+  "input": {
+    "keyboardLayout": "us",
+    "naturalScroll": true,
+    "tapToClick": true
+  },
+  "notifications": {
+    "dnd": false,
+    "lockscreenNotifications": true
+  }
+}

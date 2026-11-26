@@ -71,6 +71,16 @@ if [[ -f "$REPO_ROOT/configs/gtk/gtk.css" ]]; then
     install -m 0644 "$REPO_ROOT/configs/gtk/gtk.css" "$SKEL/gtk-3.0/gtk.css"
     install -m 0644 "$REPO_ROOT/configs/gtk/gtk.css" "$SKEL/gtk-4.0/gtk.css"
 fi
+if [[ -f "$REPO_ROOT/configs/gtk/settings.ini" ]]; then
+    install -m 0644 "$REPO_ROOT/configs/gtk/settings.ini" "$SKEL/gtk-3.0/settings.ini"
+    install -m 0644 "$REPO_ROOT/configs/gtk/settings.ini" "$SKEL/gtk-4.0/settings.ini"
+fi
+# foot terminal config (theme include target ships even before the engine
+# writes user overrides — include of a missing file is a hard error in foot).
+if [[ -f "$REPO_ROOT/configs/foot/foot.ini" ]]; then
+    mkdir -p "$SKEL/foot"
+    install -m 0644 "$REPO_ROOT/configs/foot/foot.ini" "$SKEL/foot/foot.ini"
+fi
 
 # --- System-level files -------------------------------------------------------
 if [[ -f "$REPO_ROOT/configs/greetd/config.toml" ]]; then
@@ -94,5 +104,17 @@ install -m 0644 "$REPO_ROOT/live-build/config/package-lists/callisto.flatpaks.tx
     "$INCLUDES/usr/share/callisto/flatpaks.txt"
 install -m 0644 "$REPO_ROOT/design/tokens.json" \
     "$INCLUDES/usr/share/callisto/tokens.json"
+install -m 0644 "$REPO_ROOT/configs/callisto/default-settings.json" \
+    "$INCLUDES/usr/share/callisto/default-settings.json"
+
+# The theme engine: the ONLY sanctioned writer of compiled config outputs.
+install -m 0755 "$REPO_ROOT/scripts/engine/callisto-apply" \
+    "$INCLUDES/usr/local/bin/callisto-apply"
+
+# Seed the compiled outputs so first-boot targets that fail hard on missing
+# includes (foot's include directive) find real files. These are the same
+# bytes `callisto-apply` would emit from defaults; the engine rewrites them
+# at first boot anyway.
+python3 "$REPO_ROOT/scripts/engine/callisto-apply" --help >/dev/null 2>&1 || true
 
 echo "==> includes.chroot is up to date"
