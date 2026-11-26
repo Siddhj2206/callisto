@@ -69,6 +69,7 @@ Rectangle {
 
     // Keyboard navigation per the footer hints. Returns true if handled.
     function keyPressed(event) {
+        console.log("KEY:", event.key);
         const rows = results.filter(r => r.kind !== "label");
         if (event.key === Qt.Key_Down) {
             selection = Math.min(selection + 1, rows.length - 1);
@@ -86,6 +87,24 @@ Rectangle {
     }
 
     onQueryChanged: input.text = root.query
+
+    Timer {
+        interval: 2000
+        running: true
+        repeat: false
+        onTriggered: console.log("FOCUS input:", input.activeFocus, "panel window focus:", root.Window.window ? root.Window.window.activeFocusItem !== null : "no-window")
+    }
+
+    // Focus arrives with window activation, not component completion — layer
+    // surfaces are granted keyboard focus by the compositor after mapping,
+    // and on slow compositors (llvmpipe) that lands well after construction.
+    Connections {
+        target: root.Window.window
+        function onActiveChanged() {
+            if (root.Window.window && root.Window.window.active && root.grabsFocus)
+                input.forceActiveFocus();
+        }
+    }
 
     Component.onCompleted: {
         input.text = root.query;
@@ -126,6 +145,27 @@ Rectangle {
                 // opens, and typing is the whole point of the surface. The
                 // caret is the board's 2x26 primary bar — TextInput's own
                 // cursor matches it exactly (width 2, primary).
+                // Navigation interceptor: Qt dispatches key events to this
+                // item (the input's parent in the focus chain) FIRST when the
+                // input forwards. Keys the launcher owns are consumed here;
+                // the rest continue to the input's editing behavior.
+                Item {
+                    id: queryNavKeys
+                    width: 0
+                    height: 0
+                    Keys.onPressed: event => {
+                        console.log("NAVKEY interceptor saw:", event.key);
+                        if (event.key === Qt.Key_Down || event.key === Qt.Key_Up ||
+                            event.key === Qt.Key_Return || event.key === Qt.Key_Enter ||
+                            event.key === Qt.Key_Escape) {
+                            root.keyPressed(event);
+                            event.accepted = true;
+                        } else {
+                            event.accepted = false;
+                        }
+                    }
+                }
+
                 TextInput {
                     id: input
                     width: Math.max(2, inputMetrics.advanceWidth) + 4
@@ -144,7 +184,11 @@ Rectangle {
                     }
                     onTextEdited: root.queryEdited(input.text)
 
-                    Keys.onPressed: event => root.keyPressed(event)
+                    // TextInput consumes navigation keys internally before
+                    // attached Keys handlers fire. The input is wrapped in a
+                    // parent FocusScope (queryWrap below) that intercepts
+                    // first and only forwards what it doesn't use.
+                    Keys.forwardTo: [queryNavKeys]
 
                     TextMetrics {
                         id: inputMetrics
@@ -212,43 +256,72 @@ Rectangle {
 
                 Repeater {
                     model: [
-                        { keys: ["↑", "↓"], label: "move" },
-                        { keys: ["Enter"], label: "open" },
-                        { keys: ["Tab"], label: "actions" },
-                        { keys: ["Alt", "Enter"], label: "reveal" },
+                        { keys: [], glyphs: [Icons.keyboardArrowUp, Icons.keyboardArrowDown], label: "move" },
+                        { keys: ["Enter"], glyphs: [], label: "open" },
+                        { keys: ["Tab"], glyphs: [], label: "actions" },
+                        { keys: ["Alt", "Enter"], glyphs: [], label: "reveal" },
                     ]
 
                     Row {
                         required property var modelData
+                        property var hint: modelData
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: 8
 
-                        Repeater {
-                            model: parent.modelData.keys
+                        // Keys need their own row: a Repeater parents its
+                        // delegates to itself, not to the outer layout, so
+                        // without this they stack at the origin.
+                        Row {
+                            spacing: 4
 
-                            Rectangle {
-                                required property string modelData
-                                height: 24
-                                width: Math.max(24, keyText.implicitWidth + 12)
-                                radius: 7
-                                color: "transparent"
-                                border.width: 1
-                                border.color: "#4DFFFFFF" // white 30%
+                            Repeater {
+                                model: parent.parent.hint.glyphs
 
-                                TritonText {
-                                    id: keyText
-                                    anchors.centerIn: parent
-                                    text: parent.modelData
-                                    family: TritonText.Family.Mono
-                                    weight: TritonText.Weight.SemiBold
-                                    font.pixelSize: 12
-                                    color: Theme.onsurface
+                                Rectangle {
+                                    required property string modelData
+                                    height: 24
+                                    width: 24
+                                    radius: 7
+                                    color: "transparent"
+                                    border.width: 1
+                                    border.color: "#4DFFFFFF"
+
+                                    TritonIcon {
+                                        anchors.centerIn: parent
+                                        glyph: parent.modelData
+                                        size: 16
+                                        color: Theme.onsurface
+                                    }
+                                }
+                            }
+
+                            Repeater {
+                                model: parent.parent.hint.keys
+
+                                Rectangle {
+                                    required property string modelData
+                                    height: 24
+                                    width: Math.max(24, keyText.implicitWidth + 12)
+                                    radius: 7
+                                    color: "transparent"
+                                    border.width: 1
+                                    border.color: "#4DFFFFFF" // white 30%
+
+                                    TritonText {
+                                        id: keyText
+                                        anchors.centerIn: parent
+                                        text: parent.modelData
+                                        family: TritonText.Family.Mono
+                                        weight: TritonText.Weight.SemiBold
+                                        font.pixelSize: 12
+                                        color: Theme.onsurface
+                                    }
                                 }
                             }
                         }
 
                         TritonText {
-                            text: parent.modelData.label
+                            text: parent.hint.label
                             font.pixelSize: 13
                             color: Theme.onsurfacevariant
                         }
@@ -363,22 +436,25 @@ Rectangle {
                                 opacity: 0.85
                             }
                         }
+                    }
 
-                        Item { width: 1; height: 1 } // spacer absorbs slack
+                    // Board: actions sit at the card's bottom edge
+                    // (margin-top:auto in the flex column).
+                    Row {
+                        x: 20
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: 20
+                        spacing: 8
 
-                        Row {
-                            spacing: 8
+                        Repeater {
+                            model: root.topHitActions
 
-                            Repeater {
-                                model: root.topHitActions
-
-                                TritonButton {
-                                    required property var modelData
-                                    text: modelData.text || ""
-                                    icon: modelData.icon || ""
-                                    variant: modelData.veil ? TritonButton.Variant.Veil : TritonButton.Variant.Filled
-                                    contentOverride: modelData.veil ? "#D9E2FF" : ""
-                                }
+                            TritonButton {
+                                required property var modelData
+                                text: modelData.text || ""
+                                icon: modelData.icon || ""
+                                variant: modelData.veil ? TritonButton.Variant.Veil : TritonButton.Variant.Filled
+                                contentOverride: modelData.veil ? "#D9E2FF" : ""
                             }
                         }
                     }

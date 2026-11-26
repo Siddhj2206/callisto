@@ -31,6 +31,7 @@ ShellRoot {
         WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 
         LauncherPanel {
+            id: panel
             anchors.horizontalCenter: parent.horizontalCenter
             y: Math.round((parent.height - height) * 0.42)
             results: [
@@ -48,6 +49,28 @@ ShellRoot {
             onActivated: idx => console.log("ACTIVATED:", idx)
             onQueryEdited: t => console.log("QUERY:", t)
             onClosed: console.log("CLOSED")
+
+            // Deterministic interaction sequence: drives the same keyPressed
+            // path physical keys use (wtype cannot deliver special keys in
+            // this harness — virtual-keyboard keymap limitation, verified).
+            // Timing staggers through realistic intervals so selection steps
+            // are individually visible in the log.
+            Timer {
+                interval: 3000; running: true; repeat: false
+                onTriggered: panel.keyPressed({ key: Qt.Key_Down, accepted: false })
+            }
+            Timer {
+                interval: 4000; running: true; repeat: false
+                onTriggered: panel.keyPressed({ key: Qt.Key_Down, accepted: false })
+            }
+            Timer {
+                interval: 5000; running: true; repeat: false
+                onTriggered: panel.keyPressed({ key: Qt.Key_Up, accepted: false })
+            }
+            Timer {
+                interval: 6000; running: true; repeat: false
+                onTriggered: panel.keyPressed({ key: Qt.Key_Return, accepted: false })
+            }
         }
     }
 }
