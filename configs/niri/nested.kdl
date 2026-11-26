@@ -1,0 +1,23 @@
+// Minimal niri config for the Triton shell dev harness.
+// This compositor exists only to give the shell a real Wayland environment
+// to render against — it is not the target compositor (Hyprland) and carries
+// no desktop configuration beyond what the shell needs.
+
+input {
+    keyboard {
+        xkb {
+            layout "us"
+        }
+    }
+}
+
+layout {
+    gaps 0
+    border {
+        width 1
+    }
+}
+
+// Quieter test environment.
+prefer-no-csd
+screenshot-path null

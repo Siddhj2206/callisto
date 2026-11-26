@@ -32,3 +32,7 @@ SHA256SUMS
 .idea/
 .vscode/
 *.sublime-*
+.devtest/
+
+# fonts inside the shell tree are copied from design/fonts at build/sync time
+shell/triton/fonts/

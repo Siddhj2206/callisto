@@ -1,44 +1,47 @@
 # Callisto shell test environment.
 #
-# Runs the Triton shell (Quickshell QML) inside a nested Hyprland instance
-# without booting the full ISO — the fast inner development loop for all
-# shell/ work. The compositor appears as a window in the host's Wayland
-# session; the shell sources are bind-mounted in, so edits are picked up by
-# restarting the container, which takes seconds.
+# Runs the Triton shell (Quickshell QML) inside a nested sway instance without
+# booting the full ISO — the fast inner development loop for all shell/ work.
+# The compositor appears as a window in the host's Wayland session; the shell
+# sources are bind-mounted in, so edits are picked up by restarting the
+# container, which takes seconds.
 #
-# Build:  sudo podman build -f Dockerfile.shelltest -t callisto-shelltest .
+# sway stands in for Hyprland here: it implements the same layer-shell
+# protocol, nests cleanly as a Wayland client with no seat/DRM requirements,
+# and is packaged in trixie main. What it cannot test is Hyprland-specific IPC
+# (workspace pills); that integration is verified in QEMU against the ISO.
+#
+# Build:  podman build -f Dockerfile.shelltest -t callisto-shelltest .
 # Run:    scripts/test-shell.sh
 
 FROM debian:trixie-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# hyprland and quickshell are only in trixie-backports; pin them so the rest
-# of the system stays on stable.
+# quickshell needs backports pinning; sway and the rest are in stable.
 RUN echo 'deb http://deb.debian.org/debian trixie-backports main contrib non-free-firmware' \
         > /etc/apt/sources.list.d/backports.list \
-    && printf 'Package: hyprland hyprland-* quickshell libaquamarine* libhypr* libxkbcommon* libinput* libwayland*\nPin: release n=trixie-backports\nPin-Priority: 600\n' \
+    && printf 'Package: quickshell libxkbcommon* libinput* libwayland*\nPin: release n=trixie-backports\nPin-Priority: 600\n' \
         > /etc/apt/preferences.d/backports-pin \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
-        hyprland \
         quickshell \
+        sway \
         fuzzel \
         foot \
-        xwayland \
-        pipewire \
-        wireplumber \
         fonts-jetbrains-mono \
         fonts-inter \
+        fonts-noto-color-emoji \
         qt6-declarative-dev-tools \
+        grim \
         jq \
     && rm -rf /var/lib/apt/lists/*
 
-# Fonts the design system needs that Debian does not package. Present or not,
-# the shell must degrade gracefully — keep them optional here.
-RUN mkdir -p /usr/local/share/fonts
+RUN useradd -m -u 1000 -s /bin/bash triton
 
 COPY scripts/entrypoint-shelltest.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
+USER triton
 
 ENTRYPOINT ["/entrypoint.sh"]

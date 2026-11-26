@@ -1,33 +1,32 @@
 #!/usr/bin/env bash
 # entrypoint-shelltest.sh — inside the callisto-shelltest container.
 #
-# Boots Hyprland nested (as a client of the inherited host Wayland session),
-# then starts the Triton shell. Intended for fast iteration: kill the
-# container, edit QML, restart.
+# Boots sway nested (as a client of the inherited host Wayland session), then
+# starts the Triton shell against it. Iteration loop: kill the container,
+# edit QML, restart — seconds per cycle.
+#
+# sway is the stand-in compositor: same layer-shell protocol as Hyprland,
+# trivially nestable, no seat/DRM requirements. Hyprland-specific IPC is
+# verified separately in QEMU against the real ISO.
 
 set -uo pipefail
 
-export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/1000}"
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/home/triton/xdg}"
 export XDG_SESSION_TYPE=wayland
-export XDG_CURRENT_DESKTOP=Hyprland
-export XDG_SESSION_DESKTOP=Hyprland
-
-# Software rendering: nested virgl through a container is fragile and not
-# worth the debugging time — llvmpipe is fast enough for QML iteration.
 export WLR_RENDERER_ALLOW_SOFTWARE=1
+export WLR_BACKENDS=wayland
 
-# Launch the shell once Hyprland is accepting IPC connections. The compositor
-# takes a moment to create its socket even after the process starts.
-(
-    for _ in $(seq 1 50); do
-        if hyprctl version >/dev/null 2>&1; then
-            quickshell -c triton -p /triton &
-            break
-        fi
-        sleep 0.2
-    done
-) &
+mkdir -p "$XDG_RUNTIME_DIR" /home/triton/.cache
 
-# Hyprland with no real outputs runs nested automatically when WAYLAND_DISPLAY
-# is set. This process is PID 1-ish; when it exits the container stops.
-exec Hyprland --config /hyprland-test.conf
+# Minimal sway config: floating-friendly, no wallpaper logic, exec the shell
+# once the compositor is up.
+cat > /home/triton/sway.conf <<'EOF'
+output * bg #111318 solid_color
+default_border none
+bar none
+exec qs -p /triton
+EOF
+
+# sway in a Wayland session nests automatically. SIGTERM propagation: the
+# container stops when sway exits.
+exec sway -c /home/triton/sway.conf

@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
-# test-shell.sh — run the Triton shell in a nested Hyprland container.
+# test-shell.sh — run the Triton shell in a nested sway container.
 #
-# Iteration loop for shell/ development without the ISO or a VM:
+# Iteration loop for shell/ development without the ISO, a VM, or touching
+# your real session:
 #   1. edit QML in shell/triton/
 #   2. ./scripts/test-shell.sh   (or make test-shell)
-#   3. compositor window appears on your desktop running the shell
-#   4. close window / Ctrl-C, edit, repeat
+#   3. a window appears on your desktop: nested sway running the shell
+#   4. close it / Ctrl-C, edit, repeat
 #
-# How it works: the container inherits the host's Wayland socket, so Hyprland
-# starts in nested mode as a client window of your current session. The shell
-# sources are bind-mounted read-only at /triton, so no image rebuild is ever
-# needed for QML changes — only dependency changes rebuild the image.
+# How it works: the container inherits only your Wayland socket, so sway
+# starts in nested mode as a client window of your session. The shell sources
+# and fonts are bind-mounted read-only — no image rebuild for QML changes.
+# SELinux note: the socket mount needs :z relabeling on Fedora; volume mounts
+# of the repo use :z as well.
 #
-# Requires: rootless podman (unlike the ISO builder, this harness needs no
-# privileges — it only runs compositor processes), host Wayland session.
-# GPU is not required — the harness uses software rendering for robustness.
+# Requires: rootless podman, host Wayland session. No GPU needed — software
+# rendering.
 
 set -euo pipefail
 
@@ -24,20 +25,25 @@ IMAGE="callisto-shelltest"
 : "${XDG_RUNTIME_DIR:?not a graphical session}"
 : "${WAYLAND_DISPLAY:?not a Wayland session}"
 
+# Fonts must exist inside shell/triton/fonts for the shell to load them.
+mkdir -p "$REPO_ROOT/shell/triton/fonts"
+cp "$REPO_ROOT"/design/fonts/*.ttf "$REPO_ROOT/shell/triton/fonts/" 2>/dev/null || true
+
 if ! podman image exists "$IMAGE"; then
     echo "==> Building $IMAGE (first run only)"
     podman build -f "$REPO_ROOT/Dockerfile.shelltest" -t "$IMAGE" "$REPO_ROOT"
 fi
 
-# The container must reach the host's user Wayland socket and XDG_RUNTIME_DIR
-# layout. Hyprland creates its own socket inside; the nested backend connects
-# back out through the inherited one. Rootless podman maps the container's
-# root user onto the host user, so the socket stays accessible.
+# The host socket is mounted at an absolute path OUTSIDE the runtime dir:
+# WAYLAND_DISPLAY accepts absolute paths, and this avoids the tmpfs-over-mount
+# shadowing problem entirely.
 exec podman run --rm -it \
     --name callisto-shelltest \
-    -e WAYLAND_DISPLAY="$WAYLAND_DISPLAY" \
-    -e XDG_RUNTIME_DIR=/run/user/1000 \
-    -v "$XDG_RUNTIME_DIR:/run/user/1000" \
+    --userns=keep-id \
+    --user 1000:1000 \
+    -e WAYLAND_DISPLAY="/wl/socket" \
+    -e XDG_RUNTIME_DIR=/home/triton/xdg \
+    --tmpfs /home/triton/xdg:rw,exec,mode=0700,U \
+    -v "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/wl/socket:z" \
     -v "$REPO_ROOT/shell/triton:/triton:ro,z" \
-    -v "$REPO_ROOT/configs/hypr/hyprland-test.conf:/hyprland-test.conf:ro,z" \
     "$IMAGE"

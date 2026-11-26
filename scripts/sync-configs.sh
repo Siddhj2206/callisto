@@ -45,11 +45,19 @@ mkdir -p \
 
 # --- Shell (from-scratch component) -----------------------------------------
 # The whole Triton shell is copied recursively — it is a modular Quickshell
-# project, not a flat directory of files.
+# project, not a flat directory of files. Fonts are copied into the tree first
+# (gitignored there; design/fonts/ is the source of truth) so the shell can
+# FontLoader them relative to shell.qml in dev and installed layouts alike.
+mkdir -p "$REPO_ROOT/shell/triton/fonts"
+cp "$REPO_ROOT"/design/fonts/*.ttf "$REPO_ROOT/shell/triton/fonts/" 2>/dev/null || true
 qml_files=("$REPO_ROOT"/shell/triton/**/*.qml)
 if (( ${#qml_files[@]} > 0 )); then
     cp -r "$REPO_ROOT/shell/triton/." "$SKEL/quickshell/triton/"
     find "$SKEL/quickshell/triton" -name "*.qml" -exec chmod 0644 {} +
+    # Fonts also install system-wide so non-shell apps (fuzzel, foot, GTK)
+    # see the same typography.
+    mkdir -p "$INCLUDES/usr/share/fonts/triton"
+    cp "$REPO_ROOT"/design/fonts/*.ttf "$INCLUDES/usr/share/fonts/triton/"
 else
     echo "    (no QML files yet — shell/triton is empty)"
 fi

@@ -78,7 +78,6 @@ def main() -> int:
     thick = material.get("thick_glass", material.get("thickglass"))
     if thick is None:
         raise fail("missing required token 'thick_glass' in material")
-    veil = material.get("veil")
 
     def color(name: str) -> str:
         return strip_commentish(require(dark, name, "color.dark"))
@@ -99,9 +98,16 @@ def main() -> int:
         v = strip_commentish(val)
         if not re.fullmatch(r"#[0-9A-Fa-f]{6}", v):
             continue  # skip non-color metadata
+        # QML reserves identifiers of the form onX for signal handlers, so the
+        # Material "on_*" tokens cannot use camelCase (onPrimary would parse
+        # as a handler). The canonical spellings are onprimary, onsurface, ...
+        # — lowercase, close to the tokens, and unambiguous in QML.
         prop = re.sub(r"_([a-z])", lambda m: m.group(1).upper(), name)
+        if re.match(r"on[A-Z]", prop):
+            prop = prop.lower()
         lines.append(f'    readonly property color {prop}: "{v.upper()}"')
-        lines.append(f'    readonly property color {name}: "{v.upper()}"')
+        if prop != name and not re.match(r"on[A-Z]", re.sub(r"_([a-z])", lambda m: m.group(1).upper(), name)):
+            lines.append(f'    readonly property color {name}: "{v.upper()}"')
 
     lines += [
         "",
@@ -114,12 +120,12 @@ def main() -> int:
         f'    readonly property real thickGlassBlur: {thick.get("blur", 0)}',
     ]
 
-    if veil:
-        lines.append(f'    readonly property color veil: "{qml_color(color(veil["fill"]), float(veil["alpha"]))}"')
-    else:
-        # veil absent from this token version: derive as hover state layer over surface
-        hover = float(state_layer.get("hover", 0.08))
-        lines.append(f'    readonly property color veil: "{qml_color("FFFFFF", hover)}"')
+    # "veil" — the shell's subtle resting-state tint (inactive pills, hover
+    # washes) — is not a named token; it is the hover state layer of pure
+    # white. Deriving it here keeps the definition in one place.
+    hover = float(state_layer.get("hover", 0.08))
+    lines.append(f'    readonly property color veil: "{qml_color("FFFFFF", hover)}"')
+    lines.append(f'    readonly property color veilBright: "{qml_color("FFFFFF", float(state_layer.get("focus", 0.1)))}"')
 
     lines += [
         "",
