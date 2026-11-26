@@ -26,18 +26,31 @@ Item {
         SettingRow {
             icon: Icons.bluetooth
             title: "Bluetooth"
-            supporting: "Visible to nearby devices"
+            supporting: BluetoothService.statusText
             TritonSwitch {
-                on: true
+                on: BluetoothService.enabled
+                onToggled: v => BluetoothService.setEnabled(v)
             }
         }
 
         SectionLabel { label: "Devices"; bottomPadding: 8; topPadding: 20 }
 
+        Repeater {
+            model: BluetoothService.devices
+
+            delegate: SettingRow {
+                required property var modelData
+                icon: Icons.bluetooth
+                title: modelData.name
+                supporting: modelData.connected ? "Connected" : modelData.paired ? "Paired" : "Available"
+            }
+        }
+
         SettingRow {
+            visible: BluetoothService.devices.length === 0
             icon: Icons.bluetooth
-            title: "No devices paired"
-            supporting: "Turn on a device and keep it nearby"
+            title: BluetoothService.enabled ? "No devices paired" : "Bluetooth is off"
+            supporting: BluetoothService.enabled ? "Turn on a device and keep it nearby" : "Enable Bluetooth to connect devices"
         }
     }
 }

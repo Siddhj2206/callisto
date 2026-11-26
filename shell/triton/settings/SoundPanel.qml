@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import Quickshell.Services.Pipewire
 import ".."
 import "../components"
 import "../services"
@@ -11,6 +12,14 @@ import "../services"
 
 Item {
     id: root
+
+    readonly property PwNode sink: Pipewire.defaultAudioSink
+    readonly property PwNode source: Pipewire.defaultAudioSource
+    PwObjectTracker { objects: [root.sink, root.source].filter(n => n !== null) }
+    readonly property bool hasSink: !!root.sink && !!root.sink.audio
+    readonly property bool hasSource: !!root.source && !!root.source.audio
+    readonly property string sinkName: hasSink ? (root.sink.description || root.sink.name || "Output") : "No output device"
+    readonly property string sourceName: hasSource ? (root.source.description || root.source.name || "Input") : "No input device"
 
     PanelHeader {
         y: 28
@@ -28,20 +37,28 @@ Item {
         SettingRow {
             icon: Icons.volumeUp
             title: "Output volume"
-            supporting: "Speakers — built-in audio"
+            supporting: sinkName
             TritonSlider {
                 width: 260
-                value: 0.42
+                value: root.hasSink ? root.sink.audio.volume : 0
+                onMoved: v => {
+                    if (root.hasSink)
+                        root.sink.audio.volume = Math.max(0, Math.min(1, v));
+                }
             }
         }
 
         SettingRow {
             icon: Icons.mic
             title: "Input volume"
-            supporting: "Internal microphone"
+            supporting: sourceName
             TritonSlider {
                 width: 260
-                value: 0.7
+                value: root.hasSource ? root.source.audio.volume : 0
+                onMoved: v => {
+                    if (root.hasSource)
+                        root.source.audio.volume = Math.max(0, Math.min(1, v));
+                }
             }
         }
 

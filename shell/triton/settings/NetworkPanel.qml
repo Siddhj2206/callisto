@@ -27,18 +27,25 @@ Item {
             icon: Icons.wifi
             fillIcon: true
             title: "Wi-Fi"
-            supporting: "Connected to Your Network"
+            supporting: NetworkService.connected ? "Connected to " + NetworkService.connectedName
+                      : NetworkService.wifiEnabled ? "Not connected" : "Off"
             TritonSwitch {
-                on: true
+                on: NetworkService.wifiEnabled
+                onToggled: v => NetworkService.setWifiEnabled(v)
             }
         }
 
-        SectionLabel { label: "Known networks"; bottomPadding: 8; topPadding: 20 }
+        SectionLabel { label: "Networks"; bottomPadding: 8; topPadding: 20 }
 
-        SettingRow {
-            icon: Icons.wifi
-            title: "Your Network"
-            supporting: "Connected · excellent signal"
+        Repeater {
+            model: NetworkService.networks.slice(0, 6)
+
+            delegate: SettingRow {
+                required property var modelData
+                icon: Icons.wifi
+                title: modelData.name
+                supporting: (modelData.connected ? "Connected · " : "") + Math.round(modelData.strength) + "% signal"
+            }
         }
     }
 }
