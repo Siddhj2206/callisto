@@ -42,6 +42,35 @@ Callisto OS \n \l
 
 EOF
 
+# --- Live user provisioning ---------------------------------------------------
+# live-config's boot-time user creation uses a DES-crypt hash (8Ab05sVQ4LLps,
+# literally "live") and modern shadow dropped DES validation — every login
+# fails even though the account exists. We provision the live user here, in
+# the image, with a yescrypt hash; live-config's user-setup then sees the
+# user already in passwd and skips its own creation cleanly.
+#
+# Password is "live" — the standard live-boot convention. Autologin never
+# asks for it, but sudo does, and a documented password beats a locked one.
+if ! grep -q "^user:" /etc/passwd; then
+    # Precomputed sha512-crypt of "live" — baked because neither openssl nor
+    # python3 can be relied on inside the chroot at hook time.
+    HASH='$6$rvJoS0qOC6hsFRth$pvMinYI2JNBGfGHThkHo/vsZRG8f3m3MlGleiMvPR5tUdBlW5W59mv/R9IqqiI5dmWO/kLlLMx8/KGM1/5A.B0'
+    useradd -m -s /bin/bash -u 1000 \
+        -G audio,video,input,render,netdev,sudo,users \
+        -p "$HASH" \
+        -c "Live user" user \
+        || echo "callisto: WARNING user provisioning failed" >&2
+    echo "callisto: live user provisioned (sha512 hash)"
+fi
+
+# The greeter user: tuigreet runs as this unprivileged account. Debian's
+# greetd package does not create it.
+if ! grep -q "^greeter:" /etc/passwd; then
+    useradd -r -s /usr/sbin/nologin -c "greetd greeter" greeter 2>/dev/null \
+        || useradd -r -s /usr/sbin/nologin greeter \
+        || echo "callisto: WARNING greeter user creation failed" >&2
+fi
+
 # --- Session greeter -------------------------------------------------------------
 # live-config auto-configures the autologin of known display managers but does
 # not know greetd; we enable it explicitly. The [initial_session] in
