@@ -38,5 +38,9 @@ PanelWindow {
 
         onDrillIn: idx => internalPage = QuickSettingsPanel.Page.Wifi
         onBack: internalPage = QuickSettingsPanel.Page.Main
+        onPowerClicked: {
+            QuickSettingsState.dismiss();
+            PowerState.open = true;
+        }
     }
 }

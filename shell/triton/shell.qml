@@ -7,6 +7,7 @@ import "launcher"
 import "osd"
 import "notifications"
 import "quicksettings"
+import "power"
 
 // Triton shell entry point. Thin by design: fonts, then one copy of each
 // persistent surface per screen. State lives in singletons and services.
@@ -49,4 +50,6 @@ ShellRoot {
     CenterWindow {}
 
     QsWindow {}
+
+    PowerWindow {}
 }

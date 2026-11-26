@@ -2,3 +2,4 @@ singleton LauncherState 1.0 LauncherState.qml
 singleton OsdState 1.0 OsdState.qml
 singleton NotificationState 1.0 NotificationState.qml
 singleton QuickSettingsState 1.0 QuickSettingsState.qml
+singleton PowerState 1.0 PowerState.qml
