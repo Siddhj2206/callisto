@@ -43,6 +43,17 @@ fi
 LOGDIR="$HOME/.local/state/callisto"
 mkdir -p "$LOGDIR"
 
+# --- Theme seeding ---------------------------------------------------------------
+# callisto-apply compiles the settings store into the shell's token file and
+# all other config outputs BEFORE anything graphical starts. This ordering is
+# load-bearing: quickshell's file watcher does not recover when the tokens
+# file is absent at first load (verified in the harness), so the file must
+# exist before the shell starts. Failure is non-fatal — compiled defaults
+# are always valid.
+if command -v callisto-apply >/dev/null 2>&1; then
+    callisto-apply >>"$LOGDIR/callisto-apply.log" 2>&1 || true
+fi
+
 # --- Launch ----------------------------------------------------------------------
 # Launch through uwsm (universal wayland session manager): the compositor and
 # everything it spawns become proper systemd user units under the session scope
