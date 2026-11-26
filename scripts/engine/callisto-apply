@@ -79,28 +79,57 @@ def load_tokens() -> dict:
     return json.loads(SYSTEM_TOKENS.read_text())
 
 
-# --- Accent resolution -------------------------------------------------------
+# --- Scheme resolution -------------------------------------------------------
 
-# Accent presets named on the Settings board. Values are tonal-palette
-# primaries at the dark-scheme tone; the full palette derivation (matugen-
-# style tonal generation) is v2 — v1 ships fixed palettes per preset.
-ACCENTS = {
-    "planet": {"primary": "#B0C6FF", "on_primary": "#002D6E", "primary_container": "#00429B", "on_primary_container": "#D9E2FF"},
-    "hull": {"primary": "#A8C8FF", "on_primary": "#00306B", "primary_container": "#104895", "on_primary_container": "#D6E3FF"},
-    "rock": {"primary": "#C7C6CA", "on_primary": "#2F3033", "primary_container": "#454649", "on_primary_container": "#E3E2E6"},
-    "shadow": {"primary": "#8B919E", "on_primary": "#161B26", "primary_container": "#38404E", "on_primary_container": "#C5CBD9"},
-    "haze": {"primary": "#C3B8FF", "on_primary": "#3A2490", "primary_container": "#513AA7", "on_primary_container": "#E4DEFF"},
-}
+# Accents are named regions of the wallpaper. "wallpaper" (the default) means
+# the dominant color matugen extracts; the named presets are curated fallbacks
+# for users who want a fixed identity regardless of wallpaper. Color math is
+# matugen's — the engine shells out and reads its JSON, never reimplements
+# the tonal palette algorithm.
+def matugen_scheme(image_path: str) -> dict | None:
+    """Run matugen against a wallpaper, return {token_name: '#rrggbb'} for the
+    dark scheme, or None if matugen/image is unavailable."""
+    import shutil
+    import subprocess
+    if not shutil.which("matugen"):
+        log("matugen not installed — keeping default tokens")
+        return None
+    if not Path(image_path).exists():
+        log(f"wallpaper missing: {image_path} — keeping default tokens")
+        return None
+    try:
+        out = subprocess.run(
+            ["matugen", "image", image_path, "--dry-run", "-j", "hex",
+             "--type", "scheme-content", "--prefer", "darkness"],
+            capture_output=True, timeout=30, check=True).stdout
+        data = json.loads(out)
+    except Exception as e:
+        log(f"matugen failed: {e} — keeping default tokens")
+        return None
+    colors = data.get("colors", {})
+    scheme = {}
+    for name, entry in colors.items():
+        if isinstance(entry, dict) and "dark" in entry:
+            scheme[name] = entry["dark"]["color"].upper()
+    return scheme or None
 
 
 def resolve_tokens(store: dict, tokens: dict) -> dict:
-    """Apply accent + contrast onto the token set, return effective tokens."""
+    """Wallpaper/preset accent applied onto the token set. The token names in
+    tokens.json mirror Material role names, so a matugen scheme maps 1:1."""
     dark = dict(tokens["color"]["dark"])
-    accent = store.get("appearance", {}).get("accent", "planet")
-    preset = ACCENTS.get(accent)
-    if preset:
-        for key, val in preset.items():
-            dark[key] = val
+    appearance = store.get("appearance", {})
+    accent = appearance.get("accent", "wallpaper")
+    if accent == "wallpaper":
+        wallpaper = appearance.get(
+            "wallpaper", "/usr/share/backgrounds/callisto/wallpaper.jpg")
+        scheme = matugen_scheme(wallpaper)
+        if scheme:
+            # Tokens use snake_case role names identical to matugen's output;
+            # unknown roles in either direction are ignored.
+            for key, val in scheme.items():
+                if key in dark:
+                    dark[key] = val.upper()
     effective = dict(tokens)
     effective["color"] = dict(tokens["color"])
     effective["color"]["dark"] = dark

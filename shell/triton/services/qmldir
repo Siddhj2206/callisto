@@ -5,3 +5,4 @@ singleton QuickSettingsState 1.0 QuickSettingsState.qml
 singleton PowerState 1.0 PowerState.qml
 singleton ClipboardState 1.0 ClipboardState.qml
 singleton OverviewState 1.0 OverviewState.qml
+singleton SettingsService 1.0 SettingsService.qml

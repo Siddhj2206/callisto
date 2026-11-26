@@ -76,6 +76,20 @@ if command -v curl >/dev/null 2>&1; then
 fi
 fc-cache -f >/dev/null 2>&1 || true
 
+# --- matugen ------------------------------------------------------------------------
+# The theme engine's color brain. Not packaged in Debian; the upstream release
+# binary is fetched at build time (same mechanism as the fonts). Statically
+# linked musl build — no dependency risk inside the live system.
+if command -v curl >/dev/null 2>&1; then
+    curl -fsSL --max-time 120 -o /tmp/matugen.tar.gz \
+        "https://github.com/InioX/matugen/releases/download/v4.2.0/matugen-4.2.0-x86_64.tar.gz" \
+        && tar -xzf /tmp/matugen.tar.gz -C /tmp \
+        && install -m 0755 /tmp/matugen /usr/local/bin/matugen \
+        && echo "callisto: matugen installed" \
+        || echo "callisto: WARNING matugen fetch failed; wallpaper theming degrades to defaults" >&2
+    rm -f /tmp/matugen.tar.gz /tmp/matugen
+fi
+
 # --- Flatpak app layer ------------------------------------------------------------
 # Callisto follows the immutable-distro split: apt ships the system, Flathub
 # ships the applications. The app list lives in package-lists/callisto.flatpaks.txt
