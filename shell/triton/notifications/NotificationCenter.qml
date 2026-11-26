@@ -87,9 +87,22 @@ Rectangle {
 
         Item { width: 1; height: 4 }
 
-        // Groups.
-        Repeater {
-            model: root.groups
+        // Groups — inside a bounded Flickable: without scrolling the window
+        // clips away everything past the first screenful.
+        Flickable {
+            width: parent.width
+            height: Math.min(groupsCol.implicitHeight, 520)
+            contentWidth: width
+            contentHeight: groupsCol.implicitHeight
+            clip: true
+            boundsBehavior: Flickable.StopAtBounds
+
+            Column {
+                id: groupsCol
+                width: parent.width
+
+                Repeater {
+                    model: root.groups
 
             delegate: Column {
                 required property var modelData
@@ -301,6 +314,8 @@ Rectangle {
                         }
                     }
                 }
+            }
+        }
             }
         }
     }

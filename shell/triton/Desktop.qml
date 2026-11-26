@@ -39,7 +39,7 @@ PanelWindow {
         source: root.wallpaperPath !== "" ? "file://" + root.wallpaperPath : ""
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
-        cache: true
+        cache: false
         smooth: true
     }
 

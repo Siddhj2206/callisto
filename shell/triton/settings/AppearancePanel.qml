@@ -70,6 +70,8 @@ Item {
             anchors.fill: parent
             source: root.wallpaperPath !== "" ? "file://" + root.wallpaperPath : ""
             fillMode: Image.PreserveAspectCrop
+            asynchronous: true
+            cache: false
         }
 
         MouseArea {

@@ -58,7 +58,7 @@ Item {
     // Greeting.
     Column {
         anchors.horizontalCenter: parent.horizontalCenter
-        y: 270
+        y: Math.round(parent.height * 0.25)
         spacing: 12
 
         TritonText {
@@ -83,7 +83,7 @@ Item {
     // Connected group.
     Row {
         anchors.horizontalCenter: parent.horizontalCenter
-        y: 420
+        y: Math.round(parent.height * 0.39)
         spacing: 6
 
         Repeater {
@@ -178,7 +178,7 @@ Item {
     Rectangle {
         visible: root.unsavedText !== ""
         anchors.horizontalCenter: parent.horizontalCenter
-        y: 600
+        y: Math.round(parent.height * 0.56)
         height: 48
         width: warnRow.implicitWidth + 36
         radius: 24
@@ -209,7 +209,7 @@ Item {
     // Hints.
     Row {
         anchors.horizontalCenter: parent.horizontalCenter
-        y: 690
+        y: Math.round(parent.height * 0.64)
         spacing: 26
 
         Repeater {
