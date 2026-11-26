@@ -113,7 +113,13 @@ Item {
         }
         SettingRow {
             title: "Reveal delay"
-            supporting: "Pointer must rest this long"
+            supporting: SettingsService.get("shell", "revealDelay", 300) + " ms at the edge before the bar appears"
+            TritonSlider {
+                width: 250
+                // 0–1000 ms mapped onto 0..1
+                value: SettingsService.get("shell", "revealDelay", 300) / 1000
+                onMoved: v => SettingsService.set("shell", "revealDelay", Math.round(v * 10) * 100)
+            }
         }
         SettingRow {
             title: "Reveal on urgent notification"

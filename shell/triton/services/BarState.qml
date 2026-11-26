@@ -19,10 +19,20 @@ Singleton {
     onHoveringChanged: {
         if (hovering) {
             hideTimer.stop();
-            revealed = true;
+            // Reveal delay: the pointer must rest at the edge — bumping
+            // through it must not flash the bar.
+            revealTimer.interval = SettingsService.get("shell", "revealDelay", 300);
+            revealTimer.restart();
         } else {
+            revealTimer.stop();
             hideTimer.restart();
         }
+    }
+
+    Timer {
+        id: revealTimer
+        interval: 300
+        onTriggered: root.revealed = true
     }
 
     // Urgent-notification peek: 4 seconds, per the BarShell settings copy.
