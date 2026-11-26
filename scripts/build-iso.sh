@@ -3,8 +3,7 @@
 #
 # The build runs inside the callisto-iso-builder container image (see
 # Dockerfile.builder) so the host distribution and its package versions never
-# leak into the ISO. live-build must run rootful: loop device creation and
-# chroot mounts are impossible in a rootless container.
+# leak into the ISO. live-build runs rootless — verified end-to-end, iso-hybrid needs no loop devices.
 #
 # Inputs that determine the output bit-for-bit:
 #   * the git state of this repository
@@ -32,17 +31,17 @@ echo "==> Syncing configuration into includes.chroot"
 "$REPO_ROOT/scripts/sync-configs.sh"
 
 # --- Build container image ----------------------------------------------------
-if ! sudo podman image exists "$IMAGE"; then
+if ! podman image exists "$IMAGE"; then
     echo "==> Building $IMAGE"
-    sudo podman build -f "$REPO_ROOT/Dockerfile.builder" -t "$IMAGE" "$REPO_ROOT"
+    podman build -f "$REPO_ROOT/Dockerfile.builder" -t "$IMAGE" "$REPO_ROOT"
 fi
 
 # --- Run live-build inside the container ---------------------------------------
-# Rootful podman bind-mounts host /dev, so loop devices work. SELinux hosts
+# Rootless podman works for iso-hybrid builds. SELinux hosts
 # need :z on the volume. The repo is mounted at /work, live-build's own state
 # stays in live-build/.
 echo "==> Running live-build in container (this takes a while on first build)"
-sudo podman run --rm --privileged \
+podman run --rm --privileged \
     -v "$REPO_ROOT:/work:z" \
     -e SOURCE_DATE_EPOCH="$SOURCE_DATE_EPOCH" \
     -e CLEAN="${CLEAN:-0}" \
