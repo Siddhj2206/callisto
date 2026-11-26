@@ -22,7 +22,7 @@ Item {
     property var users: []
     property int selectedUser: 0
     property string selectedName: ""
-    property string sessionName: "niri"
+    property string sessionName: "Hyprland"
     property string layoutName: "US"
     property string networkName: ""
 

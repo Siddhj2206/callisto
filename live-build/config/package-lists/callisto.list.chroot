@@ -58,7 +58,7 @@ qt6ct
 fuzzel
 greetd
 tuigreet
-mako-notifier
+# mako-notifier removed — the shell IS the notification daemon
 foot
 wl-clipboard
 grim
