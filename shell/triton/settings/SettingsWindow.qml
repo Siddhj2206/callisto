@@ -64,6 +64,10 @@ Item {
             anchors.fill: parent
             visible: root.panel === 10
         }
+        SoundPanel {
+            anchors.fill: parent
+            visible: root.panel === 3
+        }
         DisplaysPanel {
             anchors.fill: parent
             visible: root.panel === 2
@@ -76,7 +80,7 @@ Item {
         // Other panels land one at a time with the mock-verify loop; the
         // shell must never show an empty pane.
         TritonText {
-            visible: ![2, 7, 8, 9, 10, 13].includes(root.panel)
+            visible: ![2, 3, 7, 8, 9, 10, 13].includes(root.panel)
             anchors.centerIn: parent
             text: "Panel " + root.panel + " — in progress"
             font.pixelSize: 20
