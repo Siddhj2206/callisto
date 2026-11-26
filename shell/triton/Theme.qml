@@ -89,6 +89,11 @@ QtObject {
     readonly property string fontMono: "JetBrains Mono"
     readonly property string fontIcons: "Material Symbols Rounded"
 
+    // Reduce motion: store-driven, shell-wide. Consumers scale their
+    // durations to zero when this is on — accessibility requirement, and it
+    // doubles as a low-power mode on weak compositors.
+    property bool reduceMotion: false
+
     // ---- Motion: [stiffness, damping_ratio] spring pairs ----
     readonly property var motionSpatialFast: [800, 0.6]
     readonly property var motionSpatialDefault: [380, 0.8]

@@ -208,6 +208,7 @@ ShellRoot {
         onFileChanged: reload()
         onLoaded: {
             try {
+                Theme.reduceMotion = SettingsService.get("shell", "reduceMotion", false);
                 Theme.applyUserTokens(JSON.parse(text()));
             } catch (e) {
                 console.warn("triton: user tokens unparseable, keeping compiled defaults:", e);
@@ -216,6 +217,15 @@ ShellRoot {
         onLoadFailed: {
             // No user tokens yet — compiled defaults apply. Normal before
             // the first settings change.
+        }
+    }
+
+    // reduceMotion follows the store reactively — it lives outside the
+    // tokens file since it's an accessibility preference, not a color role.
+    Connections {
+        target: SettingsService
+        function onStoreChanged() {
+            Theme.reduceMotion = SettingsService.get("shell", "reduceMotion", false);
         }
     }
 }
