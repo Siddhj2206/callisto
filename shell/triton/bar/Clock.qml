@@ -2,46 +2,53 @@ pragma ComponentBehavior: Bound
 
 import Quickshell
 import QtQuick
+import "../components"
 import ".."
 
-// The clock (BarStates `.clk`): big time in Jost 26px semibold beside the
-// smaller date ("Sat 21 Nov") in on-surface-variant. Board padding is
-// 0 16px 0 18px — 16/18px are off the spacing scale, derived from
-// `.clk{padding:0 16px 0 18px}`.
+// The clock (BarStates `.clk`): Jost 26px semibold time, Google Sans Flex
+// 14px medium date in on-surface-variant. The board aligns them on their
+// BASELINE (`.clk{display:flex;align-items:baseline;gap:12px;padding:0 16px
+// 0 18px}`).
 //
-// SystemClock drives the text; no `new Date()` in bindings.
+// Baseline alignment in QML: Text exposes `baselineOffset` — the distance
+// from the item's top to the baseline. Sharing one baseline target therefore
+// means: child.y = baseline - child.baselineOffset. The baseline itself is
+// chosen so the digit cap height (no descenders in HH:mm) centers optically
+// in the island: capHeight ≈ 0.72 × 26px for Jost, so the baseline sits at
+// center + capHeight/2.
 
 Item {
     id: root
-
-    implicitWidth: row.implicitWidth + 18 + 16
-    implicitHeight: Theme.barHeight
 
     SystemClock {
         id: clock
         precision: SystemClock.Minutes
     }
 
-    Row {
-        id: row
-        anchors.centerIn: parent
-        spacing: 12 // board: .clk gap 12px
+    implicitWidth: timeText.width + 12 + dateText.width + 18 + 16 // board .clk padding
+    implicitHeight: Theme.barHeight
 
-        Text {
-            anchors.baseline: dateText.baseline
-            text: Qt.formatDateTime(clock.date, "HH:mm")
-            color: Theme.onsurface
-            font.family: "Jost SemiBold"
-            font.pixelSize: 26
-        }
+    readonly property real capHeight: 26 * 0.72 // Jost digits, no descenders
+    readonly property real baselineY: height / 2 + capHeight / 2
 
-        Text {
-            id: dateText
-            text: Qt.formatDateTime(clock.date, "ddd d MMM")
-            color: Theme.onsurfacevariant
-            font.family: "Google Sans Flex"
-            font.weight: Font.Medium
-            font.pixelSize: 14
-        }
+    TritonText {
+        id: timeText
+        y: root.baselineY - baselineOffset
+        x: 18
+        text: Qt.formatDateTime(clock.date, "HH:mm")
+        family: TritonText.Family.Display
+        weight: TritonText.Weight.SemiBold
+        font.pixelSize: 26
+        color: Theme.onsurface
+    }
+
+    TritonText {
+        id: dateText
+        y: root.baselineY - baselineOffset
+        x: 18 + timeText.width + 12
+        text: Qt.formatDateTime(clock.date, "ddd d MMM")
+        weight: TritonText.Weight.Medium
+        font.pixelSize: 14
+        color: Theme.onsurfacevariant
     }
 }

@@ -218,7 +218,9 @@ def main() -> int:
             if len(parts) != 2:
                 continue
             name, cp = parts
-            prop = re.sub(r"_([a-z])", lambda m: m.group(1).upper(), name)
+            # snake_case -> camelCase. Underscores before digits disappear
+            # entirely (battery_5_bar -> battery5Bar), letters capitalize.
+            prop = re.sub(r"_([a-z0-9])", lambda m: m.group(1).upper() if m.group(1).isalpha() else m.group(1), name)
             if prop[0].isdigit():
                 prop = "icon" + prop
             if prop in RESERVED:
