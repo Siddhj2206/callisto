@@ -296,7 +296,20 @@ ShellRoot {
         interval: 60000
         running: Theme.userTokens !== null
         repeat: true
-        onTriggered: Theme.applyUserTokens(Theme.userTokens)
+        property string lastMode: ""
+        onTriggered: {
+            const before = Theme.activeMode;
+            Theme.applyUserTokens(Theme.userTokens);
+            // Crossing the day/night boundary re-runs the engine so external
+            // apps (gtk, foot, flatpaks via the portal) follow the flip.
+            if (Theme.activeMode !== before)
+                autoFlipProc.running = true;
+        }
+    }
+
+    Process {
+        id: autoFlipProc
+        command: ["callisto-apply"]
     }
 
     // reduceMotion follows the store reactively — it lives outside the
