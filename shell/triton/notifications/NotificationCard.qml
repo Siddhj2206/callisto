@@ -52,6 +52,15 @@ Item {
     implicitWidth: 400
     implicitHeight: cardCol.implicitHeight + 28
 
+    // Click-to-dismiss area is FIRST — behind all interactive content.
+    // (It was last originally, which put it on top of the reply field and
+    // action buttons, eating every click: the entire action system was dead.)
+    MouseArea {
+        anchors.fill: parent
+        z: -1
+        onClicked: root.clicked()
+    }
+
     // Asymmetric card body: 24px everywhere except bottom-left at 10px.
     RoundedRect {
         anchors.fill: parent

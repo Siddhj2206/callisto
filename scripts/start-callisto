@@ -10,9 +10,10 @@
 # a session that never starts is worse than an ugly one.
 
 # --- Session identity ----------------------------------------------------------
-export XDG_SESSION_TYPE=wayland
-export XDG_SESSION_DESKTOP=Hyprland
-export XDG_CURRENT_DESKTOP=Hyprland
+# XDG_SESSION_TYPE / XDG_CURRENT_DESKTOP / XDG_SESSION_DESKTOP are set by uwsm
+# itself from the wayland-session entry — exporting them here creates the
+# dual-environment desync (login shell env vs systemd activation env) that
+# silently breaks portals. Deliberately not set.
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 
 # --- Input device quirks --------------------------------------------------------
@@ -60,9 +61,11 @@ fi
 # — correct ordering with pipewire/wireplumber, clean shutdown on logout, and
 # per-service restart instead of exec-once hacks in the compositor config.
 # Prefer the packaged desktop entry id; fall back to a bare command line.
+# The entry is hyprland.desktop — hyprland-uwsm.desktop itself execs
+# `uwsm start`; pointing uwsm at it double-nests the session manager.
 if command -v uwsm >/dev/null 2>&1; then
-    if ls /usr/share/wayland-sessions/hyprland-uwsm.desktop >/dev/null 2>&1; then
-        exec uwsm start hyprland-uwsm.desktop >>"$LOGDIR/hyprland.log" 2>&1
+    if [[ -f /usr/share/wayland-sessions/hyprland.desktop ]]; then
+        exec uwsm start hyprland.desktop >>"$LOGDIR/hyprland.log" 2>&1
     fi
     exec uwsm start -- Hyprland >>"$LOGDIR/hyprland.log" 2>&1
 fi

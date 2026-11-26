@@ -19,21 +19,17 @@ PanelWindow {
 
     anchors { top: true; left: true; right: true; bottom: true }
     color: "transparent"
-    visible: false
+    // Visibility is a pure binding on the state singleton. The old copy-out
+    // property + imperative onOpenChanged only ever opened — IPC-driven close
+    // paths (qs ipc call launcher toggle) left the window visible with
+    // exclusive keyboard focus while the state thought it was closed.
+    visible: LauncherState.open
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: visible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     exclusionMode: ExclusionMode.Ignore
 
-    property bool open: LauncherState.open
-
-    onOpenChanged: {
-        if (open)
-            visible = true;
-    }
-
     function dismiss() {
         LauncherState.dismiss();
-        root.visible = false;
     }
 
     // 30% black scrim (Launcher board). Clicking it dismisses.

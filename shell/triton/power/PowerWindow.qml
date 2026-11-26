@@ -29,9 +29,18 @@ PanelWindow {
         onCancel: PowerState.dismiss()
         onActionTriggered: idx => {
             PowerState.dismiss();
-            // Session actions (loginctl/systemctl) arrive with the session
-            // service — for now the menu closes and the action is logged.
-            console.log("POWER action:", idx);
+            // PowerMenu order: lock, sleep, logout, restart, shutdown.
+            // Logout goes through uwsm stop — the compositor must never be
+            // killed or exited directly (units tear down in the wrong order).
+            const cmds = [
+                ["loginctl", "lock-session"],
+                ["systemctl", "suspend"],
+                ["uwsm", "stop"],
+                ["systemctl", "reboot"],
+                ["systemctl", "poweroff"],
+            ];
+            if (idx >= 0 && idx < cmds.length)
+                Quickshell.execDetached(cmds[idx]);
         }
     }
 }

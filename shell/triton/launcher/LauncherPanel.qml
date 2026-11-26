@@ -69,7 +69,6 @@ Rectangle {
 
     // Keyboard navigation per the footer hints. Returns true if handled.
     function keyPressed(event) {
-        console.log("KEY:", event.key);
         const rows = results.filter(r => r.kind !== "label");
         if (event.key === Qt.Key_Down) {
             selection = Math.min(selection + 1, rows.length - 1);
@@ -87,13 +86,6 @@ Rectangle {
     }
 
     onQueryChanged: input.text = root.query
-
-    Timer {
-        interval: 2000
-        running: true
-        repeat: false
-        onTriggered: console.log("FOCUS input:", input.activeFocus, "panel window focus:", root.Window.window ? root.Window.window.activeFocusItem !== null : "no-window")
-    }
 
     // Focus arrives with window activation, not component completion — layer
     // surfaces are granted keyboard focus by the compositor after mapping,
@@ -154,7 +146,6 @@ Rectangle {
                     width: 0
                     height: 0
                     Keys.onPressed: event => {
-                        console.log("NAVKEY interceptor saw:", event.key);
                         if (event.key === Qt.Key_Down || event.key === Qt.Key_Up ||
                             event.key === Qt.Key_Return || event.key === Qt.Key_Enter ||
                             event.key === Qt.Key_Escape) {

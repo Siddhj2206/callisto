@@ -90,6 +90,39 @@ done
 # greetd owns VT1; a getty there races it on boot and fragments the session.
 systemctl mask getty@tty1.service 2>/dev/null || true
 
+# --- Desktop integration services ----------------------------------------------
+# The polkit authentication agent runs as a systemd user unit — enabled for
+# all users here (the modern autostart path; no exec-once in the compositor
+# config). Without it every privileged action in the session silently fails.
+systemctl --global enable hyprpolkitagent.service 2>/dev/null \
+    || echo "callisto: WARNING could not enable hyprpolkitagent" >&2
+
+# xdg-user-dirs-update creates ~/Documents ~/Downloads etc. on first login —
+# flatpak file pickers and portals break in confusing ways without them.
+systemctl --global enable xdg-user-dirs-update.service 2>/dev/null || true
+
+# Appearance defaults through gsettings: xdg-desktop-portal-gtk re-publishes
+# org.gnome.desktop.interface color-scheme as the freedesktop appearance
+# portal key — this single key is how dark mode reaches GTK4/libadwaita,
+# Firefox, Electron, and every flatpak. Seeding system-wide dconf defaults;
+# the theme engine writes the per-user key on every apply.
+mkdir -p /etc/dconf/db/local.d
+cat > /etc/dconf/db/local.d/00-callisto <<'DCONF'
+[org/gnome/desktop/interface]
+color-scheme='prefer-dark'
+gtk-theme='Adwaita'
+cursor-theme='Adwaita'
+cursor-size=24
+font-name='Inter 10'
+DCONF
+if [ -d /etc/dconf/db/local.d ] && command -v dconf >/dev/null 2>&1; then
+    mkdir -p /etc/dconf/profile
+    if [ ! -f /etc/dconf/profile/user ]; then
+        printf 'user-db:user\nsystem-db:local\n' > /etc/dconf/profile/user
+    fi
+    dconf update 2>/dev/null || echo "callisto: WARNING dconf update failed" >&2
+fi
+
 # --- Hardware services -------------------------------------------------------------
 systemctl enable power-profiles-daemon.service 2>/dev/null || true
 

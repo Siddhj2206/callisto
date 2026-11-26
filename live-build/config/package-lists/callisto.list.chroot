@@ -17,6 +17,9 @@ systemd-sysv
 
 # --- Core session infrastructure ----------------------------------------------
 dbus-user-session
+# dbus-broker reuses the systemd activation environment — reference dbus-daemon
+# can't unset vars, which is how stale session env leaks across logout/login.
+dbus-broker
 polkitd
 hyprpolkitagent
 seatd
@@ -46,12 +49,15 @@ hyprland
 quickshell
 uwsm
 qt6-wayland
+# QT_QPA_PLATFORMTHEME=qt6ct (set in /etc/xdg/uwsm/env): Qt apps autoselect
+# nothing useful on Hyprland sessions, and hyprqt6engine isn't packaged in
+# Debian. The engine generates qt6ct's color scheme from the Triton tokens.
+qt6ct
 
 # --- Desktop furniture (part of the OS, not apps) -------------------------------
 fuzzel
 greetd
 tuigreet
-swaybg
 mako-notifier
 foot
 wl-clipboard

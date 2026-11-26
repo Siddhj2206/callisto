@@ -36,8 +36,8 @@ Item {
             title: "Key repeat"
             supporting: "Held keys repeat automatically"
             TritonSwitch {
-                on: SettingsService.get("keyboard", "repeat", true)
-                onToggled: v => SettingsService.set("keyboard", "repeat", v)
+                on: SettingsService.get("input", "repeat", true)
+                onToggled: v => SettingsService.set("input", "repeat", v)
             }
         }
 

@@ -54,6 +54,14 @@ Singleton {
     // The store write goes through sh so directory creation and the write
     // happen in one process — FileView does not create missing directories,
     // and the first-ever save is exactly when the directory doesn't exist.
+    //
+    // Writes are serialized: only one writer process at a time. Anything
+    // that arrives while it's running is held in pendingPayload and flushed
+    // when the writer exits — otherwise rapid writes (slider drags) are
+    // silently dropped while the store has already moved on.
+    property string pendingPayload: ""
+    property bool writeDirty: false
+
     Process {
         id: writeProc
         command: ["sh", "-c", "mkdir -p \"$HOME/.config/callisto\" && cat > \"$HOME/.config/callisto/settings.json\""]
@@ -66,6 +74,16 @@ Singleton {
             stdinEnabled = false;
         }
         onExited: (code, status) => {
+            if (root.writeDirty) {
+                // A newer write queued while we were flushing — flush it now.
+                root.writeDirty = false;
+                writeProc.payload = root.pendingPayload;
+                writeProc.stdinEnabled = true;
+                writeProc.running = true;
+                return;
+            }
+            // The final write of a burst triggers one apply. Rapid sets are
+            // debounced by nature of the write queue: one apply per flush.
             if (!applyProc.running)
                 applyProc.running = true;
         }
@@ -85,8 +103,15 @@ Singleton {
             next[section] = {};
         next[section][key] = value;
         root.store = next;
-        writeProc.payload = JSON.stringify(next, null, 2) + "\n";
-        writeProc.stdinEnabled = true;
-        writeProc.running = true;
+        const payload = JSON.stringify(next, null, 2) + "\n";
+        if (writeProc.running) {
+            // Writer busy — queue the newest snapshot; it always wins.
+            root.pendingPayload = payload;
+            root.writeDirty = true;
+        } else {
+            writeProc.payload = payload;
+            writeProc.stdinEnabled = true;
+            writeProc.running = true;
+        }
     }
 }

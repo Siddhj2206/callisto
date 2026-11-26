@@ -21,7 +21,7 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.namespace: "triton-wallpaper"
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+    WlrLayershell.keyboardFocus: visible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     anchors {
         top: true
@@ -53,28 +53,52 @@ PanelWindow {
 
     function preview() {
         // Live preview: the desktop layer follows this path immediately.
+        // Both channels always move together — the stale one must be cleared
+        // or an old generative preview shadows a later image preview forever.
         const w = wallpapers[selected];
-        if (w.kind === "image")
+        if (w.kind === "image") {
             WallpaperState.previewPath = w.path;
-        else
+            WallpaperState.previewKind = "";
+        } else {
             WallpaperState.previewKind = w.kind;
+            WallpaperState.previewPath = "";
+        }
     }
 
     function commit() {
         const w = wallpapers[selected];
+        // Write BOTH channels — whichever one doesn't apply must be cleared,
+        // or Desktop's generative Loader stays active over image wallpapers
+        // permanently (once a kind is in the store, an image can never win).
         if (w.kind === "image") {
             SettingsService.set("appearance", "wallpaper", w.path);
+            SettingsService.set("appearance", "wallpaperKind", "");
         } else {
             SettingsService.set("appearance", "wallpaperKind", w.kind);
+            SettingsService.set("appearance", "wallpaper", "");
         }
         applied = selected;
         WallpaperState.close(false);
     }
 
+    // The currently-applied wallpaper, derived from the store — the local
+    // `applied` index is only a within-session convenience.
+    function appliedIndex() {
+        const kind = SettingsService.get("appearance", "wallpaperKind", "");
+        const path = SettingsService.get("appearance", "wallpaper", "");
+        for (let i = 0; i < wallpapers.length; i++) {
+            const w = wallpapers[i];
+            if (kind !== "" && w.kind === kind) return i;
+            if (kind === "" && path !== "" && w.kind === "image" && w.path === path) return i;
+        }
+        return 0; // Orbit default
+    }
+
     onVisibleChanged: {
         if (visible) {
             // Opening selects the currently-applied wallpaper.
-            selected = applied;
+            selected = appliedIndex();
+            applied = selected;
             preview();
         }
     }

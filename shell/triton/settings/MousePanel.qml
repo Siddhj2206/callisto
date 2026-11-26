@@ -28,8 +28,8 @@ Item {
             title: "Natural scrolling"
             supporting: "Content moves with your fingers"
             TritonSwitch {
-                on: SettingsService.get("mouse", "naturalScroll", true)
-                onToggled: v => SettingsService.set("mouse", "naturalScroll", v)
+                on: SettingsService.get("input", "naturalScroll", true)
+                onToggled: v => SettingsService.set("input", "naturalScroll", v)
             }
         }
 
@@ -38,8 +38,8 @@ Item {
             title: "Tap to click"
             supporting: "A light tap registers as a click"
             TritonSwitch {
-                on: SettingsService.get("mouse", "tapToClick", true)
-                onToggled: v => SettingsService.set("mouse", "tapToClick", v)
+                on: SettingsService.get("input", "tapToClick", true)
+                onToggled: v => SettingsService.set("input", "tapToClick", v)
             }
         }
 

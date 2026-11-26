@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import Quickshell
 import Quickshell.Io
+import Quickshell.Services.Pipewire
 import QtQuick
 import "bar"
 import "launcher"
@@ -97,6 +98,49 @@ ShellRoot {
         }
     }
 
+    // OSD producers: the default sink's volume/mute drives the OSD whenever
+    // anything (keys, quicksettings slider, another app) changes it. The
+    // first observation is skipped so boot doesn't flash the volume OSD.
+    PwObjectTracker { objects: [Pipewire.defaultAudioSink] }
+
+    Connections {
+        target: Pipewire.defaultAudioSink ? Pipewire.defaultAudioSink.audio : null
+
+        property bool primed: false
+        property real lastVolume: -1
+        property bool lastMuted: false
+
+        function onVolumeChanged() {
+            if (!Pipewire.defaultAudioSink || !Pipewire.defaultAudioSink.audio)
+                return;
+            const v = Pipewire.defaultAudioSink.audio.volume;
+            if (!primed) {
+                primed = true;
+                lastVolume = v;
+                return;
+            }
+            if (Math.abs(v - lastVolume) > 0.001) {
+                lastVolume = v;
+                OsdState.show(Osd.Variant.Volume, { value: v, icon: Icons.volumeUp });
+            }
+        }
+
+        function onMutedChanged() {
+            if (!Pipewire.defaultAudioSink || !Pipewire.defaultAudioSink.audio)
+                return;
+            const m = Pipewire.defaultAudioSink.audio.muted;
+            if (m !== lastMuted) {
+                lastMuted = m;
+                if (primed) {
+                    if (m)
+                        OsdState.show(Osd.Variant.Muted, { icon: Icons.volumeOff });
+                    else
+                        OsdState.show(Osd.Variant.Volume, { value: Pipewire.defaultAudioSink.audio.volume, icon: Icons.volumeUp });
+                }
+            }
+        }
+    }
+
     // IPC: Hyprland keybinds and user scripts drive shell surfaces through
     // `qs ipc call <target> <function>` — no socket hacks, no dotfile
     // editing. The settings app uses the same channel for live preview.
@@ -110,7 +154,7 @@ ShellRoot {
     }
     IpcHandler {
         target: "notifications"
-        function toggle(): void { NotificationState.centerOpen = !NotificationState.centerOpen; }
+        function toggle(): void { NotificationState.toggle(); }
     }
     IpcHandler {
         target: "clipboard"
@@ -131,6 +175,10 @@ ShellRoot {
     IpcHandler {
         target: "bar"
         function toggle(): void { BarState.toggle(); }
+    }
+    IpcHandler {
+        target: "osd"
+        function volume(value: real): void { OsdState.show(Osd.Variant.Volume, { value: value, icon: Icons.volumeUp }); }
     }
     IpcHandler {
         target: "wallpaper"

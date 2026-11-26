@@ -86,9 +86,33 @@ def load_tokens() -> dict:
 # for users who want a fixed identity regardless of wallpaper. Color math is
 # matugen's — the engine shells out and reads its JSON, never reimplements
 # the tonal palette algorithm.
+SCHEME_CACHE = Path.home() / ".cache" / "callisto" / "scheme-cache.json"
+
+
+def cached_scheme(cache_key: str) -> dict | None:
+    """Return a previously computed scheme for this exact input, or None."""
+    try:
+        cache = json.loads(SCHEME_CACHE.read_text())
+        if cache.get("key") == cache_key:
+            return cache.get("scheme")
+    except Exception:
+        pass
+    return None
+
+
+def store_scheme(cache_key: str, scheme: dict) -> None:
+    try:
+        SCHEME_CACHE.parent.mkdir(parents=True, exist_ok=True)
+        SCHEME_CACHE.write_text(json.dumps({"key": cache_key, "scheme": scheme}))
+    except Exception:
+        pass
+
+
 def matugen_scheme(image_path: str) -> dict | None:
     """Run matugen against a wallpaper, return {token_name: '#rrggbb'} for the
-    dark scheme, or None if matugen/image is unavailable."""
+    dark scheme, or None if matugen/image is unavailable. Results are cached
+    keyed on path+mtime — every settings write runs the engine, and respawning
+    matugen for unrelated keys is how you get a subprocess storm."""
     import shutil
     import subprocess
     if not shutil.which("matugen"):
@@ -97,6 +121,14 @@ def matugen_scheme(image_path: str) -> dict | None:
     if not Path(image_path).exists():
         log(f"wallpaper missing: {image_path} — keeping default tokens")
         return None
+    try:
+        mtime = Path(image_path).stat().st_mtime
+    except OSError:
+        mtime = 0
+    cache_key = f"image:{image_path}:{mtime}"
+    hit = cached_scheme(cache_key)
+    if hit is not None:
+        return hit
     try:
         out = subprocess.run(
             ["matugen", "image", image_path, "--dry-run", "-j", "hex",
@@ -111,6 +143,8 @@ def matugen_scheme(image_path: str) -> dict | None:
     for name, entry in colors.items():
         if isinstance(entry, dict) and "dark" in entry:
             scheme[name] = entry["dark"]["color"].upper()
+    if scheme:
+        store_scheme(cache_key, scheme)
     return scheme or None
 
 
@@ -133,6 +167,10 @@ def matugen_color_scheme(hex_seed: str) -> dict | None:
     import subprocess
     if not shutil.which("matugen"):
         return None
+    cache_key = f"color:{hex_seed}"
+    hit = cached_scheme(cache_key)
+    if hit is not None:
+        return hit
     try:
         out = subprocess.run(
             ["matugen", "color", "hex", hex_seed, "--dry-run", "-j", "hex",
@@ -147,6 +185,8 @@ def matugen_color_scheme(hex_seed: str) -> dict | None:
     for name, entry in colors.items():
         if isinstance(entry, dict) and "dark" in entry:
             scheme[name] = entry["dark"]["color"].upper()
+    if scheme:
+        store_scheme(cache_key, scheme)
     return scheme or None
 
 
@@ -265,16 +305,37 @@ def emit_hyprland_user(store: dict, tokens: dict) -> str:
     return "\n".join(lines)
 
 
-def apply_live(store: dict) -> None:
+def apply_live(store: dict, tokens: dict) -> None:
     """Push what can be pushed live right now."""
     if DRY:
         return
     # hyprctl reload is cheap and safe; keyword pushes target the few values
     # that need instant effect. Errors are non-fatal — the compositor may not
     # be running (build-time seeding, greeter phase).
+    # Targeted keyword pushes: instant effect, no config reload flicker.
+    # Errors are non-fatal — the compositor may not be running (build-time
+    # seeding, greeter phase, first boot before Hyprland starts).
     import subprocess
+    windows = store.get("windows", {})
+    input_s = store.get("input", {})
+    # Use the in-memory effective tokens — re-reading our own output file
+    # raced/skipped writes and pushed fallback gray borders on accent changes.
+    dark = tokens["color"]["dark"]["primary"].lstrip("#")
+    inactive = "44474f"
+    keywords = [
+        ("general:col.active_border", f"rgba({dark}aa)"),
+        ("general:col.inactive_border", f"rgba({inactive}44)"),
+        ("input:kb_layout", str(input_s.get("keyboardLayout", "us"))),
+        ("input:follow_mouse", str(1 if windows.get("focusFollowsMouse", True) else 0)),
+        ("input:touchpad:natural_scroll", "true" if input_s.get("naturalScroll", True) else "false"),
+        ("input:touchpad:tap-to-click", "true" if input_s.get("tapToClick", True) else "false"),
+        ("input:repeat_rate", str(input_s.get("repeatRate", 25))),
+        ("input:repeat_delay", str(input_s.get("repeatDelay", 400))),
+    ]
     try:
-        subprocess.run(["hyprctl", "reload"], capture_output=True, timeout=5)
+        for key, val in keywords:
+            subprocess.run(["hyprctl", "keyword", key, val],
+                           capture_output=True, timeout=3)
     except Exception:
         pass
 
@@ -297,7 +358,7 @@ def main() -> int:
     if atomic_write(XDG_CONFIG / "hypr" / "callisto-user.conf", emit_hyprland_user(store, effective)):
         changed.append("hyprland user config")
 
-    apply_live(store)
+    apply_live(store, effective)
     if changed:
         log("applied: " + ", ".join(changed))
     else:

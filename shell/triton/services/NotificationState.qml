@@ -40,7 +40,7 @@ Singleton {
                 app: notification.appName || "App",
                 title: notification.summary || "",
                 preview: notification.body || "",
-                time: "now",
+                time: Qt.formatTime(new Date(), "h:mm ap"),
                 critical: notification.urgency === NotificationUrgency.Critical,
                 icon: notification.appIcon || "",
             });
@@ -50,14 +50,14 @@ Singleton {
     function addNotification(n) {
         const showToast = !root.dndActive || n.critical;
         if (showToast) {
+            // Stamp expiry at insertion — every toast expires independently
+            // (a single restarted timer only ever expired the newest one).
+            if (!n.critical)
+                n.expiresAt = Date.now() + 6000;
             const t = root.toasts.slice();
             t.push(n);
             root.toasts = t;
-            if (!n.critical) {
-                // expire after 6s
-                expireTimer.item = n;
-                expireTimer.restart();
-            }
+            sweepTimer.running = true;
         }
         root.unreadCount++;
         root.rebuildGroups(n);
@@ -70,6 +70,7 @@ Singleton {
             const g = Object.assign({}, gs[i]);
             g.items = [n].concat(g.items || []);
             g.count = (g.count || 0) + 1;
+            g.countText = String(g.count);
             gs[i] = g;
         } else {
             gs.unshift({
@@ -98,10 +99,32 @@ Singleton {
         root.unreadCount = 0;
     }
 
-    property var expireTimer: Timer {
-        id: expireTimer
-        property var item: null
-        interval: 6000
-        onTriggered: if (item) root.dismissToast(item)
+    // One slow sweep drops everything past its own expiry timestamp —
+    // expiry is per-toast, the timer is just the garbage collector.
+    property var sweepTimer: Timer {
+        interval: 1000
+        repeat: true
+        onTriggered: {
+            const now = Date.now();
+            const alive = root.toasts.filter(t => t.critical || !t.expiresAt || t.expiresAt > now);
+            if (alive.length !== root.toasts.length)
+                root.toasts = alive;
+            if (alive.length === 0)
+                running = false;
+        }
+    }
+
+    // Center group expansion: the chevron in NotificationCenter flips this.
+    function toggleGroup(idx) {
+        const gs = root.groups.slice();
+        const g = Object.assign({}, gs[idx]);
+        g.expanded = !g.expanded;
+        gs[idx] = g;
+        root.groups = gs;
+    }
+
+    // Uniform surface API — every state singleton answers toggle().
+    function toggle() {
+        root.centerOpen = !root.centerOpen;
     }
 }
