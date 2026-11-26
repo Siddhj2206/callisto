@@ -134,10 +134,15 @@ Item {
 
         SettingRow {
             title: "Scale"
-            supporting: "Physical 2880 × 1800 · 1.75× gives 1646 × 1029"
+            supporting: SettingsService.get("display", "scale", 1.0) + "× — fractional scales render crisp on Wayland"
             TritonSlider {
                 width: 250
-                value: 0.7
+                // Stops 1.0–2.0 in 0.25 steps, snapped on release.
+                value: (SettingsService.get("display", "scale", 1.0) - 1.0)
+                onMoved: v => {
+                    const snapped = 1.0 + Math.round(v * 4) / 4;
+                    SettingsService.set("display", "scale", snapped);
+                }
             }
         }
 
@@ -149,27 +154,34 @@ Item {
 
                 Repeater {
                     model: [
-                        { label: "60 Hz", on: false },
-                        { label: "120 Hz", on: true },
-                        { label: "VRR", on: false },
+                        { label: "60 Hz", key: "60" },
+                        { label: "120 Hz", key: "120" },
+                        { label: "Auto", key: "auto" },
                     ]
 
                     delegate: Rectangle {
                         id: rrChip
                         required property var modelData
                         height: 36
-                        width: rrLabel.implicitWidth + 32 + (modelData.on ? 20 : 0)
+                        property bool active: SettingsService.get("display", "refreshRate", "auto") === modelData.key
+                        width: rrLabel.implicitWidth + 32 + (active ? 20 : 0)
                         radius: 10
-                        color: modelData.on ? Theme.primary : "transparent"
-                        border.width: modelData.on ? 0 : 1
+                        color: active ? Theme.primary : "transparent"
+                        border.width: active ? 0 : 1
                         border.color: Theme.outline
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: SettingsService.set("display", "refreshRate", rrChip.modelData.key)
+                        }
 
                         Row {
                             anchors.centerIn: parent
                             spacing: 6
 
                             TritonIcon {
-                                visible: rrChip.modelData.on
+                                visible: rrChip.active
                                 glyph: Icons.check
                                 fill: true
                                 size: 16
@@ -181,7 +193,7 @@ Item {
                                 text: rrChip.modelData.label
                                 weight: TritonText.Weight.Medium
                                 font.pixelSize: 13
-                                color: rrChip.modelData.on ? Theme.onprimary : Theme.onsurface
+                                color: rrChip.active ? Theme.onprimary : Theme.onsurface
                                 anchors.verticalCenter: parent.verticalCenter
                             }
                         }
@@ -192,9 +204,10 @@ Item {
 
         SettingRow {
             title: "Variable refresh rate"
-            supporting: "Drops to 48 Hz on static content"
+            supporting: "Drops to lower rates on static content"
             TritonSwitch {
-                on: true
+                on: SettingsService.get("display", "vrr", true)
+                onToggled: v => SettingsService.set("display", "vrr", v)
             }
         }
 

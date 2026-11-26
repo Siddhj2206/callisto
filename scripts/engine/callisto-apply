@@ -412,6 +412,13 @@ def emit_hyprland_user(store: dict, tokens: dict) -> str:
         "})",
         "",
     ]
+
+    # Monitor scale: persisted rule so the scaling survives restart, not just
+    # the live keyword push. Applies to all displays (unnamed glob).
+    scale = store.get("display", {}).get("scale", 1.0)
+    if scale != 1.0:
+        lines.append(f'hl.monitor(",preferred,auto,{scale}")')
+        lines.append("")
     return "\n".join(lines)
 
 
@@ -442,7 +449,17 @@ def apply_live(store: dict, tokens: dict) -> None:
         ("input:repeat_rate", str(input_s.get("repeatRate", 25))),
         ("input:repeat_delay", str(input_s.get("repeatDelay", 400))),
         ("input:sensitivity", str(input_s.get("sensitivity", 0.0))),
+        ("misc:vrr", "1" if store.get("display", {}).get("vrr", True) else "0"),
     ]
+    # Monitor scale: needs a monitor rule, not a section keyword.
+    scale = store.get("display", {}).get("scale", 1.0)
+    if scale != 1.0:
+        try:
+            subprocess.run(["hyprctl", "keyword", "monitor",
+                            f",preferred,auto,{scale}"],
+                           capture_output=True, timeout=3)
+        except Exception:
+            pass
     try:
         for key, val in keywords:
             subprocess.run(["hyprctl", "keyword", key, val],
