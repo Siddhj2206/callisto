@@ -21,12 +21,15 @@ PanelWindow {
 
     Overview {
         anchors.fill: parent
-        workspaces: [
-            { num: 1, name: "Work", count: 0, active: true },
-        ]
-        ribbons: [ { windows: [] } ]
+        workspaces: OverviewService.workspaces
+        ribbons: OverviewService.ribbons
 
-        onWindowPicked: OverviewState.dismiss()
+        onWindowPicked: (ribbon, idx) => {
+            const wins = OverviewService.ribbons[ribbon] ? OverviewService.ribbons[ribbon].windows : [];
+            if (wins[idx])
+                OverviewService.activateWindow(wins[idx]);
+            OverviewState.dismiss();
+        }
         onCancelled: OverviewState.dismiss()
     }
 }

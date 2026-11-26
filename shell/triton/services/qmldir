@@ -13,3 +13,4 @@ singleton LauncherService 1.0 LauncherService.qml
 singleton LockState 1.0 LockState.qml
 singleton NetworkService 1.0 NetworkService.qml
 singleton BluetoothService 1.0 BluetoothService.qml
+singleton OverviewService 1.0 OverviewService.qml
