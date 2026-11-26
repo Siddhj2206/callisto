@@ -21,11 +21,12 @@ ENV DEBIAN_FRONTEND=noninteractive
 # quickshell needs backports pinning; sway and the rest are in stable.
 RUN echo 'deb http://deb.debian.org/debian trixie-backports main contrib non-free-firmware' \
         > /etc/apt/sources.list.d/backports.list \
-    && printf 'Package: quickshell libxkbcommon* libinput* libwayland*\nPin: release n=trixie-backports\nPin-Priority: 600\n' \
+    && printf 'Package: quickshell hyprland libaquamarine* libhypr* libxkbcommon* libinput* libwayland*\nPin: release n=trixie-backports\nPin-Priority: 600\n' \
         > /etc/apt/preferences.d/backports-pin \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
         quickshell \
+        hyprland \
         sway \
         xwayland \
         fuzzel \

@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import Quickshell
+import Quickshell.Io
 import QtQuick
 import "bar"
 import "launcher"
@@ -58,4 +59,32 @@ ShellRoot {
     ClipboardWindow {}
 
     OverviewWindow {}
+
+    // IPC: Hyprland keybinds and user scripts drive shell surfaces through
+    // `qs ipc call <target> <function>` — no socket hacks, no dotfile
+    // editing. The settings app uses the same channel for live preview.
+    IpcHandler {
+        target: "launcher"
+        function toggle(): void { LauncherState.toggle(); }
+    }
+    IpcHandler {
+        target: "quicksettings"
+        function toggle(): void { QuickSettingsState.toggle(); }
+    }
+    IpcHandler {
+        target: "notifications"
+        function toggle(): void { NotificationState.centerOpen = !NotificationState.centerOpen; }
+    }
+    IpcHandler {
+        target: "clipboard"
+        function toggle(): void { ClipboardState.toggle(); }
+    }
+    IpcHandler {
+        target: "power"
+        function toggle(): void { PowerState.toggle(); }
+    }
+    IpcHandler {
+        target: "overview"
+        function toggle(): void { OverviewState.toggle(); }
+    }
 }

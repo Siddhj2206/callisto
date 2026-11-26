@@ -58,6 +58,9 @@ for dm in gdm3 gdm sddm lightdm; do
     fi
 done
 
+# greetd owns VT1; a getty there races it on boot and fragments the session.
+systemctl mask getty@tty1.service 2>/dev/null || true
+
 # --- Hardware services -------------------------------------------------------------
 systemctl enable power-profiles-daemon.service 2>/dev/null || true
 

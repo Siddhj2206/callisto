@@ -25,6 +25,7 @@ systemd-timesyncd
 
 # --- Audio ----------------------------------------------------------------------
 pipewire
+playerctl
 pipewire-pulse
 wireplumber
 libspa-0.2-bluetooth
@@ -37,7 +38,6 @@ mesa-utils
 xwayland
 xdg-desktop-portal-hyprland
 xdg-desktop-portal-gtk
-wl-clip-persist
 
 # --- Compositor & shell (trixie-backports, see archives/backports.pref.chroot) -
 hyprland
@@ -66,10 +66,16 @@ hyprsunset
 gvfs
 gvfs-backends
 
+# --- Secrets & keyring --------------------------------------------------------------
+# Flatpak apps expect org.freedesktop.secrets. gnome-keyring provides it
+# today; oo7 is the intended replacement once Debian packages the daemon
+# (only the library crate is in trixie).
+gnome-keyring
 # --- Flatpak runtime --------------------------------------------------------------
 flatpak
 
 # --- Utilities -----------------------------------------------------------------
+xdg-user-dirs
 curl
 jq
 less

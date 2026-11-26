@@ -14,5 +14,5 @@ command = "/usr/local/bin/start-callisto"
 user = "user"
 
 [default_session]
-command = "tuigreet --time --remember --remember-user-session --cmd /usr/local/bin/start-callisto"
+command = "tuigreet --time --remember --remember-user-session --greeting 'user: user — press enter to log in' --cmd /usr/local/bin/start-callisto"
 user = "greeter"
