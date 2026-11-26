@@ -1,0 +1,30 @@
+# live-build working state (large, machine-generated, reproducible)
+live-build/.build/
+live-build/cache/
+live-build/chroot/
+live-build/binary/
+live-build/config/build
+live-build/config/common
+live-build/config/binary
+live-build/config/bootstrap
+live-build/config/chroot
+live-build/config/source
+live-build/config/stages.bootstrap
+live-build/*.list.chroot.used
+
+# Build artifacts
+*.iso
+*.iso.zsync
+SHA256SUMS
+*.log
+
+# Build lockfiles / temp
+/tmp/
+*.tmp
+*.swp
+*~
+
+# Editor noise
+.idea/
+.vscode/
+*.sublime-*
