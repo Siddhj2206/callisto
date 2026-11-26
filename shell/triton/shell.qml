@@ -129,6 +129,10 @@ ShellRoot {
         function toggle(): void { SettingsAppState.toggle(); }
     }
     IpcHandler {
+        target: "bar"
+        function toggle(): void { BarState.toggle(); }
+    }
+    IpcHandler {
         target: "wallpaper"
         function toggle(): void { WallpaperState.open ? WallpaperState.close(true) : WallpaperState.show(); }
     }
