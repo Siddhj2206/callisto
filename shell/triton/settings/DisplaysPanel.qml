@@ -118,7 +118,7 @@ Item {
             anchors.rightMargin: 16
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 12
-            text: "Drag to arrange. Snaps to edges."
+            text: "Display arrangement arrives in a future update."
             font.pixelSize: 12
             color: Theme.onsurfacevariant
         }

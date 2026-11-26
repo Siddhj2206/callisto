@@ -62,7 +62,7 @@ Singleton {
                 name: n.name,
                 strength: n.signalStrength !== undefined ? n.signalStrength : 0,
                 connected: n.connected,
-                secure: true, // detailed security flags are per-AP; refine when needed
+                secure: n.secure !== undefined ? n.secure : true,
                 networkObj: n,
             });
         }
