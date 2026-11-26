@@ -52,10 +52,23 @@ Item {
             wallpaperPath: Qt.resolvedUrl("../board-wallpaper-1646.jpg").toString().replace("file://", "")
         }
 
+        WindowsPanel {
+            anchors.fill: parent
+            visible: root.panel === 9
+        }
+        BarShellPanel {
+            anchors.fill: parent
+            visible: root.panel === 8
+        }
+        NotificationsPanel {
+            anchors.fill: parent
+            visible: root.panel === 10
+        }
+
         // Other panels land one at a time with the mock-verify loop; the
         // shell must never show an empty pane.
         TritonText {
-            visible: root.panel !== 7
+            visible: root.panel !== 7 && root.panel !== 8 && root.panel !== 9 && root.panel !== 10
             anchors.centerIn: parent
             text: "Panel " + root.panel + " — in progress"
             font.pixelSize: 20
