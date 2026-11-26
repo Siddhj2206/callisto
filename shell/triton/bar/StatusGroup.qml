@@ -24,11 +24,23 @@ Rectangle {
 
     signal volumeScrolled(real delta)
     signal volumeClicked
+    signal clicked
 
     implicitHeight: 44
     implicitWidth: row.implicitWidth + 36 // padding 18px each side (board .stat)
     radius: 22
     color: Theme.primaryContainer
+
+    MouseArea {
+        anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
+        propagateComposedEvents: true
+        onClicked: mouse => {
+            // Volume icon has its own handler; the rest of the pill opens QS.
+            root.clicked();
+            mouse.accepted = false;
+        }
+    }
 
     ContentRow {
         id: row

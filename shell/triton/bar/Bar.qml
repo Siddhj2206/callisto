@@ -147,7 +147,8 @@ PanelWindow {
             batteryGlyph: root.batteryGlyph
             batteryPercent: root.batteryPercent
             onVolumeScrolled: delta => root.adjustVolume(delta)
-            onVolumeClicked: () => root.toggleMute()
+            onVolumeClicked: () => QuickSettingsState.toggle()
+            onClicked: () => QuickSettingsState.toggle()
         }
 
         BellButton {
