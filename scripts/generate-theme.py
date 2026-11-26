@@ -22,6 +22,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TOKENS_PATH = REPO_ROOT / "design" / "tokens.json"
 THEME_PATH = REPO_ROOT / "shell" / "triton" / "Theme.qml"
+CODEPOINTS_PATH = REPO_ROOT / "design" / "fonts" / "symbols.codepoints"
+ICONS_PATH = REPO_ROOT / "shell" / "triton" / "Icons.qml"
 
 HEADER = """// GENERATED FILE — DO NOT EDIT.
 // Produced by scripts/generate-theme.py from design/tokens.json.
@@ -177,6 +179,55 @@ def main() -> int:
     ]
 
     output = "\n".join(lines)
+
+    # ---- Icons singleton ------------------------------------------------------
+    # Material Symbols ligatures ("wifi" as literal text) depend on OpenType
+    # liga/dlig shaping, which Qt does not reliably enable. Direct codepoints
+    # always render — same as the Rust implementation. Generated from
+    # design/fonts/symbols.codepoints, the subset manifest for TritonSymbols.
+    if CODEPOINTS_PATH.exists():
+        icon_lines = [
+            HEADER,
+            "pragma Singleton",
+            "import QtQuick",
+            "",
+            "// Icon codepoints in the Triton Symbols font. Use as:",
+            "//   text: Icons.wifi   font.family: \"Triton Symbols\"",
+            "QtObject {",
+        ]
+        # JavaScript reserved words cannot be property identifiers in QML
+        # object literals — one illegal name (e.g. "delete") invalidates the
+        # entire singleton type, not just that property.
+        RESERVED = {
+            "break", "case", "catch", "class", "const", "continue", "debugger",
+            "default", "delete", "do", "else", "enum", "export", "extends",
+            "false", "finally", "for", "function", "if", "import", "in",
+            "instanceof", "new", "null", "return", "super", "switch", "this",
+            "throw", "true", "try", "typeof", "var", "void", "while", "with",
+            "yield", "let", "static", "await",
+            # strict-mode future reserved words — QML rejects them too
+            "implements", "interface", "package", "private", "protected",
+            "public",
+        }
+        count = 0
+        for line in CODEPOINTS_PATH.read_text().splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            parts = line.split()
+            if len(parts) != 2:
+                continue
+            name, cp = parts
+            prop = re.sub(r"_([a-z])", lambda m: m.group(1).upper(), name)
+            if prop[0].isdigit():
+                prop = "icon" + prop
+            if prop in RESERVED:
+                prop = prop + "Icon"
+            icon_lines.append(f'    readonly property string {prop}: "\\u{cp}"')
+            count += 1
+        icon_lines += ["}", ""]
+        ICONS_PATH.write_text("\n".join(icon_lines))
+        print(f"generate-theme: wrote {ICONS_PATH.relative_to(REPO_ROOT)} ({count} icons)")
 
     if args.check:
         existing = THEME_PATH.read_text() if THEME_PATH.exists() else ""

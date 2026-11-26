@@ -66,3 +66,53 @@ shell/triton/
 ├── services/          # non-visual singletons (audio, network, state)
 └── components/        # shared visual primitives
 ```
+# QML layout rules for the Triton shell
+
+Hard-won, verified against the headless sway harness. Violating these is how
+"everything is everywhere" happens. These rules apply to ALL shell QML code.
+
+## The invariant
+
+**Children of a Row are never implicitly centered vertically. In Triton,
+content rows follow one pattern:**
+
+```
+Row {
+    anchors.centerIn: parent        // the ROW centers in its container
+    height: parent.height           // and fills the container's height
+    spacing: ...
+    // children: TritonIcon / TritonText / fixed-size controls only
+}
+```
+
+Because every atom (`TritonIcon`, `TritonText`) centers its own glyphs within
+its own box, a row of them at full container height is aligned by construction.
+No per-child `anchors.verticalCenter` arithmetic, no baseline math.
+
+## Why not alternatives
+
+- `Row` positions children at y=0. Different-height children end up top-aligned.
+- `anchors.verticalCenter` per child works but is easy to forget and produces
+  subtle 1-2px misalignment when glyph metrics differ.
+- Text baseline alignment (`alignBaseline`) is fragile across mixed fonts
+  (Jost vs icons) — the boards never ask for it except clock+date, which is
+  hand-tuned in Clock.qml only.
+
+## The atoms
+
+- `TritonIcon` — square item of `size`, glyph centered inside. Default 22px.
+- `TritonText` — text with correct family resolution (`family`/`weight` enums).
+  Set `boxHeight` to center glyphs inside a fixed-height box.
+
+Anything interactive is a fixed-height shape (pill/circle/rounded-square) whose
+radius is half its height unless the board says otherwise — see
+docs/research/design-board-map.md for exact sizes.
+
+## Other verified facts
+
+- Fonts resolve by full family+weight names ("Jost SemiBold"), NOT weight
+  matching. Static instances only.
+- Icons are Unicode codepoints via the `Icons` singleton. Ligature names do
+  NOT shape in Qt.
+- Icons/Theme singletons must BOTH be registered in shell/triton/qmldir.
+- `test-shell.sh` copies fonts from design/fonts into shell/triton/fonts each run.

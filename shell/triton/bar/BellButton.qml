@@ -25,7 +25,7 @@ Rectangle {
 
     Text {
         anchors.centerIn: parent
-        text: "notifications"
+        text: Icons.notifications
         color: Theme.onsurface
         font.family: "Triton Symbols"
         font.pixelSize: 24

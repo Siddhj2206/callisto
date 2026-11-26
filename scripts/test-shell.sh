@@ -24,13 +24,19 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 IMAGE="callisto-shelltest"
 MODE="headless"
 SHOT_OUT=""
-WAIT_SECONDS=8
+# Headless sway under llvmpipe is slow to land the first shell frame; the
+# default wait accounts for that.
+WAIT_SECONDS=12
+
+QS_ENTRY="shell.qml"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --nested) MODE="nested"; shift ;;
         --shot) SHOT_OUT="$2"; shift 2 ;;
         --wait) WAIT_SECONDS="$2"; shift 2 ;;
+        --dev) QS_ENTRY="devshell.qml"; shift ;;
+        --entry) QS_ENTRY="$2"; shift 2 ;;
         *) echo "test-shell: unknown argument: $1" >&2; exit 2 ;;
     esac
 done
@@ -75,6 +81,7 @@ podman run -d --rm \
     --user 1000:1000 \
     --security-opt label=disable \
     -e XDG_RUNTIME_DIR=/home/triton/xdg \
+    -e QS_ENTRY="$QS_ENTRY" \
     --tmpfs /home/triton/xdg:rw,exec,mode=0700,U \
     -v "$REPO_ROOT/shell/triton:/triton:ro" \
     "$IMAGE" >/dev/null
@@ -83,7 +90,12 @@ sleep "$WAIT_SECONDS"
 
 echo "==> Capturing screenshot and shell log"
 podman exec --user 1000:1000 "$CONTAINER" \
-    bash -c 'export XDG_RUNTIME_DIR=/home/triton/xdg WAYLAND_DISPLAY=wayland-1; grim /home/triton/shots/shell.png 2>/dev/null' \
+    bash -c 'export XDG_RUNTIME_DIR=/home/triton/xdg WAYLAND_DISPLAY=wayland-1 SWAYSOCK=$(ls /home/triton/xdg/sway-ipc* 2>/dev/null | head -1)
+        # Headless sway is damage-driven and slow under llvmpipe. Nudge a full
+        # repaint, wait out the frame latency, then capture.
+        swaymsg "output * power on" >/dev/null 2>&1
+        sleep 2
+        grim /home/triton/shots/shell.png 2>/dev/null' \
     || echo "    (grim failed — compositor may not be up)"
 
 SHOT_DIR="$REPO_ROOT/.devtest"

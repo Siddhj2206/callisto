@@ -1,24 +1,25 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import "../components"
 import ".."
 
 // The status group (BarStates `.stat`): a solid primary-container pill, 44px
 // tall, radius 22, holding wifi + volume icons and the battery readout, all
-// in on-primary-container. Leaf component: icons and percentage come in as
-// properties; the container owns Pipewire/UPower.
+// in on-primary-container. Leaf component: glyphs and percentage come in as
+// properties; the container owns the services.
 //
-// Board CSS: height 44, radius 22, padding 0 18, gap 16, font-weight 600.
-// Battery icon and percentage are 6px apart (board markup). When there is no
-// battery, the battery row is empty and collapses — no placeholder garbage.
-// Volume is interactive: scroll adjusts, click toggles mute.
+// Board CSS: height 44, radius 22, padding 0 18, gap 16. Battery icon and
+// percentage are 6px apart (board markup). No battery means the readout is
+// absent entirely — never a placeholder. Volume is interactive: scroll
+// adjusts, click toggles mute.
 
 Rectangle {
     id: root
 
-    required property string wifiIcon
-    required property string volumeIcon
-    required property string batteryIcon
+    required property string wifiGlyph
+    required property string volumeGlyph
+    required property string batteryGlyph
     required property int batteryPercent
 
     signal volumeScrolled(real delta)
@@ -29,34 +30,29 @@ Rectangle {
     radius: 22
     color: Theme.primaryContainer
 
-    Row {
+    ContentRow {
         id: row
-        anchors.centerIn: parent
         spacing: 16 // board .stat gap
 
-        Text {
-            visible: root.wifiIcon !== ""
-            text: root.wifiIcon
+        TritonIcon {
+            visible: root.wifiGlyph !== ""
+            glyph: root.wifiGlyph
+            size: 24
             color: Theme.onprimarycontainer
-            font.family: "Triton Symbols"
-            font.pixelSize: 24
         }
 
-        Text {
-            id: volumeGlyph
-            visible: root.volumeIcon !== ""
-            text: root.volumeIcon
+        TritonIcon {
+            visible: root.volumeGlyph !== ""
+            glyph: root.volumeGlyph
+            size: 24
             color: Theme.onprimarycontainer
-            font.family: "Triton Symbols"
-            font.pixelSize: 24
 
             MouseArea {
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor
                 onClicked: root.volumeClicked()
                 onWheel: wheel => {
-                    // Board-adjacent behavior: scroll the volume icon to
-                    // adjust. 120 is one wheel notch; 5% per notch.
+                    // 120 is one wheel notch; 5% per notch.
                     const steps = wheel.angleDelta.y / 120;
                     if (steps !== 0)
                         root.volumeScrolled(steps * 0.05);
@@ -64,26 +60,31 @@ Rectangle {
             }
         }
 
-        Row {
-            visible: root.batteryIcon !== ""
-            spacing: 6 // board markup: battery icon/text gap
-            height: parent.height
+        // Battery cluster: icon + percentage, 6px apart per the board markup.
+        Item {
+            visible: root.batteryGlyph !== ""
+            implicitWidth: batteryRow.implicitWidth
+            implicitHeight: 24
 
-            Text {
-                anchors.verticalCenter: parent.verticalCenter
-                text: root.batteryIcon
-                color: Theme.onprimarycontainer
-                font.family: "Triton Symbols"
-                font.pixelSize: 24
-            }
+            Row {
+                id: batteryRow
+                spacing: 6
+                height: parent.height
 
-            Text {
-                anchors.verticalCenter: parent.verticalCenter
-                text: root.batteryPercent + "%"
-                color: Theme.onprimarycontainer
-                font.family: "Google Sans Flex"
-                font.weight: Font.DemiBold
-                font.pixelSize: 14
+                TritonIcon {
+                    glyph: root.batteryGlyph
+                    size: 24
+                    color: Theme.onprimarycontainer
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                TritonText {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: root.batteryPercent + "%"
+                    weight: TritonText.Weight.SemiBold
+                    font.pixelSize: 14
+                    color: Theme.onprimarycontainer
+                }
             }
         }
     }

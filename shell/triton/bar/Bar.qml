@@ -13,7 +13,7 @@ import ".."
 // gap between them leaves the window visible.
 //
 // This component is the container: it owns the service bindings (Hyprland,
-// Pipewire, UPower). Leaf components receive state as required properties.
+// Pipewire, UPower). Leaf components receive state as plain properties.
 
 PanelWindow {
     id: root
@@ -23,10 +23,10 @@ PanelWindow {
     // ---- Service bindings (owned here, pushed down as plain state) ----
 
     // Workspaces: event-driven, never polled. `monitorFor` returns a stub
-    // object even when Hyprland's IPC is absent (verified on niri), so the
-    // liveness check looks at whether the monitor actually has data: with no
-    // IPC, activeWorkspace and focusedMonitor both stay null and the pills
-    // render inert instead of dispatching into the void.
+    // object even when Hyprland's IPC is absent, so the liveness check looks
+    // at whether the monitor actually has data: with no IPC, activeWorkspace
+    // and focusedMonitor both stay null and the pills render inert instead of
+    // dispatching into the void.
     readonly property HyprlandMonitor hyprMonitor: Hyprland.monitorFor(screen)
     readonly property int activeWorkspaceId: hyprMonitor?.activeWorkspace?.id ?? 0
     readonly property bool hyprlandLive: (hyprMonitor?.activeWorkspace ?? null) !== null
@@ -56,14 +56,12 @@ PanelWindow {
             root.sink.audio.muted = !root.sink.audio.muted;
     }
 
-    readonly property string volumeIcon: {
+    readonly property string volumeGlyph: {
         if (!hasSink)
             return "";
         if (root.muted)
-            return "volume_off";
-        // Icon steps: the subset has volume_down and volume_up; 1/3 is the
-        // conventional split, no board guidance here.
-        return root.volume < 0.33 ? "volume_down" : "volume_up";
+            return Icons.volumeOff;
+        return root.volume < 0.33 ? Icons.volumeDown : Icons.volumeUp;
     }
 
     // Battery: UPower display device. No battery (VMs, desktops) means the
@@ -76,19 +74,20 @@ PanelWindow {
     readonly property real batteryPercent: hasBattery ? Math.round(root.battery.percentage * 100) : 0
     readonly property bool batteryCharging: hasBattery && root.battery.state === UPowerDeviceState.Charging
 
-    readonly property string batteryIcon: {
+    readonly property string batteryGlyph: {
         if (!hasBattery)
             return "";
-        // Icon choice per BarStates board §5: bolt while charging,
-        // battery_alert when low, else the stepped bar fill. The 20% low
-        // threshold matches the board's 14%-low example being well under the
-        // normal 82% case; no exact cutoff is specified on the board.
+        // Per BarStates board §5: bolt while charging, battery_alert when
+        // low, else the stepped bar fill.
         if (root.batteryCharging)
-            return "bolt";
+            return Icons.bolt;
         if (root.batteryPercent <= 20)
-            return "battery_alert";
-        const step = Math.round(root.batteryPercent / 100 * 6);
-        return "battery_" + Math.max(1, step) + "_bar";
+            return Icons.batteryAlert;
+        const bars = [Icons.battery0Bar, Icons.battery1Bar, Icons.battery2Bar,
+                      Icons.battery3Bar, Icons.battery4Bar, Icons.battery5Bar,
+                      Icons.battery6Bar];
+        const step = Math.max(1, Math.round(root.batteryPercent / 100 * 6));
+        return bars[step];
     }
 
     anchors {
@@ -122,35 +121,15 @@ PanelWindow {
         // (`<span style="width:8px">` after the wave — Theme.space[1]).
         Item { width: Theme.space[1]; height: 1 }
 
-        WorkspacePill {
-            index: 1
-            active: root.activeWorkspaceId === 1
-            live: root.hyprlandLive
-            onClicked: () => root.switchWorkspace(1)
-        }
-        WorkspacePill {
-            index: 2
-            active: root.activeWorkspaceId === 2
-            live: root.hyprlandLive
-            onClicked: () => root.switchWorkspace(2)
-        }
-        WorkspacePill {
-            index: 3
-            active: root.activeWorkspaceId === 3
-            live: root.hyprlandLive
-            onClicked: () => root.switchWorkspace(3)
-        }
-        WorkspacePill {
-            index: 4
-            active: root.activeWorkspaceId === 4
-            live: root.hyprlandLive
-            onClicked: () => root.switchWorkspace(4)
-        }
-        WorkspacePill {
-            index: 5
-            active: root.activeWorkspaceId === 5
-            live: root.hyprlandLive
-            onClicked: () => root.switchWorkspace(5)
+        Repeater {
+            model: 5
+            WorkspacePill {
+                required property int index
+                ws: index + 1
+                active: root.activeWorkspaceId === index + 1
+                live: root.hyprlandLive
+                onClicked: () => root.switchWorkspace(index + 1)
+            }
         }
     }
 
@@ -164,9 +143,9 @@ PanelWindow {
         Clock {}
 
         StatusGroup {
-            wifiIcon: "wifi"
-            volumeIcon: root.volumeIcon
-            batteryIcon: root.batteryIcon
+            wifiGlyph: Icons.wifi
+            volumeGlyph: root.volumeGlyph
+            batteryGlyph: root.batteryGlyph
             batteryPercent: root.batteryPercent
             onVolumeScrolled: delta => root.adjustVolume(delta)
             onVolumeClicked: () => root.toggleMute()

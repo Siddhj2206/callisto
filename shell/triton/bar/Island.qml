@@ -1,22 +1,19 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import "../components"
 import ".."
 
 // A floating Glass island (BarStates `.isl.t-glass`): 56px tall, fully
-// rounded, glass fill. Children are laid out in a row with the board's
-// internal rhythm: 6px edge padding, 4px gaps.
+// rounded, glass fill. Children lay out in a ContentRow, so everything inside
+// is vertically centered by construction.
 //
-// Sizes from the board CSS:
-//   height 56 = Theme.barHeight, radius 28 = Theme.radiusFloating,
-//   gap 4 = Theme.space[0].
-//   The 6px horizontal padding is not on the spacing scale; the board CSS
-//   specifies it directly (`.isl{padding:0 6px}`), so it is derived here as
-//   a literal with this note.
+// Board CSS: height 56 = Theme.barHeight, radius 28 = Theme.radiusFloating,
+// gap 4 = Theme.space[0], horizontal padding 6px (`.isl{padding:0 6px}` — not
+// on the spacing scale, kept as a documented literal).
 //
-// The blur behind the glass (glassBlur) is the compositor's job — Hyprland
-// blur applies to the layer surface; the fill is the pre-composited
-// Theme.glassBg.
+// The blur behind the glass is the compositor's job (Hyprland blur on the
+// layer surface); the fill is the pre-composited Theme.glassBg.
 
 Rectangle {
     id: root
@@ -30,9 +27,8 @@ Rectangle {
 
     readonly property real edgePadding: 6 // board: .isl padding 0 6px
 
-    Row {
+    ContentRow {
         id: row
-        anchors.centerIn: parent
         spacing: Theme.space[0]
     }
 }

@@ -33,11 +33,13 @@ mkdir -p "$XDG_RUNTIME_DIR" /home/triton/.cache /home/triton/shots
 
 # Give the virtual output usable geometry; the headless backend defaults
 # small. Config is regenerated every boot — never edited by hand.
-cat > /home/triton/sway.conf <<'EOF'
+# QS_ENTRY selects the entry point: shell.qml production, devshell.qml harness.
+QS_ENTRY="${QS_ENTRY:-shell.qml}"
+cat > /home/triton/sway.conf <<EOF
 output HEADLESS-1 resolution 1920x1080 position 0,0
 output * bg #111318 solid_color
 default_border none
-exec env QT_QPA_PLATFORM=wayland qs -p /triton > /home/triton/quickshell.log 2>&1
+exec env QT_QPA_PLATFORM=wayland qs -p /triton/${QS_ENTRY} > /home/triton/quickshell.log 2>&1
 EOF
 
 exec sway -c /home/triton/sway.conf

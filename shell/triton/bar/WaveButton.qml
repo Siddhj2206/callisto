@@ -38,7 +38,7 @@ Item {
 
     Text {
         anchors.centerIn: parent
-        text: "apps"
+        text: Icons.apps
         color: Theme.onprimary
         font.family: "Triton Symbols"
         font.pixelSize: 22

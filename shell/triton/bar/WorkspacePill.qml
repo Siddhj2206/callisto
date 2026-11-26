@@ -13,7 +13,7 @@ import ".."
 Rectangle {
     id: root
 
-    required property int index
+    required property int ws
     property bool active: false
     // When the compositor IPC is absent the pills render but are inert.
     property bool live: true
@@ -31,7 +31,7 @@ Rectangle {
 
     Text {
         anchors.centerIn: parent
-        text: root.index
+        text: root.ws
         color: root.active ? Theme.onprimary : Theme.onsurfacevariant
         font.family: "Jost SemiBold"
         font.pixelSize: 17
