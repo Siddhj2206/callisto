@@ -139,13 +139,17 @@ def matugen_scheme(image_path: str) -> dict | None:
         log(f"matugen failed: {e} — keeping default tokens")
         return None
     colors = data.get("colors", {})
-    scheme = {}
+    scheme = {"dark": {}, "light": {}}
     for name, entry in colors.items():
-        if isinstance(entry, dict) and "dark" in entry:
-            scheme[name] = entry["dark"]["color"].upper()
-    if scheme:
+        if isinstance(entry, dict):
+            if "dark" in entry:
+                scheme["dark"][name] = entry["dark"]["color"].upper()
+            if "light" in entry:
+                scheme["light"][name] = entry["light"]["color"].upper()
+    if scheme["dark"]:
         store_scheme(cache_key, scheme)
-    return scheme or None
+        return scheme
+    return None
 
 
 # Accents are wallpaper regions on the board. Their exact seed hexes are
@@ -181,13 +185,17 @@ def matugen_color_scheme(hex_seed: str) -> dict | None:
         log(f"matugen color failed: {e}")
         return None
     colors = data.get("colors", {})
-    scheme = {}
+    scheme = {"dark": {}, "light": {}}
     for name, entry in colors.items():
-        if isinstance(entry, dict) and "dark" in entry:
-            scheme[name] = entry["dark"]["color"].upper()
-    if scheme:
+        if isinstance(entry, dict):
+            if "dark" in entry:
+                scheme["dark"][name] = entry["dark"]["color"].upper()
+            if "light" in entry:
+                scheme["light"][name] = entry["light"]["color"].upper()
+    if scheme["dark"]:
         store_scheme(cache_key, scheme)
-    return scheme or None
+        return scheme
+    return None
 
 
 def resolve_tokens(store: dict, tokens: dict) -> dict:
@@ -195,6 +203,7 @@ def resolve_tokens(store: dict, tokens: dict) -> dict:
     names in tokens.json mirror Material role names, so a matugen scheme maps
     1:1."""
     dark = dict(tokens["color"]["dark"])
+    light = dict(tokens["color"].get("light", {}))
     appearance = store.get("appearance", {})
     accent = appearance.get("accent", "wallpaper")
     scheme = None
@@ -225,20 +234,38 @@ def resolve_tokens(store: dict, tokens: dict) -> dict:
     if scheme:
         # Tokens use snake_case role names identical to matugen's output;
         # unknown roles in either direction are ignored.
-        for key, val in scheme.items():
+        for key, val in scheme.get("dark", {}).items():
             if key in dark:
                 dark[key] = val.upper()
+        for key, val in scheme.get("light", {}).items():
+            if key in light:
+                light[key] = val.upper()
     effective = dict(tokens)
     effective["color"] = dict(tokens["color"])
     effective["color"]["dark"] = dark
+    effective["color"]["light"] = light
     return effective
 
 
 # --- Emitters ----------------------------------------------------------------
 
 
-def emit_triton_tokens(effective: dict) -> str:
-    return json.dumps(effective, indent=2) + "\n"
+def emit_triton_tokens(effective: dict, store: dict) -> str:
+    out = dict(effective)
+    # The shell switches schemes live off this key — external apps only get
+    # the active scheme at apply time, but the shell can follow instantly.
+    out["active_mode"] = store.get("appearance", {}).get("mode", "dark")
+    return json.dumps(out, indent=2) + "\n"
+
+
+def active_scheme(store: dict, tokens: dict) -> dict:
+    """The token map for the active mode — external consumers (foot, gtk,
+    qt6ct) can't switch live, so they get the active scheme at apply time."""
+    mode = store.get("appearance", {}).get("mode", "dark")
+    scheme = dict(tokens["color"]["dark"])
+    if mode == "light" and tokens["color"].get("light"):
+        scheme = dict(tokens["color"]["light"])
+    return scheme
 
 
 def emit_foot_theme(tokens: dict) -> str:
@@ -460,18 +487,19 @@ def main() -> int:
     effective = resolve_tokens(store, tokens)
 
     changed = []
-    if atomic_write(XDG_CONFIG / "callisto" / "tokens.json", emit_triton_tokens(effective)):
+    if atomic_write(XDG_CONFIG / "callisto" / "tokens.json", emit_triton_tokens(effective, store)):
         changed.append("triton tokens")
-    if atomic_write(XDG_CONFIG / "callisto" / "foot-theme.ini", emit_foot_theme(effective)):
+    active = {"color": {"dark": active_scheme(store, effective)}}
+    if atomic_write(XDG_CONFIG / "callisto" / "foot-theme.ini", emit_foot_theme(active)):
         changed.append("foot theme")
-    gtk = emit_gtk_css(effective)
+    gtk = emit_gtk_css(active)
     if atomic_write(XDG_CONFIG / "gtk-3.0" / "gtk.css", gtk):
         changed.append("gtk3 css")
     if atomic_write(XDG_CONFIG / "gtk-4.0" / "gtk.css", gtk):
         changed.append("gtk4 css")
-    if atomic_write(XDG_CONFIG / "hypr" / "callisto-user.lua", emit_hyprland_user(store, effective)):
+    if atomic_write(XDG_CONFIG / "hypr" / "callisto-user.lua", emit_hyprland_user(store, active)):
         changed.append("hyprland user config")
-    if atomic_write(XDG_CONFIG / "qt6ct" / "colors" / "callisto.conf", emit_qt6ct_colorscheme(effective)):
+    if atomic_write(XDG_CONFIG / "qt6ct" / "colors" / "callisto.conf", emit_qt6ct_colorscheme(active)):
         changed.append("qt6ct colorscheme")
     qt6ct_conf = "[Appearance]\ncolor_scheme_path=" + str(XDG_CONFIG / "qt6ct" / "colors" / "callisto.conf") + "\ncustom_palette=true\nstyle=Fusion\n"
     atomic_write(XDG_CONFIG / "qt6ct" / "qt6ct.conf", qt6ct_conf)

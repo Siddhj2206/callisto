@@ -37,6 +37,11 @@ mkdir -p "$XDG_RUNTIME_DIR" /home/triton/.cache /home/triton/shots
 mkdir -p /home/triton/.config/quickshell
 ln -sfn /triton /home/triton/.config/quickshell/triton
 
+# Production parity: start-callisto seeds tokens before anything graphical.
+# Without this the shell loads with compile-time defaults and theme changes
+# have nothing to apply onto.
+callisto-apply >/home/triton/callisto-apply.log 2>&1 || true
+
 # Give the virtual output usable geometry; the headless backend defaults
 # small. Config is regenerated every boot — never edited by hand.
 # QS_ENTRY selects the entry point: shell.qml production, devshell.qml harness.

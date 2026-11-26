@@ -34,7 +34,7 @@ PanelWindow {
     // entries are authored scenes drawn in QML — no image files needed, and
     // matugen extracts their dominant tones from the rasterized preview.
     readonly property var wallpapers: [
-        { name: "Orbit", kind: "image", path: Qt.resolvedUrl("../board-wallpaper-1646.jpg").toString().replace("file://", "") },
+        { name: "Orbit", kind: "image", path: "/usr/share/backgrounds/callisto/wallpaper.jpg" },
         { name: "Nebula", kind: "nebula" },
         { name: "Dune", kind: "dune" },
         { name: "Ice", kind: "ice" },

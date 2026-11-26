@@ -111,12 +111,18 @@ QtObject {
     // calls this with its parsed content. Property naming mirrors the
     // snake_case -> camelCase rules above, including the on* lowering.
     function applyUserTokens(parsed) {
-        const dark = parsed && parsed.color && parsed.color.dark;
-        if (!dark)
+        if (!parsed || !parsed.color)
             return;
-        for (const key of Object.keys(dark)) {
-            const value = dark[key];
-            if (typeof value !== "string" || !/^#[0-9A-Fa-f]{6}$/.test(value))
+        // Light/dark follow the engine-stamped active mode — the whole shell
+        // re-paints through the same color properties either way.
+        const mode = parsed.active_mode || "dark";
+        const scheme = (mode === "light" && parsed.color.light) ? parsed.color.light
+                     : parsed.color.dark;
+        if (!scheme)
+            return;
+        for (const key of Object.keys(scheme)) {
+            const value = scheme[key];
+            if (typeof value !== "string" || !/^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$/.test(value))
                 continue;
             let prop = key.replace(/_([a-z])/g, (m, c) => c.toUpperCase());
             if (/^on[A-Z]/.test(prop))
