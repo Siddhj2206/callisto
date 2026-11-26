@@ -11,6 +11,7 @@ import "quicksettings"
 import "power"
 import "clipboard"
 import "overview"
+import "wallpaper"
 import "settings"
 import "services"
 
@@ -71,6 +72,8 @@ ShellRoot {
 
     OverviewWindow {}
 
+    WallpaperWindow {}
+
     // The settings app: a normal floating window inside the same shell
     // process. It shares SettingsService and Theme singletons with the
     // shell — editing a setting repaints the shell in the same frame the
@@ -124,6 +127,10 @@ ShellRoot {
     IpcHandler {
         target: "settings"
         function toggle(): void { SettingsAppState.toggle(); }
+    }
+    IpcHandler {
+        target: "wallpaper"
+        function toggle(): void { WallpaperState.open ? WallpaperState.close(true) : WallpaperState.show(); }
     }
 
     // Live theme application: the theme engine writes user-resolved tokens

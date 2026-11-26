@@ -24,12 +24,14 @@ PanelWindow {
     }
 
     screen: root.screen
-    color: Theme.surfaceDim
+    color: Theme.surfaceContainerLowest
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Background
     WlrLayershell.namespace: "triton-desktop"
 
-    readonly property string wallpaperPath: SettingsService.get("appearance", "wallpaper", "")
+    readonly property string storeWallpaper: SettingsService.get("appearance", "wallpaper", "")
+    // While the picker previews, the preview channel wins.
+    readonly property string wallpaperPath: WallpaperState.previewPath !== "" ? WallpaperState.previewPath : storeWallpaper
 
     Image {
         anchors.fill: parent

@@ -7,3 +7,4 @@ singleton ClipboardState 1.0 ClipboardState.qml
 singleton OverviewState 1.0 OverviewState.qml
 singleton SettingsService 1.0 SettingsService.qml
 singleton SettingsAppState 1.0 SettingsAppState.qml
+singleton WallpaperState 1.0 WallpaperState.qml
