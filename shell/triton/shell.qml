@@ -5,6 +5,7 @@ import QtQuick
 import "bar"
 import "launcher"
 import "osd"
+import "notifications"
 
 // Triton shell entry point. Thin by design: fonts, then one copy of each
 // persistent surface per screen. State lives in singletons and services.
@@ -41,4 +42,8 @@ ShellRoot {
 
     // OSD: state-driven, invisible until a producer shows something.
     OsdWindow {}
+
+    // Notifications: toasts appear on demand; the center opens from the bell.
+    ToastWindow {}
+    CenterWindow {}
 }

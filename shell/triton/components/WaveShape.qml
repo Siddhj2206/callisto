@@ -32,19 +32,21 @@ Item {
     height: root.size
 
     Shape {
-        width: 100
-        height: 100
-        anchors.centerIn: parent
-        scale: root.size / 100
+        anchors.fill: parent
         antialiasing: true
 
         ShapePath {
             fillColor: root.color
             strokeColor: "transparent"
 
+            // The path is authored in a 100x100 viewBox; scaling the path
+            // itself keeps ink inside the item (scaling the Shape would let
+            // it paint past its bounds, clipped or not).
             PathSvg {
                 path: Theme.wavePath
             }
+
+            scale: Qt.size(root.size / 100, root.size / 100)
         }
     }
 

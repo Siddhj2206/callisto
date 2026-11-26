@@ -150,6 +150,9 @@ PanelWindow {
             onVolumeClicked: () => root.toggleMute()
         }
 
-        BellButton {}
+        BellButton {
+            hasUnread: NotificationState.unreadCount > 0
+            onClicked: NotificationState.centerOpen = !NotificationState.centerOpen
+        }
     }
 }
