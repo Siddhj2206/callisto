@@ -263,10 +263,20 @@ def emit_triton_tokens(effective: dict, store: dict) -> str:
     return json.dumps(out, indent=2) + "\n"
 
 
+def resolve_mode(mode: str) -> str:
+    """auto = light 07:00–19:00 local, dark otherwise. Same rule the shell's
+    Theme.resolveMode implements — they must never diverge."""
+    if mode != "auto":
+        return mode
+    import datetime
+    h = datetime.datetime.now().hour
+    return "light" if 7 <= h < 19 else "dark"
+
+
 def active_scheme(store: dict, tokens: dict) -> dict:
     """The token map for the active mode — external consumers (foot, gtk,
     qt6ct) can't switch live, so they get the active scheme at apply time."""
-    mode = store.get("appearance", {}).get("mode", "dark")
+    mode = resolve_mode(store.get("appearance", {}).get("mode", "dark"))
     scheme = dict(tokens["color"]["dark"])
     if mode == "light" and tokens["color"].get("light"):
         scheme = dict(tokens["color"]["light"])
@@ -538,7 +548,7 @@ def apply_live(store: dict, tokens: dict) -> None:
     # THE channel dark mode reaches GTK4/libadwaita, Firefox, Electron, and
     # flatpaks through. gtk.css can't do any of that.
     appearance = store.get("appearance", {})
-    scheme = "prefer-dark" if appearance.get("mode", "dark") != "light" else "prefer-light"
+    scheme = "prefer-light" if resolve_mode(appearance.get("mode", "dark")) == "light" else "prefer-dark"
     gsettings_keys = [
         ("org.gnome.desktop.interface", "color-scheme", scheme),
         ("org.gnome.desktop.interface", "gtk-theme", "Adwaita"),
