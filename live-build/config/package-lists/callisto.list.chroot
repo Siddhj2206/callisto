@@ -1,0 +1,61 @@
+# Callisto package selection.
+#
+# Scope discipline: this list is what the *system* needs to boot into a
+# working Triton desktop. Deliberately absent are applications beyond a
+# terminal and file manager — a live ISO that demonstrates the desktop is the
+# deliverable, and every package here must justify its size on the squashfs.
+
+# --- Boot & live system -------------------------------------------------------
+linux-image-amd64
+live-boot
+systemd-sysv
+
+# --- Core session infrastructure ----------------------------------------------
+dbus-user-session
+polkitd
+seatd
+network-manager
+pipewire
+pipewire-pulse
+wireplumber
+power-profiles-daemon
+upower
+
+# --- Graphics & Wayland --------------------------------------------------------
+mesa-vulkan-drivers
+libgl1-mesa-dri
+libegl-mesa0
+mesa-utils
+xwayland
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
+
+# --- Compositor & shell (trixie-backports, see archives/backports.pref.chroot) -
+hyprland
+quickshell
+
+# --- Desktop components --------------------------------------------------------
+fuzzel
+greetd
+tuigreet
+swaybg
+mako-notifier
+foot
+wl-clipboard
+grim
+slurp
+brightnessctl
+hypridle
+hyprlock
+
+# --- Utilities -----------------------------------------------------------------
+curl
+jq
+less
+vim-tiny
+
+# --- Fonts ----------------------------------------------------------------------
+fonts-jetbrains-mono
+fonts-inter
+fonts-noto-color-emoji
+fonts-font-awesome

@@ -29,7 +29,10 @@ test-shell: ## Run the shell in a nested Hyprland container (fast iteration)
 	scripts/test-shell.sh
 
 lint-qml: ## Lint shell QML files inside the shell test image
-	sudo podman run --rm --entrypoint bash -v $(CURDIR)/shell/triton:/triton:ro,z callisto-shelltest -c 'find /triton -name "*.qml" -exec qmllint {} +' || echo "build the shelltest image first: sudo podman build -f Dockerfile.shelltest -t callisto-shelltest ."
+	podman run --rm --entrypoint bash -v $(CURDIR)/shell/triton:/triton:ro,z callisto-shelltest -c 'find /triton -name "*.qml" -exec qmllint {} +' || echo "build the shelltest image first: podman build -f Dockerfile.shelltest -t callisto-shelltest ."
+
+builder-shelltest: ## (Re)build the nested shell test container image
+	podman build -f Dockerfile.shelltest -t callisto-shelltest .
 
 builder: ## (Re)build the containerized build environment
 	sudo podman build -f Dockerfile.builder -t callisto-iso-builder .

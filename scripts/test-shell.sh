@@ -12,8 +12,9 @@
 # sources are bind-mounted read-only at /triton, so no image rebuild is ever
 # needed for QML changes — only dependency changes rebuild the image.
 #
-# Requires: rootful podman, host Wayland session. GPU is not required —
-# the harness uses software rendering for robustness.
+# Requires: rootless podman (unlike the ISO builder, this harness needs no
+# privileges — it only runs compositor processes), host Wayland session.
+# GPU is not required — the harness uses software rendering for robustness.
 
 set -euo pipefail
 
@@ -23,15 +24,16 @@ IMAGE="callisto-shelltest"
 : "${XDG_RUNTIME_DIR:?not a graphical session}"
 : "${WAYLAND_DISPLAY:?not a Wayland session}"
 
-if ! sudo podman image exists "$IMAGE"; then
+if ! podman image exists "$IMAGE"; then
     echo "==> Building $IMAGE (first run only)"
-    sudo podman build -f "$REPO_ROOT/Dockerfile.shelltest" -t "$IMAGE" "$REPO_ROOT"
+    podman build -f "$REPO_ROOT/Dockerfile.shelltest" -t "$IMAGE" "$REPO_ROOT"
 fi
 
 # The container must reach the host's user Wayland socket and XDG_RUNTIME_DIR
 # layout. Hyprland creates its own socket inside; the nested backend connects
-# back out through the inherited one.
-exec sudo podman run --rm -it \
+# back out through the inherited one. Rootless podman maps the container's
+# root user onto the host user, so the socket stays accessible.
+exec podman run --rm -it \
     --name callisto-shelltest \
     -e WAYLAND_DISPLAY="$WAYLAND_DISPLAY" \
     -e XDG_RUNTIME_DIR=/run/user/1000 \

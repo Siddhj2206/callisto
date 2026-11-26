@@ -1,0 +1,76 @@
+#!/bin/sh
+# 010-callisto-setup.hook.chroot — Callisto system provisioning.
+#
+# Runs inside the chroot near the end of live-build, after packages are
+# installed and includes.chroot is overlaid. Everything here is computation
+# that cannot be expressed as static files: service enablement, branding that
+# derives from package state, and user provisioning glue.
+#
+# Must be idempotent in effect and must not fail the build over cosmetics.
+
+set -eu
+
+echo "callisto: running setup hook"
+
+# --- Identity ------------------------------------------------------------------
+echo "callisto" > /etc/hostname
+
+cat > /etc/os-release <<'EOF'
+PRETTY_NAME="Callisto OS"
+NAME="Callisto"
+VERSION_ID="0.1.0"
+VERSION="0.1.0 (Phobos)"
+ID=callisto
+ID_LIKE=debian
+HOME_URL="https://github.com/callisto-os"
+DOCUMENTATION_URL="https://github.com/callisto-os/docs"
+SUPPORT_URL="https://github.com/callisto-os/issues"
+BUG_REPORT_URL="https://github.com/callisto-os/issues"
+EOF
+
+# dpkg origin so package-management tooling attributes the derivative correctly.
+mkdir -p /etc/dpkg/origins
+cat > /etc/dpkg/origins/callisto <<'EOF'
+Vendor: Callisto
+Vendor-URL: https://github.com/callisto-os
+Parent: Debian
+EOF
+ln -sf callisto /etc/dpkg/origins/default
+
+cat > /etc/issue <<'EOF'
+Callisto OS \n \l
+
+EOF
+
+# --- Session greeter -------------------------------------------------------------
+# live-config auto-configures the autologin of known display managers but does
+# not know greetd; we enable it explicitly. The [initial_session] in
+# /etc/greetd/config.toml (delivered via includes.chroot) drops the live user
+# straight into Hyprland on boot.
+systemctl enable greetd.service || echo "callisto: WARNING could not enable greetd" >&2
+systemctl set-default graphical.target || true
+
+# Disable other display managers if any snuck in as dependencies; greetd is the
+# sole session entry point.
+for dm in gdm3 gdm sddm lightdm; do
+    if systemctl is-enabled "$dm" >/dev/null 2>&1; then
+        systemctl disable "$dm" || true
+    fi
+done
+
+# --- Hardware services -------------------------------------------------------------
+systemctl enable power-profiles-daemon.service 2>/dev/null || true
+
+# --- Fonts that Debian does not package --------------------------------------------
+# Jost (display face) and Material Symbols Rounded (icons) are required by the
+# Triton design tokens. Fetched at build time; failure degrades typography to
+# the Inter fallback rather than failing the ISO build.
+mkdir -p /usr/local/share/fonts/triton
+if command -v curl >/dev/null 2>&1; then
+    curl -fsSL --max-time 60 -o /usr/local/share/fonts/triton/Jost.ttf \
+        "https://github.com/google/fonts/raw/main/ofl/jost/Jost%5Bwght%5D.ttf" \
+        || echo "callisto: WARNING Jost font fetch failed; using Inter fallback" >&2
+fi
+fc-cache -f >/dev/null 2>&1 || true
+
+echo "callisto: setup hook complete"

@@ -1,0 +1,39 @@
+#!/bin/sh
+# auto/config — live-build configuration for the Callisto ISO.
+#
+# live-build evaluates this script from `lb config`; the noauto argument
+# prevents it from being re-executed as part of the configuration itself.
+#
+# Mirror parameters are overridable through the environment so release builds
+# can pin snapshot.debian.org timestamps for bit-for-bit reproducibility.
+# SOURCE_DATE_EPOCH must be exported before this runs (build-iso.sh does it).
+
+set -e
+
+MIRROR_BOOTSTRAP="${MIRROR_BOOTSTRAP:-http://deb.debian.org/debian}"
+MIRROR_CHROOT="${MIRROR_CHROOT:-http://deb.debian.org/debian}"
+MIRROR_BINARY="${MIRROR_BINARY:-http://deb.debian.org/debian}"
+MIRROR_BINARY_SECURITY="${MIRROR_BINARY_SECURITY:-http://security.debian.org/debian-security}"
+
+lb config noauto \
+    --distribution trixie \
+    --architectures amd64 \
+    --binary-images iso-hybrid \
+    --archive-areas "main contrib non-free-firmware" \
+    --mirror-bootstrap "$MIRROR_BOOTSTRAP" \
+    --mirror-chroot "$MIRROR_CHROOT" \
+    --mirror-binary "$MIRROR_BINARY" \
+    --mirror-binary-security "$MIRROR_BINARY_SECURITY" \
+    --backports true \
+    --debian-installer none \
+    --bootappend-live "boot=live components quiet splash noeject" \
+    --image-name callisto \
+    --iso-volume "CALLISTO_OS" \
+    --iso-application "Callisto OS" \
+    --iso-preparer "callisto-build https://github.com/callisto-os" \
+    --iso-publisher "Callisto" \
+    --compression zstd \
+    --zsync false \
+    --clean \
+    --ignore-system-defaults \
+    "${@}"
