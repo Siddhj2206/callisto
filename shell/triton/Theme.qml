@@ -54,7 +54,7 @@ QtObject {
     property color signal_info: "#6FE0F5"
 
     // ---- Materials (fill color pre-composited with alpha) ----
-    readonly property color glassBg: "#B2282A2F"
+    property color glassBg: "#B2282A2F"
     readonly property real glassBlur: 32
     readonly property color micaBg: "#B8191C20"
     readonly property real micaBlur: 48
@@ -163,5 +163,9 @@ QtObject {
             if (key in this && key !== prop)
                 this[key] = value.toUpperCase();
         }
+        // Derived glass fill follows the scheme — it's an alpha-composited
+        // surface_container_high, so light/dark must restate it.
+        if (scheme.surface_container_high)
+            glassBg = "#B2" + scheme.surface_container_high.substring(1).toUpperCase();
     }
 }

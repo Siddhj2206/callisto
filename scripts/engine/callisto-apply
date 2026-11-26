@@ -25,6 +25,7 @@ import sys
 import tempfile
 from pathlib import Path
 
+HOME = Path.home()
 XDG_CONFIG = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
 STORE = XDG_CONFIG / "callisto" / "settings.json"
 SYSTEM_TOKENS = Path("/usr/share/callisto/tokens.json")
@@ -525,7 +526,7 @@ def apply_live(store: dict, tokens: dict) -> None:
         ]
     if atomic_write(HOME / ".config" / "hypr" / "hypridle.conf",
                     "\n".join(idle_lines) + "\n"):
-        applied.append("hypridle config")
+        pass
         try:
             subprocess.run(["pkill", "-HUP", "-x", "hypridle"],
                            capture_output=True, timeout=3)
