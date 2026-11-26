@@ -58,7 +58,9 @@ PanelWindow {
             { glyph: Icons.bluetooth, label: "Bluetooth", sublabel: BluetoothService.statusText,
               on: BluetoothService.enabled, drillable: true },
             { glyph: Icons.volumeUp, label: "Sound", sublabel: "Speakers", on: root.hasSink && !root.sink.audio.muted, drillable: true },
-            { glyph: Icons.bedtime, label: "Night light", sublabel: "Off", on: false, drillable: false },
+            { glyph: Icons.bedtime, label: "Night light",
+              sublabel: SettingsService.get("display", "nightLight", false) ? "On" : "Off",
+              on: SettingsService.get("display", "nightLight", false), drillable: false },
         ]
         wifiNetworks: NetworkService.networks
         wifiEnabled: NetworkService.wifiEnabled
@@ -68,6 +70,8 @@ PanelWindow {
                 NetworkService.setWifiEnabled(!NetworkService.wifiEnabled);
             else if (idx === 1)
                 BluetoothService.setEnabled(!BluetoothService.enabled);
+            else if (idx === 3)
+                SettingsService.set("display", "nightLight", !SettingsService.get("display", "nightLight", false));
         }
         onDrillIn: idx => internalPage = QuickSettingsPanel.Page.Wifi
         onBack: internalPage = QuickSettingsPanel.Page.Main

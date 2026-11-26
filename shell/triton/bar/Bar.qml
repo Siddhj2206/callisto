@@ -100,7 +100,7 @@ PanelWindow {
     // edge reveals when the pointer rests at the top edge (v0.1: hidden and
     // edge both start hidden; edge support lands with the pointer sensor).
     readonly property string barMode: SettingsService.get("shell", "barMode", "pinned")
-    visible: barMode === "pinned" || BarState.revealed || LauncherState.open
+    visible: (barMode === "pinned" || BarState.revealed || LauncherState.open) && !WallpaperState.open
 
     anchors {
         top: true
