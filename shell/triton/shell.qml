@@ -21,6 +21,8 @@ import "services"
 // persistent surface per screen. State lives in singletons and services.
 
 ShellRoot {
+    id: shellRoot
+
     // The bundled Triton fonts. Static instances per family/weight — Qt
     // resolves "Jost SemiBold" as a distinct family, which is more reliable
     // than weight matching against a variable font. Paths are relative to
@@ -209,6 +211,51 @@ ShellRoot {
         target: "lock"
         function lock(): void { LockState.lock(); }
     }
+    // Brightness OSD producer: /sys/class/backlight is the hardware truth.
+    // brightnessctl writes there; the FileView watch fires on change and the
+    // OSD reflects actual level regardless of what changed it.
+    property int backlightMax: 0
+    property real lastBrightnessFrac: -1
+
+    FileView {
+        id: backlightMaxFile
+        path: "/sys/class/backlight/" + backlightDevice.device + "/max_brightness"
+        blockLoading: false
+        onLoaded: shellRoot.backlightMax = parseInt(text()) || 0
+    }
+
+    FileView {
+        id: backlightFile
+        path: backlightDevice.device !== ""
+            ? "/sys/class/backlight/" + backlightDevice.device + "/brightness"
+            : ""
+        watchChanges: true
+        blockLoading: false
+        onLoaded: {
+            if (shellRoot.backlightMax <= 0)
+                return;
+            const frac = (parseInt(text()) || 0) / shellRoot.backlightMax;
+            // Skip the boot-time first read — same discipline as volume.
+            if (shellRoot.lastBrightnessFrac >= 0 && Math.abs(frac - shellRoot.lastBrightnessFrac) > 0.005)
+                OsdState.show(Osd.Variant.Brightness, { value: frac, icon: Icons.brightness7 });
+            shellRoot.lastBrightnessFrac = frac;
+        }
+    }
+
+    // First backlight device — enumerated once at startup.
+    Process {
+        id: backlightProbe
+        command: ["sh", "-c", "ls /sys/class/backlight/ 2>/dev/null | head -1"]
+        running: true
+        stdout: SplitParser {
+            onRead: data => backlightDevice.device = data.trim()
+        }
+    }
+    QtObject {
+        id: backlightDevice
+        property string device: ""
+    }
+
     IpcHandler {
         target: "osd"
         function volume(value: real): void { OsdState.show(Osd.Variant.Volume, { value: value, icon: Icons.volumeUp }); }
