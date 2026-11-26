@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import Quickshell
 import QtQuick
 import "../components"
+import "../services"
 import ".."
 
 // The clock (BarStates `.clk`): Jost 26px semibold time, Google Sans Flex
@@ -31,11 +32,13 @@ Item {
     readonly property real capHeight: 26 * 0.72 // Jost digits, no descenders
     readonly property real baselineY: height / 2 + capHeight / 2
 
+    readonly property bool use24h: SettingsService.get("shell", "clockFormat", "24h") === "24h"
+
     TritonText {
         id: timeText
         y: root.baselineY - baselineOffset
         x: 18
-        text: Qt.formatDateTime(clock.date, "HH:mm")
+        text: root.use24h ? Qt.formatDateTime(clock.date, "HH:mm") : Qt.formatDateTime(clock.date, "h:mm AP")
         family: TritonText.Family.Display
         weight: TritonText.Weight.SemiBold
         font.pixelSize: 26
