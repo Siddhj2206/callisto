@@ -389,6 +389,17 @@ def apply_live(store: dict, tokens: dict) -> None:
     except Exception:
         pass
 
+    # Power profile: power-profiles-daemon exposes a dbus API, but the CLI is
+    # the stable interface and idempotent — setting the active profile is
+    # a no-op when unchanged.
+    profile = store.get("power", {}).get("profile")
+    if profile in ("power-saver", "balanced", "performance"):
+        try:
+            subprocess.run(["powerprofilesctl", "set", profile],
+                           capture_output=True, timeout=5)
+        except Exception:
+            pass
+
     # Appearance propagation: xdg-desktop-portal-gtk reads these gsettings
     # keys and republishes them as the freedesktop appearance portal keys —
     # THE channel dark mode reaches GTK4/libadwaita, Firefox, Electron, and

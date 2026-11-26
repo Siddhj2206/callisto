@@ -133,6 +133,7 @@ QtObject {
     readonly property string publicIcon: "\ue80b"
     readonly property string pushPin: "\uf10d"
     readonly property string radioButtonChecked: "\ue837"
+    readonly property string radioButtonUnchecked: "\ue836"
     readonly property string rectangle: "\ueb54"
     readonly property string redo: "\ue15a"
     readonly property string remove: "\ue15b"

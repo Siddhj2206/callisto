@@ -52,14 +52,24 @@ PanelWindow {
         property int internalPage: QuickSettingsPanel.Page.Main
 
         tiles: [
-            { glyph: Icons.wifi, fillGlyph: true, label: "Wi-Fi", sublabel: "Not connected", on: false, drillable: true },
+            { glyph: Icons.wifi, fillGlyph: true, label: "Wi-Fi",
+              sublabel: NetworkService.connected ? NetworkService.connectedName : (NetworkService.wifiEnabled ? "Not connected" : "Off"),
+              on: NetworkService.wifiEnabled, drillable: true },
             { glyph: Icons.bluetooth, label: "Bluetooth", sublabel: "Off", on: false, drillable: true },
-            { glyph: Icons.volumeUp, label: "Sound", sublabel: "Speakers", on: false, drillable: true },
+            { glyph: Icons.volumeUp, label: "Sound", sublabel: "Speakers", on: root.hasSink && !root.sink.audio.muted, drillable: true },
             { glyph: Icons.bedtime, label: "Night light", sublabel: "Off", on: false, drillable: false },
         ]
+        wifiNetworks: NetworkService.networks
+        wifiEnabled: NetworkService.wifiEnabled
 
+        onTileClicked: idx => {
+            if (idx === 0)
+                NetworkService.setWifiEnabled(!NetworkService.wifiEnabled);
+        }
         onDrillIn: idx => internalPage = QuickSettingsPanel.Page.Wifi
         onBack: internalPage = QuickSettingsPanel.Page.Main
+        onWifiToggled: v => NetworkService.setWifiEnabled(v)
+        onNetworkClicked: idx => NetworkService.connectTo(NetworkService.networks[idx])
         onVolumeMoved: v => {
             if (root.hasSink)
                 root.sink.audio.volume = Math.max(0, Math.min(1, v));

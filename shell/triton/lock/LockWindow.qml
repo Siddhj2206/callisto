@@ -1,0 +1,45 @@
+pragma ComponentBehavior: Bound
+
+import Quickshell
+import Quickshell.Wayland
+import QtQuick
+import "../services"
+
+// The session lock: ext-session-lock via WlSessionLock, the Triton lockscreen
+// as the surface content, PAM authentication through LockState. The object
+// lives outside any visibility flip — destroying a live lock paints the
+// screen solid and strands the session, so the lock object exists for the
+// shell's entire lifetime and only its `locked` flag moves.
+
+WlSessionLock {
+    id: lock
+
+    locked: LockState.locked
+
+    WlSessionLockSurface {
+        color: "#000000"
+
+        LockScreen {
+            anchors.fill: parent
+            userName: "user"
+            userInitials: "U"
+            fieldState: LockState.fieldState
+
+            dateText: Qt.formatDate(new Date(), "dddd, MMMM d")
+            timeText: Qt.formatTime(new Date(), "hh:mm")
+            lockedText: "Locked"
+
+            Timer {
+                interval: 1000
+                running: true
+                repeat: true
+                onTriggered: {
+                    parent.timeText = Qt.formatTime(new Date(), "hh:mm");
+                    parent.dateText = Qt.formatDate(new Date(), "dddd, MMMM d");
+                }
+            }
+
+            onPasswordSubmitted: pw => LockState.submit(pw)
+        }
+    }
+}

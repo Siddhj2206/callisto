@@ -14,6 +14,7 @@ import "clipboard"
 import "overview"
 import "wallpaper"
 import "settings"
+import "lock"
 import "services"
 
 // Triton shell entry point. Thin by design: fonts, then one copy of each
@@ -60,6 +61,11 @@ ShellRoot {
 
     // OSD: state-driven, invisible until a producer shows something.
     OsdWindow {}
+
+    // The session lock exists for the shell's lifetime — it must never be
+    // created on demand (window-creation latency at lock time is a security
+    // hole) and never destroyed while locked.
+    LockWindow {}
 
     // Notifications: toasts appear on demand; the center opens from the bell.
     ToastWindow {}
@@ -175,6 +181,10 @@ ShellRoot {
     IpcHandler {
         target: "bar"
         function toggle(): void { BarState.toggle(); }
+    }
+    IpcHandler {
+        target: "lock"
+        function lock(): void { LockState.lock(); }
     }
     IpcHandler {
         target: "osd"
