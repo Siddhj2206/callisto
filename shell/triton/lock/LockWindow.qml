@@ -19,6 +19,23 @@ WlSessionLock {
     WlSessionLockSurface {
         color: "#000000"
 
+        // Wallpaper backdrop, heavily dimmed — stands in for the board's
+        // blur (real blur needs compositor cooperation; dim reads the same).
+        Image {
+            anchors.fill: parent
+            source: {
+                const wp = SettingsService.get("appearance", "wallpaper", "/usr/share/backgrounds/callisto/wallpaper.jpg");
+                return wp !== "" ? "file://" + wp : "";
+            }
+            fillMode: Image.PreserveAspectCrop
+            asynchronous: true
+            cache: false
+        }
+        Rectangle {
+            anchors.fill: parent
+            color: "#99000000"
+        }
+
         LockScreen {
             anchors.fill: parent
             // Lockscreen notification rows honor the settings toggle.
@@ -28,12 +45,12 @@ WlSessionLock {
                     glyph: g.items && g.items[0] ? g.items[0].appIcon || "" : "",
                 }))
                 : []
-            userName: "user"
-            userInitials: "U"
+            userName: Quickshell.env("USER") || "user"
+            userInitials: (Quickshell.env("USER") || "u").charAt(0).toUpperCase()
             fieldState: LockState.fieldState
 
             dateText: Qt.formatDate(new Date(), "dddd, MMMM d")
-            timeText: Qt.formatTime(new Date(), "hh:mm")
+            timeText: Qt.formatTime(new Date(), SettingsService.get("shell", "clockFormat", "24h") === "24h" ? "hh:mm" : "h:mm AP")
             lockedText: "Locked"
 
             Timer {
@@ -41,7 +58,7 @@ WlSessionLock {
                 running: true
                 repeat: true
                 onTriggered: {
-                    parent.timeText = Qt.formatTime(new Date(), "hh:mm");
+                    parent.timeText = Qt.formatTime(new Date(), SettingsService.get("shell", "clockFormat", "24h") === "24h" ? "hh:mm" : "h:mm AP");
                     parent.dateText = Qt.formatDate(new Date(), "dddd, MMMM d");
                 }
             }
