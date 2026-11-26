@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import Quickshell
 import QtQuick
 import "bar"
+import "launcher"
 
 // Triton shell entry point. Thin by design: fonts, then one copy of each
 // persistent surface per screen. State lives in singletons and services.
@@ -32,4 +33,8 @@ ShellRoot {
             screen: modelData
         }
     }
+
+    // The launcher is a modal singleton — one instance regardless of screen
+    // count. It positions itself on the focused output at runtime.
+    Launcher {}
 }

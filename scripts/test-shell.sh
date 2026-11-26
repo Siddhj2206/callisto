@@ -29,6 +29,7 @@ SHOT_OUT=""
 WAIT_SECONDS=12
 
 QS_ENTRY="shell.qml"
+INTER_SCRIPT=""
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -37,6 +38,7 @@ while [[ $# -gt 0 ]]; do
         --wait) WAIT_SECONDS="$2"; shift 2 ;;
         --dev) QS_ENTRY="devshell.qml"; shift ;;
         --entry) QS_ENTRY="$2"; shift 2 ;;
+        --script) INTER_SCRIPT="$2"; shift 2 ;;
         *) echo "test-shell: unknown argument: $1" >&2; exit 2 ;;
     esac
 done
@@ -87,6 +89,15 @@ podman run -d --rm \
     "$IMAGE" >/dev/null
 
 sleep "$WAIT_SECONDS"
+
+if [[ -n "$INTER_SCRIPT" ]]; then
+    echo "==> Driving interaction script inside container"
+    podman cp "$INTER_SCRIPT" "$CONTAINER:/home/triton/inter.sh"
+    podman exec --user 1000:1000 "$CONTAINER" \
+        bash -c 'export XDG_RUNTIME_DIR=/home/triton/xdg WAYLAND_DISPLAY=wayland-1 SWAYSOCK=$(ls /home/triton/xdg/sway-ipc* 2>/dev/null | head -1)
+            bash /home/triton/inter.sh' \
+        || echo "    (interaction script failed)"
+fi
 
 echo "==> Capturing screenshot and shell log"
 podman exec --user 1000:1000 "$CONTAINER" \

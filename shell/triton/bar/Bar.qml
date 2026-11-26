@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import Quickshell
 import Quickshell.Hyprland
+import "../services"
 import Quickshell.Services.Pipewire
 import Quickshell.Services.UPower
 import QtQuick
@@ -112,9 +113,7 @@ PanelWindow {
         anchors.top: parent.top
 
         WaveButton {
-            onClicked: () => {
-                // Launcher is not built yet; wiring arrives with the launcher module.
-            }
+            onClicked: LauncherState.toggle()
         }
 
         // 8px gap between the wave and the first pill, per the board markup

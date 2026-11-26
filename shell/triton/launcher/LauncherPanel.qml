@@ -56,10 +56,42 @@ Rectangle {
     property string calcExpression: ""
     property string calcResult: ""
 
+    // Interaction state.
+    property bool grabsFocus: true
+    // Index into the selectable rows (labels skipped) currently highlighted.
+    property int selection: 0
+
     signal activated(int idx)
     signal actionClicked(int idx)
     signal chipClicked(int idx)
+    signal queryEdited(string text)
     signal closed
+
+    // Keyboard navigation per the footer hints. Returns true if handled.
+    function keyPressed(event) {
+        const rows = results.filter(r => r.kind !== "label");
+        if (event.key === Qt.Key_Down) {
+            selection = Math.min(selection + 1, rows.length - 1);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Up) {
+            selection = Math.max(selection - 1, 0);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+            activated(selection);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Escape) {
+            closed();
+            event.accepted = true;
+        }
+    }
+
+    onQueryChanged: input.text = root.query
+
+    Component.onCompleted: {
+        input.text = root.query;
+        if (grabsFocus)
+            input.forceActiveFocus();
+    }
 
     width: root.mode === LauncherPanel.Mode.Apps ? 900 : 572
     height: contentCol.implicitHeight
@@ -90,34 +122,34 @@ Rectangle {
                     glyphSize: 24
                 }
 
-                // Query text with trailing caret. The caret is a separate 2px
-                // primary rectangle — the board renders it after the text
-                // with a 2px left margin, so it survives even when the input
-                // is empty.
-                Item {
-                    width: queryRow.width
+                // The query is a real input: the launcher takes focus when it
+                // opens, and typing is the whole point of the surface. The
+                // caret is the board's 2x26 primary bar — TextInput's own
+                // cursor matches it exactly (width 2, primary).
+                TextInput {
+                    id: input
+                    width: Math.max(2, inputMetrics.advanceWidth) + 4
                     height: parent.height
+                    verticalAlignment: TextInput.AlignVCenter
+                    font.family: "Google Sans Flex Medium"
+                    font.pixelSize: 24
+                    font.letterSpacing: -0.2
+                    color: Theme.onsurface
+                    cursorVisible: input.activeFocus
+                    cursorDelegate: Rectangle {
+                        width: 2
+                        height: 26
+                        color: Theme.primary
+                        visible: input.cursorVisible
+                    }
+                    onTextEdited: root.queryEdited(input.text)
 
-                    Row {
-                        id: queryRow
-                        height: parent.height
-                        spacing: 2
+                    Keys.onPressed: event => root.keyPressed(event)
 
-                        TritonText {
-                            text: root.query
-                            weight: TritonText.Weight.Medium
-                            font.pixelSize: 24
-                            font.letterSpacing: -0.2
-                            color: Theme.onsurface
-                            boxHeight: 72
-                        }
-
-                        Rectangle {
-                            width: 2
-                            height: 26
-                            anchors.verticalCenter: parent.verticalCenter
-                            color: Theme.primary
-                        }
+                    TextMetrics {
+                        id: inputMetrics
+                        font: input.font
+                        text: input.text
                     }
                 }
             }
@@ -393,7 +425,8 @@ Rectangle {
                                 subtitle: modelData.subtitle || ""
                                 tag: modelData.tag || ""
                                 keyHint: modelData.keyHint || ""
-                                selected: modelData.selected || false
+                                selected: modelData.selected !== undefined ? modelData.selected
+                                          : root.results.slice(0, index).filter(r => r.kind !== "label").length === root.selection
                                 discColor: modelData.discColor || Theme.secondaryContainer
                                 discContentColor: modelData.discContentColor || Theme.onsecondarycontainer
                                 useDisc: modelData.useDisc !== undefined ? modelData.useDisc : true
