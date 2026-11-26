@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import ".."
 import "../components"
+import "../services"
 
 // The settings window container (Settings board): 1100x760 r28, sidebar Mica
 // w280 + content. Owns which panel shows; panels are leaf components keyed by
@@ -47,6 +48,10 @@ Item {
         AppearancePanel {
             anchors.fill: parent
             visible: root.panel === 7
+            onWallpaperBrowse: {
+                SettingsAppState.open = false;
+                WallpaperState.show();
+            }
             mode: "dark"
             accent: "wallpaper"
             wallpaperPath: Qt.resolvedUrl("../board-wallpaper-1646.jpg").toString().replace("file://", "")

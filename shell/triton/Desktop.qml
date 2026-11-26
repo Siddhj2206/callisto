@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Wayland
 import QtQuick
 import "services"
+import "wallpaper"
 
 // The desktop surface: the wallpaper layer behind everything. One instance
 // per screen, background layer, exclusion zero — it never participates in
@@ -40,5 +41,25 @@ PanelWindow {
         asynchronous: true
         cache: true
         smooth: true
+    }
+
+    // Generative wallpapers: the same authored scenes the picker's thumbnails
+    // render, full-screen. Preview kind wins over everything while picking.
+    readonly property string activeKind: WallpaperState.previewKind !== ""
+        ? WallpaperState.previewKind
+        : SettingsService.get("appearance", "wallpaperKind", "")
+
+    Loader {
+        anchors.fill: parent
+        active: root.activeKind !== "" && root.activeKind !== "image"
+        sourceComponent: generativeScene
+    }
+
+    Component {
+        id: generativeScene
+        WallpaperScene {
+            anchors.fill: parent
+            kind: root.activeKind
+        }
     }
 }

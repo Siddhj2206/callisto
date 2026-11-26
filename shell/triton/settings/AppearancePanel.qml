@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import ".."
 import "../components"
+import "../services"
 
 // The Appearance panel (Settings board, canonical state): wallpaper preview
 // with extraction strip, mode segment, accent wave-swatches, contrast
@@ -16,7 +17,7 @@ Item {
     property string accent: "wallpaper"
     property real contrast: 0.0
     property string material: "mica"
-    property string wallpaperPath: ""
+    property string wallpaperPath: SettingsService.get("appearance", "wallpaper", "")
     property bool transparency: true
     property bool tintedSurfaces: false
 
@@ -69,6 +70,12 @@ Item {
             anchors.fill: parent
             source: root.wallpaperPath !== "" ? "file://" + root.wallpaperPath : ""
             fillMode: Image.PreserveAspectCrop
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: root.wallpaperBrowse()
         }
 
         // Mock window silhouette (board shows what theming affects).
