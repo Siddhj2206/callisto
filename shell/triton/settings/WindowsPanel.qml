@@ -36,10 +36,5 @@ Item {
             }
         }
 
-        SettingRow {
-            icon: Icons.mouse
-            title: "Center focused column"
-            supporting: "Never, On overflow or Always"
-        }
     }
 }

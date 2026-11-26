@@ -165,20 +165,20 @@ ACCENT_SEEDS = {
 }
 
 
-def matugen_color_scheme(hex_seed: str) -> dict | None:
+def matugen_color_scheme(hex_seed: str, contrast: float = 0.0) -> dict | None:
     """Scheme from an explicit seed color instead of an image."""
     import shutil
     import subprocess
     if not shutil.which("matugen"):
         return None
-    cache_key = f"color:{hex_seed}"
+    cache_key = f"color:{hex_seed}:{contrast}"
     hit = cached_scheme(cache_key)
     if hit is not None:
         return hit
     try:
         out = subprocess.run(
             ["matugen", "color", "hex", hex_seed, "--dry-run", "-j", "hex",
-             "--type", "scheme-content"],
+             "--type", "scheme-content", "--contrast", str(contrast)],
             capture_output=True, timeout=30, check=True).stdout
         data = json.loads(out)
     except Exception as e:
@@ -206,6 +206,11 @@ def resolve_tokens(store: dict, tokens: dict) -> dict:
     light = dict(tokens["color"].get("light", {}))
     appearance = store.get("appearance", {})
     accent = appearance.get("accent", "wallpaper")
+    contrast = appearance.get("contrast", 0.0)
+    try:
+        contrast = max(-1.0, min(1.0, float(contrast)))
+    except (TypeError, ValueError):
+        contrast = 0.0
     scheme = None
     if accent == "wallpaper":
         wallpaper = appearance.get(
@@ -224,13 +229,13 @@ def resolve_tokens(store: dict, tokens: dict) -> dict:
             "paper": "#CBD3E4",
         }
         if kind and kind in KIND_SEEDS:
-            scheme = matugen_color_scheme(KIND_SEEDS[kind])
+            scheme = matugen_color_scheme(KIND_SEEDS[kind], contrast)
         elif wallpaper:
-            scheme = matugen_scheme(wallpaper)
+            scheme = matugen_scheme(wallpaper, contrast)
     elif accent in ACCENT_SEEDS:
-        scheme = matugen_color_scheme(ACCENT_SEEDS[accent])
+        scheme = matugen_color_scheme(ACCENT_SEEDS[accent], contrast)
     elif isinstance(accent, str) and accent.startswith("#"):
-        scheme = matugen_color_scheme(accent)
+        scheme = matugen_color_scheme(accent, contrast)
     if scheme:
         # Tokens use snake_case role names identical to matugen's output;
         # unknown roles in either direction are ignored.

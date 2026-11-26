@@ -71,6 +71,10 @@ Singleton {
         }
         root.unreadCount++;
         root.rebuildGroups(n);
+        // Urgent notifications peek the bar out of autohide — the user must
+        // see the bell change state.
+        if (n.critical || n.urgency === "critical")
+            BarState.flashForUrgent();
     }
 
     function rebuildGroups(n) {

@@ -332,6 +332,48 @@ Item {
         }
     }
 
+    // ---- Custom accent hex input: appears when the + circle is clicked ----
+    Rectangle {
+        id: hexInput
+        visible: false
+        x: 32
+        y: 470
+        z: 10
+        width: 260
+        height: 44
+        radius: 12
+        color: Theme.surfaceContainerHighest
+        border.width: 1
+        border.color: Theme.primary
+
+        TextInput {
+            anchors.fill: parent
+            anchors.leftMargin: 14
+            anchors.rightMargin: 14
+            verticalAlignment: TextInput.AlignVCenter
+            color: Theme.onsurface
+            font.pixelSize: 14
+            font.family: Theme.fontMono
+            text: root.accent.startsWith("#") ? root.accent : "#"
+            selectByMouse: true
+            onAccepted: {
+                if (/^#[0-9A-Fa-f]{6}$/.test(text)) {
+                    SettingsService.set("appearance", "accent", text.toUpperCase());
+                    hexInput.visible = false;
+                }
+            }
+
+            TritonText {
+                visible: parent.text === "" || parent.text === "#"
+                anchors.verticalCenter: parent.verticalCenter
+                text: "#RRGGBB — Enter to apply"
+                font.pixelSize: 13
+                color: Theme.onsurfacevariant
+                opacity: 0.6
+            }
+        }
+    }
+
     // ---- Contrast row ----
     Rectangle {
         x: 32
@@ -372,7 +414,7 @@ Item {
                     color: Theme.onsurface
                 }
                 TritonText {
-                    text: "Standard"
+                    text: root.contrast === 0 ? "Standard" : (root.contrast > 0 ? "+" : "") + Math.round(root.contrast * 100) + "%"
                     font.pixelSize: 13
                     color: Theme.onsurfacevariant
                 }

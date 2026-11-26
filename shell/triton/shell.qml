@@ -67,6 +67,29 @@ ShellRoot {
     // hole) and never destroyed while locked.
     LockWindow {}
 
+    // Edge-reveal sensor: a 2px strip at the top edge of every screen, only
+    // in edge/hidden bar modes. Pointer resting here reveals the bar.
+    Variants {
+        model: Quickshell.screens
+
+        PanelWindow {
+            required property var modelData
+            screen: modelData
+            anchors { top: true; left: true; right: true }
+            implicitHeight: 2
+            visible: SettingsService.get("shell", "barMode", "pinned") !== "pinned"
+            exclusionMode: ExclusionMode.Ignore
+            color: "transparent"
+
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                onEntered: BarState.hovering = true
+                onExited: BarState.hovering = false
+            }
+        }
+    }
+
     // Notifications: toasts appear on demand; the center opens from the bell.
     ToastWindow {}
     CenterWindow {}
