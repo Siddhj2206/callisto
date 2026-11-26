@@ -43,6 +43,23 @@ if [[ -n "${SEED_TOKENS:-}" ]]; then
     cp "$SEED_TOKENS" /home/triton/.config/callisto/tokens.json
 fi
 
+# COMPOSITOR=hyprland exercises the real integration — workspace IPC, layer
+# rules, the exact runtime the ISO ships. sway remains the default because it
+# is faster under llvmpipe.
+if [[ "${COMPOSITOR:-sway}" == "hyprland" ]]; then
+    cat > /home/triton/hyprland.conf <<HYEOF
+monitor = HEADLESS-1, 1920x1080, 0x0, 1
+exec-once = env QT_QPA_PLATFORM=wayland qs -p /triton/${QS_ENTRY} > /home/triton/quickshell.log 2>&1
+animations { enabled = false }
+misc {
+    disable_hyprland_logo = true
+    disable_splash_rendering = true
+    force_default_wallpaper = 0
+}
+HYEOF
+    exec Hyprland -c /home/triton/hyprland.conf
+fi
+
 cat > /home/triton/sway.conf <<EOF
 output HEADLESS-1 resolution 1920x1080 position 0,0
 output * bg #111318 solid_color
