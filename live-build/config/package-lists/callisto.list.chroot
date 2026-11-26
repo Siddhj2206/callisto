@@ -43,6 +43,7 @@ wl-clip-persist
 hyprland
 quickshell
 uwsm
+qt6-wayland
 
 # --- Desktop furniture (part of the OS, not apps) -------------------------------
 fuzzel

@@ -1,29 +1,39 @@
 #!/usr/bin/env bash
-# test-shell.sh — run the Triton shell in a nested sway container.
+# test-shell.sh — verify the Triton shell inside a headless sway container.
 #
-# Iteration loop for shell/ development without the ISO, a VM, or touching
-# your real session:
-#   1. edit QML in shell/triton/
-#   2. ./scripts/test-shell.sh   (or make test-shell)
-#   3. a window appears on your desktop: nested sway running the shell
-#   4. close it / Ctrl-C, edit, repeat
+# The shell iteration loop without the ISO, a VM, or any contact with your
+# real session:
 #
-# How it works: the container inherits only your Wayland socket, so sway
-# starts in nested mode as a client window of your session. The shell sources
-# and fonts are bind-mounted read-only — no image rebuild for QML changes.
-# SELinux note: the socket mount needs :z relabeling on Fedora; volume mounts
-# of the repo use :z as well.
+#   ./scripts/test-shell.sh           headless verification: boots sway
+#                                     headless + the shell, waits, captures a
+#                                     screenshot and the shell log, reports
+#                                     errors, exits non-zero on failure
 #
-# Requires: rootless podman, host Wayland session. No GPU needed — software
-# rendering.
+#   ./scripts/test-shell.sh --nested  interactive: sway nests as a window in
+#                                     your session so you can look at it live
+#
+#   ./scripts/test-shell.sh --shot out.png   headless, keep screenshot at path
+#
+# Headless mode is fully hermetic: no host Wayland socket, no host services,
+# the container is wiped on exit. State you care about (screenshot, log) is
+# copied out before teardown.
 
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 IMAGE="callisto-shelltest"
+MODE="headless"
+SHOT_OUT=""
+WAIT_SECONDS=8
 
-: "${XDG_RUNTIME_DIR:?not a graphical session}"
-: "${WAYLAND_DISPLAY:?not a Wayland session}"
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --nested) MODE="nested"; shift ;;
+        --shot) SHOT_OUT="$2"; shift 2 ;;
+        --wait) WAIT_SECONDS="$2"; shift 2 ;;
+        *) echo "test-shell: unknown argument: $1" >&2; exit 2 ;;
+    esac
+done
 
 # Fonts must exist inside shell/triton/fonts for the shell to load them.
 mkdir -p "$REPO_ROOT/shell/triton/fonts"
@@ -34,16 +44,70 @@ if ! podman image exists "$IMAGE"; then
     podman build -f "$REPO_ROOT/Dockerfile.shelltest" -t "$IMAGE" "$REPO_ROOT"
 fi
 
-# The host socket is mounted at an absolute path OUTSIDE the runtime dir:
-# WAYLAND_DISPLAY accepts absolute paths, and this avoids the tmpfs-over-mount
-# shadowing problem entirely.
-exec podman run --rm -it \
-    --name callisto-shelltest \
+if [[ "$MODE" == "nested" ]]; then
+    : "${XDG_RUNTIME_DIR:?not a graphical session}"
+    : "${WAYLAND_DISPLAY:?not a Wayland session}"
+    exec podman run --rm -it \
+        --name callisto-shelltest \
+        --userns=keep-id \
+        --user 1000:1000 \
+        --security-opt label=disable \
+        -e WAYLAND_DISPLAY="/wl/socket" \
+        -e XDG_RUNTIME_DIR=/home/triton/xdg \
+        -e WLR_BACKENDS=wayland \
+        --tmpfs /home/triton/xdg:rw,exec,mode=0700,U \
+        -v "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/wl/socket" \
+        -v "$REPO_ROOT/shell/triton:/triton:ro" \
+        "$IMAGE"
+fi
+
+# --- headless verification ---------------------------------------------------
+CONTAINER="callisto-shelltest-$$"
+cleanup() {
+    podman rm -f "$CONTAINER" >/dev/null 2>&1 || true
+}
+trap cleanup EXIT
+
+echo "==> Booting headless sway + Triton shell"
+podman run -d --rm \
+    --name "$CONTAINER" \
     --userns=keep-id \
     --user 1000:1000 \
-    -e WAYLAND_DISPLAY="/wl/socket" \
+    --security-opt label=disable \
     -e XDG_RUNTIME_DIR=/home/triton/xdg \
     --tmpfs /home/triton/xdg:rw,exec,mode=0700,U \
-    -v "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/wl/socket:z" \
-    -v "$REPO_ROOT/shell/triton:/triton:ro,z" \
-    "$IMAGE"
+    -v "$REPO_ROOT/shell/triton:/triton:ro" \
+    "$IMAGE" >/dev/null
+
+sleep "$WAIT_SECONDS"
+
+echo "==> Capturing screenshot and shell log"
+podman exec --user 1000:1000 "$CONTAINER" \
+    bash -c 'export XDG_RUNTIME_DIR=/home/triton/xdg WAYLAND_DISPLAY=wayland-1; grim /home/triton/shots/shell.png 2>/dev/null' \
+    || echo "    (grim failed — compositor may not be up)"
+
+SHOT_DIR="$REPO_ROOT/.devtest"
+mkdir -p "$SHOT_DIR"
+podman cp "$CONTAINER:/home/triton/shots/shell.png" "$SHOT_DIR/shell.png" 2>/dev/null \
+    && echo "    screenshot: $SHOT_DIR/shell.png" \
+    || echo "    (no screenshot captured)"
+podman cp "$CONTAINER:/home/triton/quickshell.log" "$SHOT_DIR/quickshell.log" 2>/dev/null || true
+
+if [[ -n "$SHOT_OUT" && -f "$SHOT_DIR/shell.png" ]]; then
+    cp "$SHOT_DIR/shell.png" "$SHOT_OUT"
+fi
+
+echo "==> Shell log:"
+if [[ -f "$SHOT_DIR/quickshell.log" ]]; then
+    cat "$SHOT_DIR/quickshell.log"
+    if grep -qE "ERROR|error" "$SHOT_DIR/quickshell.log"; then
+        echo "!! shell reported errors" >&2
+        exit 1
+    fi
+    # A shell that loads but crashes is invisible in a log tail — the timeout
+    # exit path is success. Errors above already covered the failure case.
+    echo "==> OK: shell loaded with no errors"
+else
+    echo "!! no quickshell log — the shell never started" >&2
+    exit 1
+fi

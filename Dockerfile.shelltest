@@ -27,12 +27,14 @@ RUN echo 'deb http://deb.debian.org/debian trixie-backports main contrib non-fre
     && apt-get install -y --no-install-recommends \
         quickshell \
         sway \
+        xwayland \
         fuzzel \
         foot \
         fonts-jetbrains-mono \
         fonts-inter \
         fonts-noto-color-emoji \
         qt6-declarative-dev-tools \
+        qt6-wayland \
         grim \
         jq \
     && rm -rf /var/lib/apt/lists/*

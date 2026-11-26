@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 # entrypoint-shelltest.sh — inside the callisto-shelltest container.
 #
-# Boots sway nested (as a client of the inherited host Wayland session), then
-# starts the Triton shell against it. Iteration loop: kill the container,
-# edit QML, restart — seconds per cycle.
+# Boots sway, then runs the Triton shell against it. Two modes:
+#
+#   headless (default): sway uses the wlroots headless backend — no host
+#     window, no host Wayland socket, fully hermetic. Verification happens
+#     programmatically: the shell's startup is logged, and screenshots come
+#     from grim through the wlr-screencopy protocol.
+#
+#   nested (SWAY_NESTED=1): sway connects outward through an inherited host
+#     socket and appears as a window — for when you want to look at it live.
 #
 # sway is the stand-in compositor: same layer-shell protocol as Hyprland,
 # trivially nestable, no seat/DRM requirements. Hyprland-specific IPC is
@@ -14,19 +20,24 @@ set -uo pipefail
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/home/triton/xdg}"
 export XDG_SESSION_TYPE=wayland
 export WLR_RENDERER_ALLOW_SOFTWARE=1
-export WLR_BACKENDS=wayland
+export WLR_BACKENDS="${WLR_BACKENDS:-headless}"
 
-mkdir -p "$XDG_RUNTIME_DIR" /home/triton/.cache
+# In headless mode the host WAYLAND_DISPLAY must not leak through: wlroots
+# probes backends in order, and a present-but-dead wayland socket name makes
+# it pick the wayland backend over headless and fail outright.
+if [[ "$WLR_BACKENDS" == "headless" ]]; then
+    unset WAYLAND_DISPLAY
+fi
 
-# Minimal sway config: floating-friendly, no wallpaper logic, exec the shell
-# once the compositor is up.
+mkdir -p "$XDG_RUNTIME_DIR" /home/triton/.cache /home/triton/shots
+
+# Give the virtual output usable geometry; the headless backend defaults
+# small. Config is regenerated every boot — never edited by hand.
 cat > /home/triton/sway.conf <<'EOF'
+output HEADLESS-1 resolution 1920x1080 position 0,0
 output * bg #111318 solid_color
 default_border none
-bar none
-exec qs -p /triton
+exec env QT_QPA_PLATFORM=wayland qs -p /triton > /home/triton/quickshell.log 2>&1
 EOF
 
-# sway in a Wayland session nests automatically. SIGTERM propagation: the
-# container stops when sway exits.
 exec sway -c /home/triton/sway.conf
