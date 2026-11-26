@@ -109,7 +109,7 @@ def store_scheme(cache_key: str, scheme: dict) -> None:
         pass
 
 
-def matugen_scheme(image_path: str) -> dict | None:
+def matugen_scheme(image_path: str, contrast: float = 0.0) -> dict | None:
     """Run matugen against a wallpaper, return {token_name: '#rrggbb'} for the
     dark scheme, or None if matugen/image is unavailable. Results are cached
     keyed on path+mtime — every settings write runs the engine, and respawning
@@ -126,14 +126,15 @@ def matugen_scheme(image_path: str) -> dict | None:
         mtime = Path(image_path).stat().st_mtime
     except OSError:
         mtime = 0
-    cache_key = f"image:{image_path}:{mtime}"
+    cache_key = f"image:{image_path}:{mtime}:{contrast}"
     hit = cached_scheme(cache_key)
     if hit is not None:
         return hit
     try:
         out = subprocess.run(
             ["matugen", "image", image_path, "--dry-run", "-j", "hex",
-             "--type", "scheme-content", "--prefer", "darkness"],
+             "--type", "scheme-content", "--prefer", "darkness",
+             "--contrast", str(contrast)],
             capture_output=True, timeout=30, check=True).stdout
         data = json.loads(out)
     except Exception as e:
