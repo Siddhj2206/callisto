@@ -1,0 +1,18 @@
+# greetd configuration for the Callisto live session.
+#
+# [initial_session] runs exactly once per boot: the live user goes straight
+# into the graphical session with no greeter interaction, which is the correct
+# behavior for a live ISO. If the session exits (logout or crash), greetd
+# falls back to [default_session] — a tuigreet greeter — so the machine never
+# drops to a bare TTY.
+
+[terminal]
+vt = 1
+
+[initial_session]
+command = "/usr/local/bin/start-callisto"
+user = "user"
+
+[default_session]
+command = "tuigreet --time --remember --remember-user-session --cmd /usr/local/bin/start-callisto"
+user = "greeter"

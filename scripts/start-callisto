@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# start-callisto — graphical session entry point for the Callisto live user.
+#
+# Executed by greetd as the session command. Responsible for exporting the
+# environment the Wayland session needs, selecting a rendering strategy that
+# matches the host (hardware GL, virgl in accelerated QEMU, or llvmpipe in
+# software-rendered QEMU), and exec'ing Hyprland.
+#
+# Everything before the final exec must be fast and must not fail the boot;
+# a session that never starts is worse than an ugly one.
+
+# --- Session identity ----------------------------------------------------------
+export XDG_SESSION_TYPE=wayland
+export XDG_SESSION_DESKTOP=Hyprland
+export XDG_CURRENT_DESKTOP=Hyprland
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+# --- Input device quirks --------------------------------------------------------
+# libinput handles everything in QEMU and on hardware; no quirks needed today.
+
+# --- Rendering strategy ----------------------------------------------------------
+# Hyprland needs GLES. In QEMU there are two regimes:
+#   * virtio-vga-gl / virgl: /dev/dri exists and GLES is accelerated — fine.
+#   * plain virtio-vga / llvmpipe: software rendering — needs WLR_RENDERER
+#     hints and reduced eye candy, but works.
+# Aquamarine (Hyprland's backend) picks up standard wlroots env vars.
+if [[ ! -e /dev/dri/renderD128 ]]; then
+    # No DRM render node at all — extremely degraded environment.
+    export WLR_RENDERER=pixman
+elif systemd-detect-virt -q 2>/dev/null; then
+    # Virtualized: allow software rendering fallback without aborting.
+    export WLR_RENDERER_ALLOW_SOFTWARE=1
+fi
+
+# --- User services -------------------------------------------------------------
+# PipeWire/WirePlumber are user services; under a greetd session systemd --user
+# is started by pam_systemd, so `systemctl --user` units just work as long as
+# dbus-user-session is installed (it is, see package list). Nothing to launch
+# manually here.
+
+# --- Logging --------------------------------------------------------------------
+# Capture the compositor log for debugging ISO boots in QEMU/CI.
+LOGDIR="$HOME/.local/state/callisto"
+mkdir -p "$LOGDIR"
+
+# --- Launch ----------------------------------------------------------------------
+# exec so Hyprland replaces this script: when Hyprland exits, the session ends
+# and greetd falls back to the greeter.
+exec Hyprland >"$LOGDIR/hyprland.log" 2>&1
