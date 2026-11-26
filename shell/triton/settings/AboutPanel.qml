@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import Quickshell.Io
 import ".."
 import "../components"
 
@@ -9,10 +10,16 @@ import "../components"
 Item {
     id: root
 
+    FileView {
+        path: "/etc/hostname"
+        blockLoading: false
+        onLoaded: root.deviceName = text().trim()
+    }
+
     property string osName: "Callisto OS"
     property string osVersion: "0.1.0 (Phobos)"
     property string shellVersion: "triton 0.1"
-    property string deviceName: "neptuno"
+    property string deviceName: ""
 
     PanelHeader {
         y: 28

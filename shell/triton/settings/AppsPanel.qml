@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import Quickshell.Io
 import ".."
 import "../components"
 import "../services"
@@ -10,6 +11,22 @@ import "../services"
 
 Item {
     id: root
+
+    // The live default browser, read once on panel load. Changing it is a
+    // xdg-settings call — the user-facing contract is that this row is never
+    // a lie.
+    property string currentBrowser: "…"
+
+    Process {
+        command: ["xdg-settings", "get", "default-web-browser"]
+        running: true
+        stdout: SplitParser {
+            onRead: data => {
+                const d = data.trim().replace(/\.desktop$/, "");
+                root.currentBrowser = d === "firefox" ? "Firefox" : d;
+            }
+        }
+    }
 
     PanelHeader {
         y: 28
@@ -27,7 +44,7 @@ Item {
         SettingRow {
             icon: Icons.webAsset
             title: "Web browser"
-            supporting: "Firefox"
+            supporting: root.currentBrowser
         }
         SettingRow {
             icon: Icons.apps
