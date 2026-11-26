@@ -63,8 +63,8 @@ else
 fi
 
 # --- Desktop configuration ---------------------------------------------------
-install -m 0644 "$REPO_ROOT/configs/hypr/hyprland.conf" "$SKEL/hypr/hyprland.conf" 2>/dev/null \
-    || echo "    (no hyprland.conf yet)"
+install -m 0644 "$REPO_ROOT/configs/hypr/hyprland.lua" "$SKEL/hypr/hyprland.lua" 2>/dev/null \
+    || echo "    (no hyprland.lua yet)"
 install -m 0644 "$REPO_ROOT/configs/fuzzel/fuzzel.ini" "$SKEL/fuzzel/fuzzel.ini" 2>/dev/null \
     || echo "    (no fuzzel.ini yet)"
 if [[ -f "$REPO_ROOT/configs/gtk/gtk.css" ]]; then
