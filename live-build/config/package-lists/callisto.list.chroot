@@ -20,6 +20,9 @@ dbus-user-session
 # dbus-broker reuses the systemd activation environment — reference dbus-daemon
 # can't unset vars, which is how stale session env leaks across logout/login.
 dbus-broker
+# libglib2.0-bin: gsettings + gdbus — the dark-mode propagation chain
+# (gsettings → portal-gtk → flatpaks) is dead without them.
+libglib2.0-bin
 polkitd
 hyprpolkitagent
 seatd
