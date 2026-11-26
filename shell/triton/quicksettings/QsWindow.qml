@@ -1,6 +1,8 @@
 pragma ComponentBehavior: Bound
 
 import Quickshell
+import Quickshell.Io
+import Quickshell.Services.Pipewire
 import Quickshell.Wayland
 import QtQuick
 import ".."
@@ -22,11 +24,25 @@ PanelWindow {
     WlrLayershell.keyboardFocus: visible ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
     visible: QuickSettingsState.open
 
+    // Volume is live pipewire state; the slider writes straight to the sink.
+    readonly property PwNode sink: Pipewire.defaultAudioSink
+    PwObjectTracker { objects: root.sink ? [root.sink] : [] }
+    readonly property bool hasSink: !!root.sink && !!root.sink.audio
+
+    // Brightness writes go through brightnessctl (session user has video
+    // group access on real hardware; no-op where there is no backlight).
+    Process {
+        id: brightnessProc
+        property real pending: -1
+        command: ["brightnessctl", "set", Math.round(pending * 100) + "%"]
+    }
+
     QuickSettingsPanel {
         id: panel
         x: 0
         y: 72 // clear the bar zone
         page: internalPage
+        volume: root.hasSink ? root.sink.audio.volume : 0
 
         property int internalPage: QuickSettingsPanel.Page.Main
 
@@ -39,6 +55,19 @@ PanelWindow {
 
         onDrillIn: idx => internalPage = QuickSettingsPanel.Page.Wifi
         onBack: internalPage = QuickSettingsPanel.Page.Main
+        onVolumeMoved: v => {
+            if (root.hasSink)
+                root.sink.audio.volume = Math.max(0, Math.min(1, v));
+        }
+        onBrightnessMoved: v => {
+            brightnessProc.pending = v;
+            brightnessProc.running = false;
+            brightnessProc.running = true;
+        }
+        onGearClicked: {
+            QuickSettingsState.dismiss();
+            SettingsAppState.open = true;
+        }
         onAllSettings: {
             QuickSettingsState.dismiss();
             SettingsAppState.open = true;

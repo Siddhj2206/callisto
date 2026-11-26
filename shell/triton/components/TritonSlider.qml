@@ -16,11 +16,18 @@ Item {
 
     height: 44
 
+    // While dragging, the slider shows the pointer position even if the
+    // backend hasn't caught up — controlled-only snapping mid-drag reads as
+    // broken. On release the bound value resumes ownership.
+    property bool dragging: false
+    property real dragValue: 0.5
+    readonly property real shown: dragging ? dragValue : value
+
     // Inactive track.
     Rectangle {
-        x: parent.width * root.value + 3
+        x: parent.width * root.shown + 3
         y: 14
-        width: parent.width * (1 - root.value) - 3
+        width: parent.width * (1 - root.shown) - 3
         height: 16
         radius: 8
         color: "#33FFFFFF" // white .2
@@ -29,14 +36,14 @@ Item {
     Rectangle {
         x: 0
         y: 14
-        width: parent.width * root.value - 3
+        width: parent.width * root.shown - 3
         height: 16
         radius: 8
         color: Theme.primary
     }
     // Handle.
     Rectangle {
-        x: parent.width * root.value - width / 2
+        x: parent.width * root.shown - width / 2
         width: 4
         height: 44
         radius: 2
@@ -45,10 +52,18 @@ Item {
 
     MouseArea {
         anchors.fill: parent
-        onPressed: mouse => root.moved(Math.max(0, Math.min(1, mouse.x / width)))
-        onPositionChanged: mouse => {
-            if (pressed)
-                root.moved(Math.max(0, Math.min(1, mouse.x / width)));
+        onPressed: mouse => {
+            root.dragging = true;
+            root.dragValue = Math.max(0, Math.min(1, mouse.x / width));
+            root.moved(root.dragValue);
         }
+        onPositionChanged: mouse => {
+            if (pressed) {
+                root.dragValue = Math.max(0, Math.min(1, mouse.x / width));
+                root.moved(root.dragValue);
+            }
+        }
+        onReleased: root.dragging = false
+        onCanceled: root.dragging = false
     }
 }
