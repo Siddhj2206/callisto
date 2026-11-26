@@ -11,6 +11,7 @@ import "quicksettings"
 import "power"
 import "clipboard"
 import "overview"
+import "settings"
 
 // Triton shell entry point. Thin by design: fonts, then one copy of each
 // persistent surface per screen. State lives in singletons and services.
@@ -60,6 +61,29 @@ ShellRoot {
 
     OverviewWindow {}
 
+    // The settings app: a normal floating window inside the same shell
+    // process. It shares SettingsService and Theme singletons with the
+    // shell — editing a setting repaints the shell in the same frame the
+    // engine writes, no IPC needed. Toggled by the launcher/QS buttons via
+    // the state below.
+    FloatingWindow {
+        id: settingsWindow
+        visible: SettingsAppState.open
+        title: "Settings"
+        color: "transparent"
+        implicitWidth: 1100
+        implicitHeight: 760
+        minimumSize: Qt.size(900, 620)
+        onVisibleChanged: {
+            if (!visible)
+                SettingsAppState.open = false;
+        }
+
+        SettingsWindow {
+            anchors.fill: parent
+        }
+    }
+
     // IPC: Hyprland keybinds and user scripts drive shell surfaces through
     // `qs ipc call <target> <function>` — no socket hacks, no dotfile
     // editing. The settings app uses the same channel for live preview.
@@ -86,6 +110,10 @@ ShellRoot {
     IpcHandler {
         target: "overview"
         function toggle(): void { OverviewState.toggle(); }
+    }
+    IpcHandler {
+        target: "settings"
+        function toggle(): void { SettingsAppState.toggle(); }
     }
 
     // Live theme application: the theme engine writes user-resolved tokens
