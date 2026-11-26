@@ -43,19 +43,23 @@ Item {
 
         SettingRow {
             title: "Repeat rate"
-            supporting: "Keys per second once repeating"
+            supporting: SettingsService.get("input", "repeatRate", 25) + " keys/sec once repeating"
             TritonSlider {
                 width: 250
-                value: 0.5
+                // 10–50 keys/sec mapped onto 0..1
+                value: (SettingsService.get("input", "repeatRate", 25) - 10) / 40
+                onMoved: v => SettingsService.set("input", "repeatRate", Math.round(10 + v * 40))
             }
         }
 
         SettingRow {
             title: "Repeat delay"
-            supporting: "Pause before repetition starts"
+            supporting: SettingsService.get("input", "repeatDelay", 400) + " ms before repetition starts"
             TritonSlider {
                 width: 250
-                value: 0.4
+                // 200–600 ms mapped onto 0..1
+                value: (SettingsService.get("input", "repeatDelay", 400) - 200) / 400
+                onMoved: v => SettingsService.set("input", "repeatDelay", Math.round(200 + v * 400))
             }
         }
     }

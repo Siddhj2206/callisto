@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 
 import Quickshell
 import Quickshell.Services.Notifications
+import ".."
 import QtQuick
 
 // Notification state: the single place toasts and the center read from.
@@ -21,7 +22,16 @@ import QtQuick
 Singleton {
     id: root
 
-    property bool dndActive: false
+    // DND lives in the settings store — the single source of truth. The bell,
+    // quick settings tile, and settings toggle all read/write the same key.
+    property bool dndActive: SettingsService.get("notifications", "dnd", false)
+    // Writes are gated on the store being loaded — otherwise startup would
+    // clobber a persisted dnd=true with the initial false before the file
+    // is even read.
+    onDndActiveChanged: {
+        if (SettingsService.loaded)
+            SettingsService.set("notifications", "dnd", dndActive);
+    }
     property bool centerOpen: false
 
     // Toast queue and center groups, plain JS arrays of plain objects so the

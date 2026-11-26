@@ -13,9 +13,9 @@ import "../services"
 Item {
     id: root
 
-    property string mode: "dark"
-    property string accent: "wallpaper"
-    property real contrast: 0.0
+    property string mode: SettingsService.get("appearance", "mode", "dark")
+    property string accent: SettingsService.get("appearance", "accent", "wallpaper")
+    property real contrast: SettingsService.get("appearance", "contrast", 0.0)
     property string material: "mica"
     property string wallpaperPath: SettingsService.get("appearance", "wallpaper", "")
     property bool transparency: true
@@ -223,7 +223,10 @@ Item {
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: root.modePicked(modeDelegate.modelData.id)
+                    onClicked: {
+                        root.modePicked(modeDelegate.modelData.id);
+                        SettingsService.set("appearance", "mode", modeDelegate.modelData.id);
+                    }
                 }
             }
         }
@@ -275,7 +278,10 @@ Item {
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.accentPicked(swatchDelegate.modelData.name.toLowerCase())
+                        onClicked: {
+                            root.accentPicked(swatchDelegate.modelData.name.toLowerCase());
+                            SettingsService.set("appearance", "accent", swatchDelegate.modelData.name.toLowerCase());
+                        }
                     }
                 }
 
@@ -310,7 +316,10 @@ Item {
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: root.accentPicked("wallpaper")
+                    onClicked: {
+                        root.accentPicked("wallpaper");
+                        SettingsService.set("appearance", "accent", "wallpaper");
+                    }
                 }
             }
             TritonText {
@@ -376,7 +385,10 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             width: 260
             value: (root.contrast + 1) / 2
-            onMoved: v => root.contrastMoved(v * 2 - 1)
+            onMoved: v => {
+                root.contrastMoved(v * 2 - 1);
+                SettingsService.set("appearance", "contrast", v * 2 - 1);
+            }
         }
     }
 
@@ -454,7 +466,10 @@ Item {
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: root.materialPicked(matDelegate.modelData.id)
+                    onClicked: {
+                        root.materialPicked(matDelegate.modelData.id);
+                        SettingsService.set("appearance", "material", matDelegate.modelData.id);
+                    }
                 }
             }
         }

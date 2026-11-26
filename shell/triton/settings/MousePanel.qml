@@ -47,7 +47,9 @@ Item {
             title: "Pointer speed"
             TritonSlider {
                 width: 250
-                value: 0.5
+                // hyprland sensitivity is -1.0..1.0, mapped onto 0..1
+                value: (SettingsService.get("input", "sensitivity", 0.0) + 1) / 2
+                onMoved: v => SettingsService.set("input", "sensitivity", Math.round((v * 2 - 1) * 100) / 100)
             }
         }
     }
