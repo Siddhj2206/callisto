@@ -18,26 +18,28 @@ Rectangle {
     signal navigated(int index)
     signal queryEdited(string text)
 
-    // [label|null for group headers, glyph, title]
+    // [label|null for group headers, glyph, title]. Nav indices are baked
+    // into the model — computing them per-delegate re-evaluates on every
+    // layout pass and polish-loops the Repeater.
     readonly property var entries: [
         { group: "Connect" },
-        { glyph: Icons.wifi, title: "Network" },
-        { glyph: Icons.bluetooth, title: "Bluetooth" },
+        { glyph: Icons.wifi, title: "Network", nav: 0 },
+        { glyph: Icons.bluetooth, title: "Bluetooth", nav: 1 },
         { group: "Devices" },
-        { glyph: Icons.monitor, title: "Displays" },
-        { glyph: Icons.volumeUp, title: "Sound" },
-        { glyph: Icons.keyboard, title: "Keyboard" },
-        { glyph: Icons.mouse, title: "Mouse & touchpad" },
-        { glyph: Icons.batteryFull, title: "Power" },
+        { glyph: Icons.monitor, title: "Displays", nav: 2 },
+        { glyph: Icons.volumeUp, title: "Sound", nav: 3 },
+        { glyph: Icons.keyboard, title: "Keyboard", nav: 4 },
+        { glyph: Icons.mouse, title: "Mouse & touchpad", nav: 5 },
+        { glyph: Icons.batteryFull, title: "Power", nav: 6 },
         { group: "Triton" },
-        { glyph: Icons.palette, title: "Appearance" },
-        { glyph: Icons.toolbar, title: "Bar & Shell" },
-        { glyph: Icons.webAsset, title: "Windows" },
-        { glyph: Icons.notifications, title: "Notifications" },
+        { glyph: Icons.palette, title: "Appearance", nav: 7 },
+        { glyph: Icons.toolbar, title: "Bar & Shell", nav: 8 },
+        { glyph: Icons.webAsset, title: "Windows", nav: 9 },
+        { glyph: Icons.notifications, title: "Notifications", nav: 10 },
         { group: "System" },
-        { glyph: Icons.apps, title: "Apps" },
-        { glyph: Icons.person, title: "Users" },
-        { glyph: Icons.info, title: "About" },
+        { glyph: Icons.apps, title: "Apps", nav: 11 },
+        { glyph: Icons.person, title: "Users", nav: 12 },
+        { glyph: Icons.info, title: "About", nav: 13 },
     ]
 
     width: 280
@@ -60,6 +62,7 @@ Rectangle {
 
             Row {
                 x: 18
+                width: parent.width - 18
                 height: parent.height
                 spacing: 12
 
@@ -100,14 +103,7 @@ Rectangle {
                 required property var modelData
                 required property int index
                 property bool isGroup: modelData.group !== undefined
-                // nav indices count only non-group entries
-                property int navIndex: {
-                    let n = -1;
-                    for (let i = 0; i <= index; i++)
-                        if (root.entries[i].group === undefined)
-                            n++;
-                    return n;
-                }
+                property int navIndex: modelData.nav !== undefined ? modelData.nav : -1
 
                 width: parent.width
                 height: isGroup ? 40 : 48
@@ -134,6 +130,7 @@ Rectangle {
 
                     Row {
                         x: 16
+                        width: parent.width - 16
                         height: parent.height
                         spacing: 16
 
