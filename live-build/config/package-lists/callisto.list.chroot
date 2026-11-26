@@ -33,6 +33,7 @@ xdg-desktop-portal-gtk
 # --- Compositor & shell (trixie-backports, see archives/backports.pref.chroot) -
 hyprland
 quickshell
+uwsm
 
 # --- Desktop components --------------------------------------------------------
 fuzzel

@@ -1,7 +1,12 @@
 # Hyprland, Quickshell, and their shared dependency chain exist only in
 # trixie-backports. Pinning is required so transitive library dependencies
-# (libaquamarine, libhyprutils, ...) also come from backports rather than
-# resolving to older stable versions.
-Package: hyprland hyprland-* quickshell libaquamarine* libhypr*
-Pin: release a=trixie-backports
+# (libxkbcommon, libinput, libwayland, libaquamarine, libhypr*) resolve to
+# backports versions rather than older stable ones — apt does not
+# automatically upgrade dependencies of pinned packages.
+#
+# NOTE: the pin must use the codename (n=trixie-backports), not the archive
+# key — backports' Release file declares Suite: stable-backports, so
+# "release a=trixie-backports" matches nothing and the pin silently no-ops.
+Package: hyprland hyprland-* quickshell uwsm libaquamarine* libhypr* libxkbcommon* libinput* libwayland*
+Pin: release n=trixie-backports
 Pin-Priority: 600

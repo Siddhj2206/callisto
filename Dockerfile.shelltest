@@ -17,7 +17,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # of the system stays on stable.
 RUN echo 'deb http://deb.debian.org/debian trixie-backports main contrib non-free-firmware' \
         > /etc/apt/sources.list.d/backports.list \
-    && printf 'Package: hyprland hyprland-* quickshell libaquamarine* libhypr*\nPin: release a=trixie-backports\nPin-Priority: 600\n' \
+    && printf 'Package: hyprland hyprland-* quickshell libaquamarine* libhypr* libxkbcommon* libinput* libwayland*\nPin: release n=trixie-backports\nPin-Priority: 600\n' \
         > /etc/apt/preferences.d/backports-pin \
     && apt-get update \
     && apt-get install -y --no-install-recommends \

@@ -44,6 +44,18 @@ LOGDIR="$HOME/.local/state/callisto"
 mkdir -p "$LOGDIR"
 
 # --- Launch ----------------------------------------------------------------------
-# exec so Hyprland replaces this script: when Hyprland exits, the session ends
-# and greetd falls back to the greeter.
-exec Hyprland >"$LOGDIR/hyprland.log" 2>&1
+# Launch through uwsm (universal wayland session manager): the compositor and
+# everything it spawns become proper systemd user units under the session scope
+# — correct ordering with pipewire/wireplumber, clean shutdown on logout, and
+# per-service restart instead of exec-once hacks in the compositor config.
+# Prefer the packaged desktop entry id; fall back to a bare command line.
+if command -v uwsm >/dev/null 2>&1; then
+    if ls /usr/share/wayland-sessions/hyprland-uwsm.desktop >/dev/null 2>&1; then
+        exec uwsm start hyprland-uwsm.desktop >>"$LOGDIR/hyprland.log" 2>&1
+    fi
+    exec uwsm start -- Hyprland >>"$LOGDIR/hyprland.log" 2>&1
+fi
+
+# Last-resort fallback: bare compositor, losing systemd integration but still
+# booting a desktop. A live ISO must never strand the user at a TTY.
+exec Hyprland >>"$LOGDIR/hyprland.log" 2>&1
