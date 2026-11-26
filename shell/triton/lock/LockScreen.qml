@@ -261,6 +261,7 @@ Item {
 
                     TextInput {
                         id: pwInput
+                        focus: true
                         width: parent.parent.width - 18 - 20 - 44 - 40 - 36 - 36
                         height: parent.height
                         verticalAlignment: TextInput.AlignVCenter
@@ -269,7 +270,10 @@ Item {
                         font.letterSpacing: 4
                         color: Theme.onsurface
                         clip: true
-                        onAccepted: root.passwordSubmitted(pwInput.text)
+                        onAccepted: {
+                            root.passwordSubmitted(pwInput.text);
+                            pwInput.text = "";
+                        }
                         onTextChanged: if (text !== "") root.fieldState = LockScreen.FieldState.Typing
                     }
                 }

@@ -455,33 +455,44 @@ def apply_live(store: dict, tokens: dict) -> None:
     # raced/skipped writes and pushed fallback gray borders on accent changes.
     dark = tokens["color"]["dark"]["primary"].lstrip("#")
     inactive = "44474f"
-    keywords = [
-        ("general:col.active_border", f"rgba({dark}aa)"),
-        ("general:col.inactive_border", f"rgba({inactive}44)"),
-        ("input:kb_layout", str(input_s.get("keyboardLayout", "us"))),
-        ("input:follow_mouse", str(1 if windows.get("focusFollowsMouse", True) else 0)),
-        ("input:touchpad:natural_scroll", "true" if input_s.get("naturalScroll", True) else "false"),
-        ("input:touchpad:tap-to-click", "true" if input_s.get("tapToClick", True) else "false"),
-        ("input:repeat_rate", str(input_s.get("repeatRate", 25)) if input_s.get("repeat", True) else "0"),
-        ("input:repeat_delay", str(input_s.get("repeatDelay", 400))),
-        ("input:sensitivity", str(input_s.get("sensitivity", 0.0))),
-        ("misc:vrr", "1" if store.get("display", {}).get("vrr", True) else "0"),
-    ]
-    # Monitor scale: needs a monitor rule, not a section keyword.
+    # Live pushes must speak the Lua engine's dialect: hyprctl keyword is
+    # rejected outright under the lua config manager ("keyword can't work
+    # with non-legacy parsers"). One eval applies everything atomically.
+    repeat_rate = input_s.get("repeatRate", 25) if input_s.get("repeat", True) else 0
+    vrr = 1 if store.get("display", {}).get("vrr", True) else 0
+    lua = (
+        "hl.config({"
+        "general = { col = { active_border = \"rgba(%saa)\","
+        " inactive_border = \"rgba(%s44)\" } },"
+        "input = { kb_layout = \"%s\", follow_mouse = %d,"
+        " repeat_rate = %d, repeat_delay = %d, sensitivity = %s,"
+        " touchpad = { natural_scroll = %s, tap_to_click = %s } },"
+        "misc = { vrr = %d }"
+        "})"
+    ) % (
+        dark, inactive,
+        input_s.get("keyboardLayout", "us"),
+        1 if windows.get("focusFollowsMouse", True) else 0,
+        repeat_rate,
+        input_s.get("repeatDelay", 400),
+        input_s.get("sensitivity", 0.0),
+        "true" if input_s.get("naturalScroll", True) else "false",
+        "true" if input_s.get("tapToClick", True) else "false",
+        vrr,
+    )
+    try:
+        subprocess.run(["hyprctl", "eval", lua], capture_output=True, timeout=3)
+    except Exception:
+        pass
+    # Monitor scale: a rule, not a config key — eval'd hl.monitor merges it.
     scale = store.get("display", {}).get("scale", 1.0)
     if scale != 1.0:
         try:
-            subprocess.run(["hyprctl", "keyword", "monitor",
-                            f",preferred,auto,{scale}"],
+            subprocess.run(["hyprctl", "eval",
+                            "hl.monitor({ output = \"\", scale = %s })" % scale],
                            capture_output=True, timeout=3)
         except Exception:
             pass
-    try:
-        for key, val in keywords:
-            subprocess.run(["hyprctl", "keyword", key, val],
-                           capture_output=True, timeout=3)
-    except Exception:
-        pass
 
     # Night light: hyprsunset is already running in the session; temperature
     # control is a hyprctl keyword. Store key is display.nightLight.
