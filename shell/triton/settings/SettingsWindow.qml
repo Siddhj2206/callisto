@@ -64,6 +64,34 @@ Item {
             anchors.fill: parent
             visible: root.panel === 10
         }
+        NetworkPanel {
+            anchors.fill: parent
+            visible: root.panel === 0
+        }
+        BluetoothPanel {
+            anchors.fill: parent
+            visible: root.panel === 1
+        }
+        KeyboardPanel {
+            anchors.fill: parent
+            visible: root.panel === 4
+        }
+        MousePanel {
+            anchors.fill: parent
+            visible: root.panel === 5
+        }
+        PowerPanel {
+            anchors.fill: parent
+            visible: root.panel === 6
+        }
+        AppsPanel {
+            anchors.fill: parent
+            visible: root.panel === 11
+        }
+        UsersPanel {
+            anchors.fill: parent
+            visible: root.panel === 12
+        }
         SoundPanel {
             anchors.fill: parent
             visible: root.panel === 3
@@ -80,7 +108,7 @@ Item {
         // Other panels land one at a time with the mock-verify loop; the
         // shell must never show an empty pane.
         TritonText {
-            visible: ![2, 3, 7, 8, 9, 10, 13].includes(root.panel)
+            visible: ![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].includes(root.panel)
             anchors.centerIn: parent
             text: "Panel " + root.panel + " — in progress"
             font.pixelSize: 20
