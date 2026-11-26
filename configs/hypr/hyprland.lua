@@ -108,10 +108,10 @@ hl.animation({ leaf = "workspaces", enabled = true, speed = 4, bezier = "tritonO
 hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
 
 -- --- Floating surfaces get the Triton radius ------------------------------------
-hl.window_rule({ match = { float = true }, rounding = 28 })
+hl.window_rule({ match = { float = true }, rounding = 20 })
 
 -- Shell dialogs and settings windows float by design.
-hl.window_rule({ match = { class = "^(callisto-settings)$" }, float = true, rounding = 28 })
+hl.window_rule({ match = { class = "^(callisto-settings)$" }, float = true, rounding = 20 })
 
 -- --- Layer rules: shell materials -------------------------------------------------
 -- Quickshell layer surfaces get compositor blur for Glass and Thick Glass.

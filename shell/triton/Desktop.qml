@@ -30,7 +30,7 @@ PanelWindow {
     WlrLayershell.layer: WlrLayer.Background
     WlrLayershell.namespace: "triton-desktop"
 
-    readonly property string storeWallpaper: SettingsService.get("appearance", "wallpaper", "")
+    readonly property string storeWallpaper: SettingsService.get("appearance", "wallpaper", "/usr/share/backgrounds/callisto/wallpaper.jpg")
     // While the picker previews, the preview channel wins.
     readonly property string wallpaperPath: WallpaperState.previewPath !== "" ? WallpaperState.previewPath : storeWallpaper
 
