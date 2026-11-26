@@ -19,7 +19,12 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
     visible: NotificationState.centerOpen
 
+    // Only the panel column receives input — the transparent margin strip
+    // passes through to windows underneath.
+    mask: Region { item: centerPanel }
+
     NotificationCenter {
+        id: centerPanel
         x: 0
         anchors.verticalCenter: parent.verticalCenter
         height: parent.height - 40
@@ -27,6 +32,7 @@ PanelWindow {
         dndActive: NotificationState.dndActive
 
         onClearGroup: idx => NotificationState.clearGroup(idx)
+        onToggleGroup: idx => NotificationState.toggleGroup(idx)
         onDndToggled: NotificationState.dndActive = !NotificationState.dndActive
     }
 

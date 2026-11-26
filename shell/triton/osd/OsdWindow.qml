@@ -19,7 +19,13 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     visible: OsdState.visible
 
+    // The OSD is informational — input passes through everywhere except the
+    // pill itself (which carries exactly one interactive element: the
+    // battery-low Saver button).
+    mask: Region { item: osdPill }
+
     Osd {
+        id: osdPill
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 48

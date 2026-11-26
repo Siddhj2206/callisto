@@ -66,6 +66,7 @@ if [[ "$MODE" == "nested" ]]; then
         --tmpfs /home/triton/xdg:rw,exec,mode=0700,U \
         -v "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/wl/socket" \
         -v "$REPO_ROOT/shell/triton:/triton:ro" \
+    -v "$REPO_ROOT/scripts/intertest:/triton-intertest:ro" \
         "$IMAGE"
 fi
 
@@ -87,6 +88,7 @@ podman run -d --rm \
     -e COMPOSITOR="${COMPOSITOR:-sway}" \
     --tmpfs /home/triton/xdg:rw,exec,mode=0700,U \
     -v "$REPO_ROOT/shell/triton:/triton:ro" \
+    -v "$REPO_ROOT/scripts/intertest:/triton-intertest:ro" \
     "$IMAGE" >/dev/null
 
 sleep "$WAIT_SECONDS"

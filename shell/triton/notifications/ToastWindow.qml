@@ -23,6 +23,10 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
     visible: NotificationState.toasts.length > 0
 
+    // Clicks pass through everywhere except the actual toast cards —
+    // the strip window otherwise eats the whole top-right screen corner.
+    mask: Region { item: toastCol }
+
     Column {
         id: toastCol
         x: 0

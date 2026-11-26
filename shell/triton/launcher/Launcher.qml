@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Wayland
 import QtQuick
+import ".."
 import "../components"
 import "../services"
 
@@ -44,6 +45,16 @@ PanelWindow {
         }
     }
 
+    // Opening resets the search — the launcher is a fresh query every time,
+    // not a continuation of whatever you typed yesterday.
+    Connections {
+        target: LauncherState
+        function onOpenChanged() {
+            if (LauncherState.open)
+                LauncherService.reset();
+        }
+    }
+
     LauncherPanel {
         id: panel
         anchors.horizontalCenter: parent.horizontalCenter
@@ -52,7 +63,21 @@ PanelWindow {
         y: Math.round((root.height - height) * 0.42)
         visible: root.visible
 
+        query: LauncherService.query
+        mode: LauncherService.mode
+        results: LauncherService.results
+        topHitGlyph: Icons.apps
+        topHitName: LauncherService.topHit ? (LauncherService.topHit.name || "") : ""
+        topHitSubtitle: LauncherService.topHit ? (LauncherService.topHit.genericName || LauncherService.topHit.comment || "") : ""
+        topHitActions: LauncherService.topHit ? [{ text: "Launch" }] : []
+        calcExpression: LauncherService.mode === 1 ? LauncherService.query.slice(1) : ""
+        calcResult: LauncherService.calcResult
+
+        onQueryEdited: text => LauncherService.query = text
         onClosed: root.dismiss()
-        onActivated: root.dismiss()
+        onActivated: idx => {
+            LauncherService.activateSelection(idx);
+            root.dismiss();
+        }
     }
 }

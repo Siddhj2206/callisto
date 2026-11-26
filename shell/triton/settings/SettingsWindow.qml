@@ -45,79 +45,53 @@ Item {
         anchors.bottom: parent.bottom
         clip: true
 
-        AppearancePanel {
+        // M8 fix: one panel alive at a time. All fourteen used to be
+        // instantiated eagerly — every store binding live, the wallpaper
+        // preview decoded before the window ever opened.
+        Loader {
             anchors.fill: parent
-            visible: root.panel === 7
+            sourceComponent: {
+                switch (root.panel) {
+                case 0: return networkPanel;
+                case 1: return bluetoothPanel;
+                case 2: return displaysPanel;
+                case 3: return soundPanel;
+                case 4: return keyboardPanel;
+                case 5: return mousePanel;
+                case 6: return powerPanel;
+                case 7: return appearancePanel;
+                case 8: return barShellPanel;
+                case 9: return windowsPanel;
+                case 10: return notificationsPanel;
+                case 11: return appsPanel;
+                case 12: return usersPanel;
+                case 13: return aboutPanel;
+                default: return appearancePanel;
+                }
+            }
+        }
+    }
+
+    Component { id: networkPanel; NetworkPanel {} }
+    Component { id: bluetoothPanel; BluetoothPanel {} }
+    Component { id: displaysPanel; DisplaysPanel {} }
+    Component { id: soundPanel; SoundPanel {} }
+    Component { id: keyboardPanel; KeyboardPanel {} }
+    Component { id: mousePanel; MousePanel {} }
+    Component { id: powerPanel; PowerPanel {} }
+    Component {
+        id: appearancePanel
+        AppearancePanel {
             onWallpaperBrowse: {
                 SettingsAppState.open = false;
                 WallpaperState.show();
             }
-            mode: "dark"
-            accent: "wallpaper"
-            wallpaperPath: Qt.resolvedUrl("../board-wallpaper-1646.jpg").toString().replace("file://", "")
-        }
-
-        WindowsPanel {
-            anchors.fill: parent
-            visible: root.panel === 9
-        }
-        BarShellPanel {
-            anchors.fill: parent
-            visible: root.panel === 8
-        }
-        NotificationsPanel {
-            anchors.fill: parent
-            visible: root.panel === 10
-        }
-        NetworkPanel {
-            anchors.fill: parent
-            visible: root.panel === 0
-        }
-        BluetoothPanel {
-            anchors.fill: parent
-            visible: root.panel === 1
-        }
-        KeyboardPanel {
-            anchors.fill: parent
-            visible: root.panel === 4
-        }
-        MousePanel {
-            anchors.fill: parent
-            visible: root.panel === 5
-        }
-        PowerPanel {
-            anchors.fill: parent
-            visible: root.panel === 6
-        }
-        AppsPanel {
-            anchors.fill: parent
-            visible: root.panel === 11
-        }
-        UsersPanel {
-            anchors.fill: parent
-            visible: root.panel === 12
-        }
-        SoundPanel {
-            anchors.fill: parent
-            visible: root.panel === 3
-        }
-        DisplaysPanel {
-            anchors.fill: parent
-            visible: root.panel === 2
-        }
-        AboutPanel {
-            anchors.fill: parent
-            visible: root.panel === 13
-        }
-
-        // Other panels land one at a time with the mock-verify loop; the
-        // shell must never show an empty pane.
-        TritonText {
-            visible: ![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].includes(root.panel)
-            anchors.centerIn: parent
-            text: "Panel " + root.panel + " — in progress"
-            font.pixelSize: 20
-            color: Theme.onsurfacevariant
         }
     }
+    Component { id: barShellPanel; BarShellPanel {} }
+    Component { id: windowsPanel; WindowsPanel {} }
+    Component { id: notificationsPanel; NotificationsPanel {} }
+    Component { id: appsPanel; AppsPanel {} }
+    Component { id: usersPanel; UsersPanel {} }
+    Component { id: aboutPanel; AboutPanel {} }
 }

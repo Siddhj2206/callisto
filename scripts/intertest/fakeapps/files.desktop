@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Files
+GenericName=file manager
+Comment=file manager
+Icon=applications-other
+Exec=/bin/true
+Categories=Utility;

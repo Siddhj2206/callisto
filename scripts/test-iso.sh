@@ -17,7 +17,7 @@ OUT="$REPO_ROOT/.isotest"
 MON="$OUT/monitor.sock"
 SERIAL="$OUT/serial.log"
 
-mkdir -p "$OUT"
+mkdir -p "$OUT" "$OUT/share"
 rm -f "$MON" "$SERIAL"
 
 QEMU="${QEMU:-qemu-system-x86_64}"
@@ -29,6 +29,7 @@ echo "==> Booting $ISO (headless, serial logging)"
     -cdrom "$ISO" -boot d \
     -netdev user,id=net0 -device virtio-net-pci,netdev=net0 \
     -device virtio-vga \
+    -virtfs local,path="$OUT/share",mount_tag=hostshare,security_model=mapped-xattr \
     -display none \
     -serial "file:$SERIAL" \
     -monitor "unix:$MON,server,nowait" \
@@ -73,6 +74,8 @@ except Exception as e:
 key() { mon "sendkey $1"; sleep 0.4; }
 
 type_text() {
+    # QEMU sendkey names for the full printable ascii set (us layout).
+    # Punctuation needs explicit names — bare characters are ignored.
     local text="$1"
     for (( i=0; i<${#text}; i++ )); do
         c="${text:i:1}"
@@ -82,9 +85,38 @@ type_text() {
             [0-9]) key "$c" ;;
             " ") key "spc" ;;
             ".") key "dot" ;;
+            ",") key "comma" ;;
             "/") key "slash" ;;
+            "\\") key "backslash" ;;
             "-") key "minus" ;;
-            *) key "$c" ;;
+            "=") key "equal" ;;
+            ";") key "semicolon" ;;
+            "'") key "apostrophe" ;;
+            "\`") key "grave_accent" ;;
+            "[") key "bracket_left" ;;
+            "]") key "bracket_right" ;;
+            "!") key "shift-1" ;;
+            "@") key "shift-2" ;;
+            "#") key "shift-3" ;;
+            "\$") key "shift-4" ;;
+            "%") key "shift-5" ;;
+            "^") key "shift-6" ;;
+            "&") key "shift-7" ;;
+            "*") key "shift-8" ;;
+            "(") key "shift-9" ;;
+            ")") key "shift-0" ;;
+            "_") key "shift-minus" ;;
+            "+") key "shift-equal" ;;
+            ":") key "shift-semicolon" ;;
+            "\"") key "shift-apostrophe" ;;
+            "~") key "shift-grave_accent" ;;
+            "{") key "shift-bracket_left" ;;
+            "}") key "shift-bracket_right" ;;
+            "|") key "shift-backslash" ;;
+            "<") key "shift-comma" ;;
+            ">") key "shift-dot" ;;
+            "?") key "shift-slash" ;;
+            *) echo "type_text: skipping unmappable char: $c" >&2 ;;
         esac
     done
 }

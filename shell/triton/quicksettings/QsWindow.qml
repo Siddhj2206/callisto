@@ -24,6 +24,11 @@ PanelWindow {
     WlrLayershell.keyboardFocus: visible ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
     visible: QuickSettingsState.open
 
+    // Only the panel rectangle receives input — the transparent margins
+    // around it (y clearance, right margin) must pass clicks through to
+    // windows underneath instead of eating them.
+    mask: Region { item: panel }
+
     // Volume is live pipewire state; the slider writes straight to the sink.
     readonly property PwNode sink: Pipewire.defaultAudioSink
     PwObjectTracker { objects: root.sink ? [root.sink] : [] }

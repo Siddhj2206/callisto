@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Firefox
+GenericName=web browser
+Comment=web browser
+Icon=applications-other
+Exec=/bin/true
+Categories=Utility;

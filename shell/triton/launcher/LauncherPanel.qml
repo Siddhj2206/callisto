@@ -374,11 +374,16 @@ Rectangle {
                 // fixed-width leaf; the rows determine how tall the body is.
                 Rectangle {
                     width: 310
-                    height: resultsCol.implicitHeight
+                    // The card must fit its own content — pinning it to the
+                    // results column (often shorter) squeezed the bottom-
+                    // anchored actions over the title. The body height takes
+                    // the max of both columns.
+                    height: Math.max(resultsCol.implicitHeight, cardCol.implicitHeight + 40)
                     radius: 24
                     color: Theme.primaryContainer
 
                     Column {
+                        id: cardCol
                         x: 20
                         y: 20
                         width: parent.width - 40
@@ -429,12 +434,10 @@ Rectangle {
                         }
                     }
 
-                    // Board: actions sit at the card's bottom edge
-                    // (margin-top:auto in the flex column).
+                    // Board: actions sit at the card's bottom edge.
                     Row {
                         x: 20
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: 20
+                        y: cardCol.y + cardCol.implicitHeight + 12
                         spacing: 8
 
                         Repeater {
@@ -487,6 +490,7 @@ Rectangle {
                                 visible: modelData.kind !== "label"
                                 width: parent.width
                                 glyph: modelData.glyph || ""
+                                iconName: modelData.iconName || ""
                                 fillGlyph: modelData.fillGlyph || false
                                 title: modelData.title || ""
                                 subtitle: modelData.subtitle || ""

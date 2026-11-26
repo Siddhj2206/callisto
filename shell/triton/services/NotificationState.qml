@@ -68,10 +68,14 @@ Singleton {
         const i = gs.findIndex(g => g.app === n.app);
         if (i >= 0) {
             const g = Object.assign({}, gs[i]);
-            g.items = [n].concat(g.items || []);
+            // Cap per-group history — an unbounded array behind a Repeater is
+            // a memory leak you can watch grow in real time.
+            g.items = [n].concat(g.items || []).slice(0, 20);
             g.count = (g.count || 0) + 1;
             g.countText = String(g.count);
-            gs[i] = g;
+            // Move the active group to the top.
+            gs.splice(i, 1);
+            gs.unshift(g);
         } else {
             gs.unshift({
                 app: n.app,
@@ -81,7 +85,8 @@ Singleton {
                 items: [n],
             });
         }
-        root.groups = gs;
+        // Cap total groups too.
+        root.groups = gs.slice(0, 10);
     }
 
     function dismissToast(n) {

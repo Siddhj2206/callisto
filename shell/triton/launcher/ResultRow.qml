@@ -1,6 +1,8 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import Quickshell
+import Quickshell.Widgets
 import ".."
 import "../components"
 
@@ -16,6 +18,7 @@ Rectangle {
     id: root
 
     property string glyph: ""
+    property string iconName: "" // themed icon name — wins over glyph when set
     property bool fillGlyph: false
     property string title: ""
     property string subtitle: ""
@@ -58,11 +61,20 @@ Rectangle {
                 color: root.discColor
 
                 TritonIcon {
+                    visible: root.iconName === ""
                     anchors.centerIn: parent
                     glyph: root.glyph
                     fill: root.fillGlyph
                     size: 22
                     color: root.discContentColor
+                }
+
+                IconImage {
+                    visible: root.iconName !== ""
+                    anchors.centerIn: parent
+                    implicitSize: 24
+                    asynchronous: true
+                    source: root.iconName !== "" ? Quickshell.iconPath(root.iconName, "application-x-executable") : ""
                 }
             }
 
