@@ -1,0 +1,44 @@
+# Callisto shell test environment.
+#
+# Runs the Triton shell (Quickshell QML) inside a nested Hyprland instance
+# without booting the full ISO — the fast inner development loop for all
+# shell/ work. The compositor appears as a window in the host's Wayland
+# session; the shell sources are bind-mounted in, so edits are picked up by
+# restarting the container, which takes seconds.
+#
+# Build:  sudo podman build -f Dockerfile.shelltest -t callisto-shelltest .
+# Run:    scripts/test-shell.sh
+
+FROM debian:trixie-slim
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# hyprland and quickshell are only in trixie-backports; pin them so the rest
+# of the system stays on stable.
+RUN echo 'deb http://deb.debian.org/debian trixie-backports main contrib non-free-firmware' \
+        > /etc/apt/sources.list.d/backports.list \
+    && printf 'Package: hyprland hyprland-* quickshell libaquamarine* libhypr*\nPin: release a=trixie-backports\nPin-Priority: 600\n' \
+        > /etc/apt/preferences.d/backports-pin \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        hyprland \
+        quickshell \
+        fuzzel \
+        foot \
+        xwayland \
+        pipewire \
+        wireplumber \
+        fonts-jetbrains-mono \
+        fonts-inter \
+        qt6-declarative-dev-tools \
+        jq \
+    && rm -rf /var/lib/apt/lists/*
+
+# Fonts the design system needs that Debian does not package. Present or not,
+# the shell must degrade gracefully — keep them optional here.
+RUN mkdir -p /usr/local/share/fonts
+
+COPY scripts/entrypoint-shelltest.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
