@@ -15,7 +15,7 @@ Item {
 
     readonly property PwNode sink: Pipewire.defaultAudioSink
     readonly property PwNode source: Pipewire.defaultAudioSource
-    PwObjectTracker { objects: [root.sink, root.source].filter(n => n !== null) }
+    PwObjectTracker { objects: [root.sink, root.source].concat(Array.from(Pipewire.nodes.values)).filter(n => n !== null) }
     readonly property bool hasSink: !!root.sink && !!root.sink.audio
     readonly property bool hasSource: !!root.source && !!root.source.audio
     readonly property string sinkName: hasSink ? (root.sink.description || root.sink.name || "Output") : "No output device"
@@ -64,15 +64,49 @@ Item {
 
         SectionLabel { label: "Devices"; bottomPadding: 8; topPadding: 20 }
 
-        SettingRow {
-            icon: Icons.volumeUp
-            title: "Speakers"
-            supporting: "Built-in audio · active"
+        // Real sink list from pipewire — output devices with live active
+        // marking. Selection sets the default sink.
+        Repeater {
+            model: {
+                const rows = [];
+                for (const node of Pipewire.nodes.values) {
+                    if (!node.audio || !node.isSink || node.isStream)
+                        continue;
+                    rows.push(node);
+                }
+                return rows;
+            }
+
+            delegate: SettingRow {
+                required property var modelData
+                property var node: modelData
+                icon: Icons.volumeUp
+                title: node.description || node.name || "Output"
+                supporting: node === root.sink ? "Active" : "Available"
+
+                TritonIcon {
+                    visible: node === root.sink
+                    glyph: Icons.check
+                    fill: true
+                    size: 20
+                    color: Theme.primary
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    z: -1
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: Pipewire.setDefaultAudioSink(node)
+                }
+            }
         }
+
         SettingRow {
-            icon: Icons.volumeUp
-            title: "Headphones"
-            supporting: "Not connected"
+            visible: !root.hasSink
+            icon: Icons.volumeOff
+            title: "No output devices"
+            supporting: "Pipewire reports no sinks"
         }
     }
 }
