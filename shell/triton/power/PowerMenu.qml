@@ -238,7 +238,7 @@ Item {
                             radius: 7
                             color: "transparent"
                             border.width: 1
-                            border.color: "#4DFFFFFF"
+                            border.color: Theme.veilHigh
                         }
 
                         TritonText {

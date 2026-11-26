@@ -61,7 +61,7 @@ Rectangle {
                 width: parent.width
                 height: 52
                 radius: 26
-                color: "#1FFFFFFF"
+                color: Theme.veilMid
 
                 Row {
                     x: 18
@@ -125,7 +125,7 @@ Rectangle {
                         radius: 18
                         color: index === root.activeChip ? Theme.secondaryContainer : "transparent"
                         border.width: index === root.activeChip ? 0 : 1
-                        border.color: "#4DFFFFFF"
+                        border.color: Theme.veilHigh
 
                         TritonText {
                             id: chipLabel
@@ -201,7 +201,7 @@ Rectangle {
                                     height: 38
                                     radius: 19
                                     anchors.verticalCenter: parent.verticalCenter
-                                    color: rowRoot.isSelected ? "#26002D6E" : "#1FFFFFFF"
+                                    color: rowRoot.isSelected ? "#26002D6E" : Theme.veilMid
 
                                     TritonIcon {
                                         anchors.centerIn: parent
@@ -405,7 +405,7 @@ Rectangle {
                         height: 48
                         width: copyRow.implicitWidth + 40
                         radius: 24
-                        color: "#1FFFFFFF"
+                        color: Theme.veilMid
 
                         Row {
                             id: copyRow

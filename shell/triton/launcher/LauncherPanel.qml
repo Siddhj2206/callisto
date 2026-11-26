@@ -217,7 +217,7 @@ Rectangle {
         Rectangle {
             width: parent.width
             height: 1
-            color: "#1FFFFFFF"
+            color: Theme.veilMid
         }
 
         // ---- Body per mode ----
@@ -237,7 +237,7 @@ Rectangle {
             Rectangle {
                 width: parent.width
                 height: 1
-                color: "#1FFFFFFF"
+                color: Theme.veilMid
             }
 
             Row {
@@ -275,7 +275,7 @@ Rectangle {
                                     radius: 7
                                     color: "transparent"
                                     border.width: 1
-                                    border.color: "#4DFFFFFF"
+                                    border.color: Theme.veilHigh
 
                                     TritonIcon {
                                         anchors.centerIn: parent
@@ -296,7 +296,7 @@ Rectangle {
                                     radius: 7
                                     color: "transparent"
                                     border.width: 1
-                                    border.color: "#4DFFFFFF" // white 30%
+                                    border.color: Theme.veilHigh // white 30%
 
                                     TritonText {
                                         id: keyText
@@ -333,7 +333,7 @@ Rectangle {
                     radius: 7
                     color: "transparent"
                     border.width: 1
-                    border.color: "#4DFFFFFF"
+                    border.color: Theme.veilHigh
 
                     TritonText {
                         id: escText

@@ -206,7 +206,7 @@ Item {
             width: 460
             height: 60
             radius: 30
-            color: "#1FFFFFFF"
+            color: Theme.veilMid
             border.width: 2
             border.color: Theme.primary
 

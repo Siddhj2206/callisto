@@ -24,7 +24,7 @@ Item {
         radius: 28
         color: Theme.surface
         border.width: 1
-        border.color: "#1FFFFFFF"
+        border.color: Theme.veilMid
     }
 
     SettingsSidebar {

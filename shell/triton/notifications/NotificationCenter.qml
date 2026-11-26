@@ -209,7 +209,7 @@ Rectangle {
                             RoundedRect {
                                 anchors.fill: parent
                                 radii: [20, 20, 20, 8]
-                                color: "#17FFFFFF" // white .09
+                                color: Theme.veilLow // white .09
                             }
 
                             Column {
@@ -270,7 +270,7 @@ Rectangle {
                         height: 50
                         opacity: 0.5
                         radii: [20, 20, 20, 8]
-                        color: "#17FFFFFF"
+                        color: Theme.veilLow
                     }
 
                     Item {
@@ -280,7 +280,7 @@ Rectangle {
                         RoundedRect {
                             anchors.fill: parent
                             radii: [20, 20, 20, 8]
-                            color: "#17FFFFFF"
+                            color: Theme.veilLow
                         }
 
                         Column {

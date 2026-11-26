@@ -127,7 +127,7 @@ Rectangle {
                     radius: modelData.first ? 18 : modelData.last ? 18 : 6
                     color: modelData.color
                     border.width: modelData.ring ? 1 : 0
-                    border.color: "#4DFFFFFF"
+                    border.color: Theme.veilHigh
 
                     Rectangle {
                         visible: modelData.first

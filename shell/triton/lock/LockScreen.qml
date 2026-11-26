@@ -243,7 +243,7 @@ Item {
                 width: parent.width
                 height: 56
                 radius: 28
-                color: root.fieldState === LockScreen.FieldState.Wrong ? "#B893000A" : "#1FFFFFFF"
+                color: root.fieldState === LockScreen.FieldState.Wrong ? "#B893000A" : Theme.veilMid
                 border.width: root.fieldState === LockScreen.FieldState.Typing || root.fieldState === LockScreen.FieldState.Wrong ? 2 : 0
                 border.color: root.fieldState === LockScreen.FieldState.Wrong ? Theme.error : Theme.primary
 

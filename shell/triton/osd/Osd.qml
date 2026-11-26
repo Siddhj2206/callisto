@@ -82,7 +82,7 @@ Rectangle {
                 visible: !root.isOff && root.variant !== Osd.Variant.Track
                 anchors.fill: parent
                 radius: 22
-                color: "#1FFFFFFF" // white .12
+                color: Theme.veilMid // white .12
 
                 TritonIcon {
                     anchors.centerIn: parent

@@ -173,6 +173,15 @@ def main() -> int:
 
     lines += [
         "",
+        "    // ---- Veil alphas + semantic accents: the white-on-glass overlays",
+        "    // and status colors the boards use as bare literals. Centralizing",
+        "    // them means light mode can restate them if needed.",
+        '    readonly property color veilLow: "#17FFFFFF"',
+        '    readonly property color veilMid: "#1FFFFFFF"',
+        '    readonly property color veilHigh: "#4DFFFFFF"',
+        '    readonly property color successtint: "#8CD6A0"',
+        '    readonly property color onsuccess: "#00391B"',
+        "",
         "    // ---- Sizes ----",
         f'    readonly property real barHeight: {size.get("bar_height", 56)}',
         "",

@@ -47,7 +47,7 @@ Rectangle {
                 radius: 20
                 color: modelData.active ? Theme.primary : "transparent"
                 border.width: modelData.active ? 0 : 1
-                border.color: "#4DFFFFFF"
+                border.color: Theme.veilHigh
 
                 Row {
                     id: tabRow
@@ -105,7 +105,7 @@ Rectangle {
                     height: 40
                     width: segLabel.implicitWidth + 32
                     radius: index === 0 ? 20 : 20
-                    color: on ? Theme.primary : "#1FFFFFFF"
+                    color: on ? Theme.primary : Theme.veilMid
 
                     TritonText {
                         id: segLabel

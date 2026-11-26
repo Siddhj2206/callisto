@@ -151,7 +151,7 @@ Rectangle {
                         width: (parent.width - 8) / 2
                         height: 72
                         radius: 36
-                        color: modelData.on ? Theme.primary : "#1FFFFFFF"
+                        color: modelData.on ? Theme.primary : Theme.veilMid
                         property bool tileOn: modelData.on === true
                         readonly property color ink: tileOn ? Theme.onprimary : Theme.onsurface
 
@@ -296,7 +296,7 @@ Rectangle {
                     width: 48
                     height: 48
                     radius: 24
-                    color: "#1FFFFFFF"
+                    color: Theme.veilMid
 
                     TritonIcon {
                         anchors.centerIn: parent
@@ -337,7 +337,7 @@ Rectangle {
                         radii: index === 0 ? [22, 22, 6, 6]
                              : index === root.wifiNetworks.length - 1 ? [6, 6, 22, 22]
                              : [6, 6, 6, 6]
-                        color: "#17FFFFFF"
+                        color: Theme.veilLow
                     }
 
                     Row {

@@ -164,7 +164,7 @@ Item {
                     width: parent.width - 44
                     height: 36
                     radius: 18
-                    color: "#1FFFFFFF"
+                    color: Theme.veilMid
 
                     TextInput {
                         id: replyInput

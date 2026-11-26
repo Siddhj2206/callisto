@@ -153,7 +153,7 @@ Item {
                 y: 58
                 spacing: 8
 
-                Rectangle { width: 128; height: 8; radius: 4; color: "#4DFFFFFF" }
+                Rectangle { width: 128; height: 8; radius: 4; color: Theme.veilHigh }
                 Rectangle { width: 82; height: 8; radius: 4; color: "#33FFFFFF" }
             }
         }

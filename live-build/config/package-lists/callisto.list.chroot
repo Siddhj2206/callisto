@@ -55,7 +55,7 @@ qt6-wayland
 qt6ct
 
 # --- Desktop furniture (part of the OS, not apps) -------------------------------
-fuzzel
+# fuzzel removed — the Triton launcher is the launcher
 greetd
 tuigreet
 # mako-notifier removed — the shell IS the notification daemon
