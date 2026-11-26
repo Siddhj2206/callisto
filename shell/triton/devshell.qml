@@ -46,13 +46,15 @@ ShellRoot {
             Clock {}
 
             StatusGroup {
+                id: dbgStat
                 wifiGlyph: Icons.wifi
                 volumeGlyph: Icons.volumeUp
                 batteryGlyph: Icons.battery5Bar
                 batteryPercent: 82
             }
 
-            BellButton {}
+            BellButton { hasUnread: true }
+
         }
     }
 }

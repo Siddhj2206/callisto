@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import "../components"
 import ".."
 
 // The notification bell (BarStates `.bell`): a 44px veil circle with the
@@ -23,23 +24,32 @@ Rectangle {
     radius: 22 // half the control height; radiusFull reads as a circle here
     color: Theme.veil
 
-    Text {
+    TritonIcon {
         anchors.centerIn: parent
-        text: Icons.notifications
+        glyph: Icons.notifications
+        size: 24
         color: Theme.onsurface
-        font.family: "Triton Symbols"
-        font.pixelSize: 24
     }
 
-    // Unread dot: 10px tertiary circle at the top-right (board `.bell u`).
+    // Unread dot (board `.bell u`): 10px tertiary circle at top 9 / right 10,
+    // ringed by a 2px surface-colored stroke (the board's box-shadow) so it
+    // reads against both the veil and whatever is behind the glass.
     Rectangle {
         visible: root.hasUnread
-        x: parent.width - width - 7 // board: right offset ~10px minus stroke overlap
-        y: 9 - 2 // board: top 9px, minus stroke overlap
-        width: 10
-        height: 10
-        radius: 5
-        color: Theme.tertiary
+        x: parent.width - width - 10 - 2 // right: 10px inside the stroke
+        y: 9 - 2                         // top: 9px inside the stroke
+        width: 14
+        height: 14
+        radius: 7
+        color: "#3a3c41" // board box-shadow ring color
+
+        Rectangle {
+            anchors.centerIn: parent
+            width: 10
+            height: 10
+            radius: 5
+            color: Theme.tertiary
+        }
     }
 
     MouseArea {
