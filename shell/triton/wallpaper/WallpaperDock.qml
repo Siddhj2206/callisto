@@ -95,25 +95,40 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
 
             Repeater {
-                model: ["Desktop", "+ Lock", "+ Greeter"]
+                // Desktop is always on — the picker exists to change it.
+                // Lock/Greeter are toggles writing store keys the lock screen
+                // and (installed-system) greeter read.
+                model: [
+                    { label: "Desktop", key: "", locked: true },
+                    { label: "+ Lock", key: "wallpaperOnLock", locked: false },
+                    { label: "+ Greeter", key: "wallpaperOnGreeter", locked: false },
+                ]
 
                 delegate: Rectangle {
                     id: segDelegate
-                    required property string modelData
+                    required property var modelData
                     required property int index
-                    property bool on: index === 0
+                    property bool on: modelData.locked ? true
+                        : SettingsService.get("appearance", modelData.key, modelData.key === "wallpaperOnLock")
                     height: 40
                     width: segLabel.implicitWidth + 32
-                    radius: index === 0 ? 20 : 20
+                    radius: 20
                     color: on ? Theme.primary : Theme.veilMid
 
                     TritonText {
                         id: segLabel
                         anchors.centerIn: parent
-                        text: segDelegate.modelData
+                        text: segDelegate.modelData.label
                         weight: TritonText.Weight.SemiBold
                         font.pixelSize: 14
                         color: segDelegate.on ? Theme.onprimary : "#FFFFFF"
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        enabled: !segDelegate.modelData.locked
+                        cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                        onClicked: SettingsService.set("appearance", segDelegate.modelData.key, !segDelegate.on)
                     }
                 }
             }

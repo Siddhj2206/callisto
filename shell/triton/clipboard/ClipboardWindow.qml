@@ -33,15 +33,34 @@ PanelWindow {
         anchors.centerIn: parent
         visible: root.visible
 
-        // Mock history stands in until the clipboard service (data-control)
-        // is written — structure and interactions are verified.
-        items: [
-            { kind: "section", text: "Pinned" },
-            { kind: "row", glyph: Icons.terminal, mono: true, title: "ssh sid@neptuno.local -p 2222", meta: "Terminal · pinned", pinned: true },
-            { kind: "section", text: "Today" },
-            { kind: "row", glyph: Icons.notes, title: "Meeting notes", meta: "Text · Notes", selected: true },
-        ]
+        // Real history from the clipwatch daemon. Pinned entries first,
+        // then everything else, sectioned like the board.
+        items: {
+            const rows = [];
+            const pinned = ClipboardState.entries.filter(e => e.pinned);
+            const rest = ClipboardState.entries.filter(e => !e.pinned);
+            if (pinned.length > 0) {
+                rows.push({ kind: "section", text: "Pinned" });
+                for (const e of pinned)
+                    rows.push({ kind: "row", glyph: Icons.notes, title: e.preview, meta: "Pinned", pinned: true, entry: e });
+            }
+            if (rest.length > 0) {
+                rows.push({ kind: "section", text: "History" });
+                for (const e of rest)
+                    rows.push({ kind: "row", glyph: Icons.notes, title: e.preview, meta: "Text", entry: e });
+            }
+            if (rows.length === 0)
+                rows.push({ kind: "section", text: "Clipboard is empty — copy something first" });
+            return rows;
+        }
 
-        onPasted: ClipboardState.dismiss()
+        onPasted: idx => {
+            // Rows carry their entry object — the index is into the items
+            // array the panel itself renders, headers included.
+            const target = items[idx];
+            if (target && target.entry)
+                ClipboardState.paste(target.entry);
+            ClipboardState.dismiss();
+        }
     }
 }

@@ -23,6 +23,7 @@ WlSessionLock {
         // blur (real blur needs compositor cooperation; dim reads the same).
         Image {
             anchors.fill: parent
+            visible: SettingsService.get("appearance", "wallpaperOnLock", true)
             source: {
                 const wp = SettingsService.get("appearance", "wallpaper", "/usr/share/backgrounds/callisto/wallpaper.jpg");
                 return wp !== "" ? "file://" + wp : "";

@@ -128,6 +128,7 @@ hl.layer_rule({ match = { namespace = "^(quickshell)$" }, no_anim = true })
 -- systemd scopes instead of inside the compositor unit.
 hl.on("hyprland.start", function()
     hl.exec_cmd("uwsm app -- qs -c triton")
+hl.exec_cmd("uwsm app -- callisto-clipwatch")
 end)
 
 -- --- Keybinds ----------------------------------------------------------------------------
