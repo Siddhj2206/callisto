@@ -114,22 +114,64 @@ def matugen_scheme(image_path: str) -> dict | None:
     return scheme or None
 
 
+# Accents are wallpaper regions on the board. Their exact seed hexes are
+# derived from the board's rendered swatches; "wallpaper" means dominant-color
+# extraction, a "#rrggbb" string means fully custom, and the names are curated
+# seeds. All of them flow through the same matugen scheme generation.
+ACCENT_SEEDS = {
+    "planet": "#2458C8",
+    "hull": "#1B4560",
+    "rock": "#4A4D55",
+    "shadow": "#23262E",
+    "haze": "#4A3D8F",
+}
+
+
+def matugen_color_scheme(hex_seed: str) -> dict | None:
+    """Scheme from an explicit seed color instead of an image."""
+    import shutil
+    import subprocess
+    if not shutil.which("matugen"):
+        return None
+    try:
+        out = subprocess.run(
+            ["matugen", "color", "hex", hex_seed, "--dry-run", "-j", "hex",
+             "--type", "scheme-content"],
+            capture_output=True, timeout=30, check=True).stdout
+        data = json.loads(out)
+    except Exception as e:
+        log(f"matugen color failed: {e}")
+        return None
+    colors = data.get("colors", {})
+    scheme = {}
+    for name, entry in colors.items():
+        if isinstance(entry, dict) and "dark" in entry:
+            scheme[name] = entry["dark"]["color"].upper()
+    return scheme or None
+
+
 def resolve_tokens(store: dict, tokens: dict) -> dict:
-    """Wallpaper/preset accent applied onto the token set. The token names in
-    tokens.json mirror Material role names, so a matugen scheme maps 1:1."""
+    """Wallpaper/preset/custom accent applied onto the token set. The token
+    names in tokens.json mirror Material role names, so a matugen scheme maps
+    1:1."""
     dark = dict(tokens["color"]["dark"])
     appearance = store.get("appearance", {})
     accent = appearance.get("accent", "wallpaper")
+    scheme = None
     if accent == "wallpaper":
         wallpaper = appearance.get(
             "wallpaper", "/usr/share/backgrounds/callisto/wallpaper.jpg")
         scheme = matugen_scheme(wallpaper)
-        if scheme:
-            # Tokens use snake_case role names identical to matugen's output;
-            # unknown roles in either direction are ignored.
-            for key, val in scheme.items():
-                if key in dark:
-                    dark[key] = val.upper()
+    elif accent in ACCENT_SEEDS:
+        scheme = matugen_color_scheme(ACCENT_SEEDS[accent])
+    elif isinstance(accent, str) and accent.startswith("#"):
+        scheme = matugen_color_scheme(accent)
+    if scheme:
+        # Tokens use snake_case role names identical to matugen's output;
+        # unknown roles in either direction are ignored.
+        for key, val in scheme.items():
+            if key in dark:
+                dark[key] = val.upper()
     effective = dict(tokens)
     effective["color"] = dict(tokens["color"])
     effective["color"]["dark"] = dark
