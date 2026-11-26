@@ -28,10 +28,10 @@ Rectangle {
         radius: width / 2
         color: root.on ? Theme.onprimary : Theme.outline
 
-        Behavior on x { NumberAnimation { duration: 120 } }
-        Behavior on width { NumberAnimation { duration: 120 } }
-        Behavior on height { NumberAnimation { duration: 120 } }
-        Behavior on y { NumberAnimation { duration: 120 } }
+        Behavior on x { NumberAnimation { duration: Theme.reduceMotion ? 0 : 120 } }
+        Behavior on width { NumberAnimation { duration: Theme.reduceMotion ? 0 : 120 } }
+        Behavior on height { NumberAnimation { duration: Theme.reduceMotion ? 0 : 120 } }
+        Behavior on y { NumberAnimation { duration: Theme.reduceMotion ? 0 : 120 } }
 
         TritonIcon {
             visible: root.on

@@ -1,8 +1,10 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Shapes
 import "../components"
 import ".."
+import "../services"
 
 // The status group (BarStates `.stat`): a solid primary-container pill, 44px
 // tall, radius 22, holding wifi + volume icons and the battery readout, all
@@ -84,10 +86,52 @@ Rectangle {
                 height: parent.height
 
                 TritonIcon {
+                    visible: !SettingsService.get("shell", "batteryWavyRing", false)
                     glyph: root.batteryGlyph
                     size: 24
                     color: Theme.onprimarycontainer
                     anchors.verticalCenter: parent.verticalCenter
+                }
+
+                // The wave-ring battery: the shell's signature shape as the
+                // charge gauge — store-gated alternative to the glyph.
+                Item {
+                    visible: SettingsService.get("shell", "batteryWavyRing", false)
+                    width: 24
+                    height: 24
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    // Dim track ring, constant.
+                    Shape {
+                        anchors.fill: parent
+                        antialiasing: true
+
+                        ShapePath {
+                            fillColor: "transparent"
+                            strokeColor: "#40FFFFFF"
+                            strokeWidth: 3
+                            capStyle: ShapePath.RoundCap
+                            scale: Qt.size(24 / 100, 24 / 100)
+                            PathSvg { path: Theme.wavePath }
+                        }
+                    }
+                    // Fill ring — the gauge level is translucency since QML
+                    // Shapes can't stroke partial svg paths. Floor 25% so the
+                    // ring never vanishes.
+                    Shape {
+                        anchors.fill: parent
+                        antialiasing: true
+                        opacity: Math.max(0.25, root.batteryPercent / 100)
+
+                        ShapePath {
+                            fillColor: "transparent"
+                            strokeColor: root.batteryPercent <= 20 ? Theme.error : Theme.onprimarycontainer
+                            strokeWidth: 3
+                            capStyle: ShapePath.RoundCap
+                            scale: Qt.size(24 / 100, 24 / 100)
+                            PathSvg { path: Theme.wavePath }
+                        }
+                    }
                 }
 
                 TritonText {

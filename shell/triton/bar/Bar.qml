@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import Quickshell
 import Quickshell.Hyprland
+import "../components"
 import "../services"
 import Quickshell.Services.Pipewire
 import Quickshell.Services.UPower
@@ -37,6 +38,10 @@ PanelWindow {
         if (hyprlandLive)
             Hyprland.dispatch("workspace " + id);
     }
+
+    // Active window title for the center island.
+    readonly property string activeWindowTitle: Hyprland.activeToplevel?.title ?? ""
+    readonly property bool showWindowTitle: SettingsService.get("shell", "showWindowTitle", true)
 
     // Volume: Pipewire default sink. PwObjectTracker is required before the
     // node's audio properties are valid.
@@ -135,6 +140,25 @@ PanelWindow {
                 live: root.hyprlandLive
                 onClicked: () => root.switchWorkspace(index + 1)
             }
+        }
+    }
+
+    // ---- Center island: active window title (store-gated) ----
+    Island {
+        visible: root.showWindowTitle && root.activeWindowTitle !== ""
+        anchors.centerIn: parent
+        anchors.top: parent.top
+        anchors.horizontalCenterOffset: 0
+
+        TritonText {
+            anchors.verticalCenter: parent.verticalCenter
+            text: root.activeWindowTitle.length > 48
+                ? root.activeWindowTitle.substring(0, 46) + "…"
+                : root.activeWindowTitle
+            font.pixelSize: 14
+            weight: TritonText.Weight.Medium
+            color: Theme.onsurface
+            elide: Text.ElideRight
         }
     }
 

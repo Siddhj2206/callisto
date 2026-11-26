@@ -27,7 +27,53 @@ Item {
         SettingRow {
             icon: Icons.keyboard
             title: "Keyboard layout"
-            supporting: "English (US)"
+            supporting: "Applies immediately, persists across sessions"
+
+            Row {
+                spacing: 8
+
+                Repeater {
+                    // The layouts that cover most of the world's keyboards.
+                    // xkb names are the store values — the engine pushes them
+                    // straight into hyprland's kb_layout.
+                    model: [
+                        { key: "us", label: "EN US" },
+                        { key: "gb", label: "EN UK" },
+                        { key: "de", label: "DE" },
+                        { key: "fr", label: "FR" },
+                        { key: "es", label: "ES" },
+                        { key: "it", label: "IT" },
+                        { key: "pt", label: "PT" },
+                        { key: "ru", label: "RU" },
+                        { key: "jp", label: "JP" },
+                        { key: "kr", label: "KR" },
+                    ]
+
+                    delegate: Rectangle {
+                        required property var modelData
+                        property bool active: SettingsService.get("input", "keyboardLayout", "us") === modelData.key
+                        width: layoutLabel.implicitWidth + 20
+                        height: 34
+                        radius: 17
+                        color: active ? Theme.primary : Theme.surfaceContainerHighest
+
+                        TritonText {
+                            id: layoutLabel
+                            anchors.centerIn: parent
+                            text: modelData.label
+                            font.pixelSize: 12
+                            weight: TritonText.Weight.SemiBold
+                            color: active ? Theme.onprimary : Theme.onsurfacevariant
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: SettingsService.set("input", "keyboardLayout", modelData.key)
+                        }
+                    }
+                }
+            }
         }
 
         SectionLabel { label: "Typing"; bottomPadding: 8; topPadding: 20 }

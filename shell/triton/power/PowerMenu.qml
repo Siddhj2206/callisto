@@ -98,7 +98,7 @@ Item {
                 width: focused && index === 4 ? 300 : 140
                 height: 140
 
-                Behavior on width { NumberAnimation { duration: 150 } }
+                Behavior on width { NumberAnimation { duration: Theme.reduceMotion ? 0 : 150 } }
 
                 RoundedRect {
                     anchors.fill: parent

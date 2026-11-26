@@ -220,6 +220,15 @@ ShellRoot {
         }
     }
 
+    // Auto light/dark: re-resolve the scheme on the minute boundary. Cheap —
+    // applyUserTokens only repaints when active_mode flips the palette.
+    Timer {
+        interval: 60000
+        running: Theme.userTokens !== null
+        repeat: true
+        onTriggered: Theme.applyUserTokens(Theme.userTokens)
+    }
+
     // reduceMotion follows the store reactively — it lives outside the
     // tokens file since it's an accessibility preference, not a color role.
     Connections {

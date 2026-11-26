@@ -49,7 +49,7 @@ Rectangle {
     color: root.resolvedFill
 
     Behavior on radius {
-        NumberAnimation { duration: 120 }
+        NumberAnimation { duration: Theme.reduceMotion ? 0 : 120 }
     }
 
     Row {

@@ -21,6 +21,13 @@ WlSessionLock {
 
         LockScreen {
             anchors.fill: parent
+            // Lockscreen notification rows honor the settings toggle.
+            notifications: SettingsService.get("notifications", "lockscreenNotifications", true)
+                ? NotificationState.groups.map(g => ({
+                    app: g.app,
+                    glyph: g.items && g.items[0] ? g.items[0].appIcon || "" : "",
+                }))
+                : []
             userName: "user"
             userInitials: "U"
             fieldState: LockState.fieldState

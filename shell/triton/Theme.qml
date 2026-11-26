@@ -6,6 +6,8 @@ pragma Singleton
 import QtQuick
 
 QtObject {
+    id: root
+
     // ---- Identity ----
     readonly property string tokenVersion: "0.1.0"
 
@@ -89,11 +91,6 @@ QtObject {
     readonly property string fontMono: "JetBrains Mono"
     readonly property string fontIcons: "Material Symbols Rounded"
 
-    // Reduce motion: store-driven, shell-wide. Consumers scale their
-    // durations to zero when this is on — accessibility requirement, and it
-    // doubles as a low-power mode on weak compositors.
-    property bool reduceMotion: false
-
     // ---- Motion: [stiffness, damping_ratio] spring pairs ----
     readonly property var motionSpatialFast: [800, 0.6]
     readonly property var motionSpatialDefault: [380, 0.8]
@@ -115,14 +112,34 @@ QtObject {
     // ~/.config/callisto/tokens.json; shell.qml watches that file and
     // calls this with its parsed content. Property naming mirrors the
     // snake_case -> camelCase rules above, including the on* lowering.
+    // The parsed tokens file, retained so auto mode can re-resolve without
+    // a reload — the file doesn't change at dawn/dusk, the resolution does.
+    property var userTokens: null
+    property string activeMode: "dark"
+
+    // Reduce motion: store-driven, shell-wide. Consumers scale their
+    // durations to zero when this is on — accessibility requirement, and
+    // it doubles as a low-power mode on weak compositors.
+    property bool reduceMotion: false
+
+    // Auto mode resolution: day window 07:00–19:00 local. Without location
+    // data this is a fixed approximation of sunrise/sunset — honest and
+    // correct within an hour for most users.
+    function resolveMode(mode) {
+        if (mode !== "auto")
+            return mode;
+        const h = new Date().getHours();
+        return (h >= 7 && h < 19) ? "light" : "dark";
+    }
+
     function applyUserTokens(parsed) {
         if (!parsed || !parsed.color)
             return;
-        // Light/dark follow the engine-stamped active mode — the whole shell
-        // re-paints through the same color properties either way.
+        userTokens = parsed;
         const mode = parsed.active_mode || "dark";
-        const scheme = (mode === "light" && parsed.color.light) ? parsed.color.light
-                     : parsed.color.dark;
+        activeMode = resolveMode(mode);
+        const scheme = (activeMode === "light" && parsed.color.light)
+            ? parsed.color.light : parsed.color.dark;
         if (!scheme)
             return;
         for (const key of Object.keys(scheme)) {
