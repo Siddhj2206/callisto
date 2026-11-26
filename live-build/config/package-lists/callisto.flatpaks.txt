@@ -1,0 +1,25 @@
+# Callisto app layer — Flatpaks pre-installed into the ISO from Flathub.
+#
+# One ref per line; blank lines and comments are ignored. These are the
+# user-facing graphical applications. The system layer (apt) is intentionally
+# free of GUI apps — this file IS the app selection, following the
+# immutable-distro model.
+#
+# Keep this list short: every entry is baked into the squashfs, and large
+# runtimes dominate ISO size. Demos need enough apps to make the launcher
+# feel real, not a full workstation.
+
+# File management
+org.gnome.Nautilus
+
+# Text editing
+org.gnome.TextEditor
+
+# Web — the one non-negotiable modern app
+org.mozilla.firefox
+
+# Media playback — validates codecs, audio, and video acceleration
+io.mpv.Mpv
+
+# Image viewing — GNOME default
+org.gnome.Loupe

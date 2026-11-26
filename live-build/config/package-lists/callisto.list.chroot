@@ -1,9 +1,12 @@
-# Callisto package selection.
+# Callisto package selection — SYSTEM LAYER ONLY.
 #
-# Scope discipline: this list is what the *system* needs to boot into a
-# working Triton desktop. Deliberately absent are applications beyond a
-# terminal and file manager — a live ISO that demonstrates the desktop is the
-# deliverable, and every package here must justify its size on the squashfs.
+# Architecture follows the immutable-distro model: apt ships the operating
+# system (boot, session, compositor, shell, plumbing), and graphical user
+# applications come from Flatpak/Flathub — see the flatpak section below and
+# the provisioning hook. Nothing here is a user-facing "app" unless it is
+# part of the desktop furniture itself.
+#
+# Scope discipline: every package must justify its size on the squashfs.
 
 # --- Boot & live system -------------------------------------------------------
 linux-image-amd64
@@ -13,13 +16,18 @@ systemd-sysv
 # --- Core session infrastructure ----------------------------------------------
 dbus-user-session
 polkitd
+hyprpolkitagent
 seatd
 network-manager
+power-profiles-daemon
+upower
+systemd-timesyncd
+
+# --- Audio ----------------------------------------------------------------------
 pipewire
 pipewire-pulse
 wireplumber
-power-profiles-daemon
-upower
+libspa-0.2-bluetooth
 
 # --- Graphics & Wayland --------------------------------------------------------
 mesa-vulkan-drivers
@@ -29,13 +37,14 @@ mesa-utils
 xwayland
 xdg-desktop-portal-hyprland
 xdg-desktop-portal-gtk
+wl-clip-persist
 
 # --- Compositor & shell (trixie-backports, see archives/backports.pref.chroot) -
 hyprland
 quickshell
 uwsm
 
-# --- Desktop components --------------------------------------------------------
+# --- Desktop furniture (part of the OS, not apps) -------------------------------
 fuzzel
 greetd
 tuigreet
@@ -48,15 +57,27 @@ slurp
 brightnessctl
 hypridle
 hyprlock
+hyprsunset
+
+# --- File management infrastructure ---------------------------------------------
+# gvfs gives the shell and portals trash, thumbnails, and mounts; the GNOME
+# file manager itself comes as a Flatpak like the other GUI apps.
+gvfs
+gvfs-backends
+
+# --- Flatpak runtime --------------------------------------------------------------
+flatpak
 
 # --- Utilities -----------------------------------------------------------------
 curl
 jq
 less
 vim-tiny
+htop
+fastfetch
 
 # --- Fonts ----------------------------------------------------------------------
 fonts-jetbrains-mono
 fonts-inter
 fonts-noto-color-emoji
-fonts-font-awesome
+fonts-noto-cjk

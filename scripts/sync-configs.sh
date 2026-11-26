@@ -77,4 +77,14 @@ install -m 0644 "$REPO_ROOT/design/wallpaper.jpg" \
     "$INCLUDES/usr/share/backgrounds/callisto/wallpaper.jpg" 2>/dev/null \
     || echo "    (no wallpaper yet)"
 
+# --- System-level data -----------------------------------------------------------
+# /usr/share/callisto holds OS-shipped defaults and manifests, deliberately
+# separate from per-user config — distro updates must never overwrite user
+# configuration, so nothing in here is ever written to after install.
+mkdir -p "$INCLUDES/usr/share/callisto"
+install -m 0644 "$REPO_ROOT/live-build/config/package-lists/callisto.flatpaks.txt" \
+    "$INCLUDES/usr/share/callisto/flatpaks.txt"
+install -m 0644 "$REPO_ROOT/design/tokens.json" \
+    "$INCLUDES/usr/share/callisto/tokens.json"
+
 echo "==> includes.chroot is up to date"

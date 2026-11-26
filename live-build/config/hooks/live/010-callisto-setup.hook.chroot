@@ -73,4 +73,25 @@ if command -v curl >/dev/null 2>&1; then
 fi
 fc-cache -f >/dev/null 2>&1 || true
 
+# --- Flatpak app layer ------------------------------------------------------------
+# Callisto follows the immutable-distro split: apt ships the system, Flathub
+# ships the applications. The app list lives in package-lists/callisto.flatpaks.txt
+# and is installed system-wide here, inside the chroot, so it lands in the
+# squashfs. Failure is non-fatal: a live ISO without apps still demonstrates
+# the desktop, and users can install them post-boot.
+if command -v flatpak >/dev/null 2>&1 && [ -f /usr/share/callisto/flatpaks.txt ]; then
+    echo "callisto: installing flatpak app layer"
+    flatpak remote-add --system --if-not-exists flathub \
+        https://dl.flathub.org/repo/flathub.flatpakrepo \
+        || echo "callisto: WARNING could not add flathub remote" >&2
+    while IFS= read -r ref; do
+        case "$ref" in
+            ""|\#*) continue ;;
+        esac
+        ref="$(echo "$ref" | tr -d '[:space:]')"
+        flatpak install --system --noninteractive --assumeyes flathub "$ref" \
+            || echo "callisto: WARNING flatpak install failed: $ref" >&2
+    done < /usr/share/callisto/flatpaks.txt
+fi
+
 echo "callisto: setup hook complete"
