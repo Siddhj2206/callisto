@@ -51,6 +51,26 @@ Singleton {
         }
     }
 
+    // The store write goes through sh so directory creation and the write
+    // happen in one process — FileView does not create missing directories,
+    // and the first-ever save is exactly when the directory doesn't exist.
+    Process {
+        id: writeProc
+        command: ["sh", "-c", "mkdir -p \"$HOME/.config/callisto\" && cat > \"$HOME/.config/callisto/settings.json\""]
+        stdinEnabled: true
+        property string payload: ""
+        onStarted: {
+            // write() before the process exists is silently lost — the write
+            // must happen here, once stdin is real.
+            write(payload);
+            stdinEnabled = false;
+        }
+        onExited: (code, status) => {
+            if (!applyProc.running)
+                applyProc.running = true;
+        }
+    }
+
     function get(section, key, fallback) {
         const s = store[section];
         if (s && key in s)
@@ -65,8 +85,8 @@ Singleton {
             next[section] = {};
         next[section][key] = value;
         root.store = next;
-        storeFile.setText(JSON.stringify(next, null, 2));
-        if (!applyProc.running)
-            applyProc.running = true;
+        writeProc.payload = JSON.stringify(next, null, 2) + "\n";
+        writeProc.stdinEnabled = true;
+        writeProc.running = true;
     }
 }

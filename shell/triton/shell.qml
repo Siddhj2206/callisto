@@ -12,6 +12,7 @@ import "power"
 import "clipboard"
 import "overview"
 import "settings"
+import "services"
 
 // Triton shell entry point. Thin by design: fonts, then one copy of each
 // persistent surface per screen. State lives in singletons and services.
