@@ -4,6 +4,7 @@ import Quickshell
 import QtQuick
 import "bar"
 import "launcher"
+import "osd"
 
 // Triton shell entry point. Thin by design: fonts, then one copy of each
 // persistent surface per screen. State lives in singletons and services.
@@ -37,4 +38,7 @@ ShellRoot {
     // The launcher is a modal singleton — one instance regardless of screen
     // count. It positions itself on the focused output at runtime.
     Launcher {}
+
+    // OSD: state-driven, invisible until a producer shows something.
+    OsdWindow {}
 }

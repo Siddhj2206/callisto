@@ -1,1 +1,2 @@
 singleton LauncherState 1.0 LauncherState.qml
+singleton OsdState 1.0 OsdState.qml
