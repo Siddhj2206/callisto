@@ -1,0 +1,30 @@
+#!/bin/sh
+# install-bootloader ROOT — install GRUB, and what encryption needs, from the
+# packages on the install medium, so no network is needed.
+set -eu
+root=${1:?target root}
+medium=/run/live/medium
+[ "$root" != / ] && [ -d "$root/etc" ] && [ -d "$medium/pool" ] || { echo "nothing to install from" >&2; exit 1; }
+
+if [ -d /sys/firmware/efi ]; then
+    packages="grub-efi-amd64 grub-efi-amd64-signed shim-signed efibootmgr"
+else
+    packages="grub-pc"
+fi
+# Calamares has written crypttab by now when the disk is encrypted.
+if [ -s "$root/etc/crypttab" ] && grep -q '^[^#]' "$root/etc/crypttab"; then
+    packages="$packages cryptsetup cryptsetup-initramfs keyutils"
+    mkdir -p "$root/etc/initramfs-tools/conf.d"
+    echo "UMASK=0077" >"$root/etc/initramfs-tools/conf.d/callisto-keyfile"
+fi
+
+list=/etc/apt/callisto-medium.list
+mkdir -p "$root$medium"
+mount --bind "$medium" "$root$medium"
+trap 'rm -f "$root$list"; umount "$root$medium"; rmdir "$root$medium" "$root/run/live" 2>/dev/null || true' EXIT
+echo "deb [trusted=yes] file:$medium trixie main non-free-firmware contrib" >"$root$list"
+# Only the medium, leaving the system's own sources and lists alone.
+options="-o Dir::Etc::sourcelist=$list -o Dir::Etc::sourceparts=- -o APT::Get::List-Cleanup=false"
+chroot "$root" apt-get $options update
+# shellcheck disable=SC2086
+DEBIAN_FRONTEND=noninteractive chroot "$root" apt-get $options -y --no-install-recommends install $packages

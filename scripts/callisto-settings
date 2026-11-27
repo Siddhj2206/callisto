@@ -1,7 +1,9 @@
 #!/bin/sh
 # callisto-settings [PAGE] — open Settings, or bring the open window forward.
 # One instance, its own process and systemd scope, apart from the shell.
+# A shell in your own config directory wins over the system one.
 config="${XDG_CONFIG_HOME:-$HOME/.config}/quickshell/triton/settings-app.qml"
+[ -f "$config" ] || config=/etc/xdg/quickshell/triton/settings-app.qml
 
 if qs ipc -p "$config" call settings open "$1" >/dev/null 2>&1; then
     exec hyprctl dispatch 'hl.dsp.focus({ window = "class:org.callisto.Settings" })' >/dev/null

@@ -118,6 +118,8 @@ hl.window_rule({ match = { float = true }, rounding = 20 })
 -- Shell dialogs and settings windows float by design.
 hl.window_rule({ match = { class = "^(org\\.callisto\\.Settings)$" }, float = true, center = true, rounding = 20, xray = true })
 
+hl.window_rule({ match = { class = "^(io\\.calamares\\.calamares|calamares)$" }, float = true, center = true })
+
 -- --- Layer rules: shell materials -------------------------------------------------
 -- Quickshell layer surfaces get compositor blur for Glass and Thick Glass.
 -- ignore_alpha keeps fully-transparent regions (everything outside the

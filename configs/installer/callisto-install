@@ -1,0 +1,5 @@
+#!/bin/sh
+# Start the installer from the live session. Root, on the user's Wayland
+# socket, with the user's Qt colors.
+exec sudo --preserve-env=XDG_RUNTIME_DIR,WAYLAND_DISPLAY,QT_QPA_PLATFORM,QT_QPA_PLATFORMTHEME \
+    XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}" /usr/bin/calamares "$@"

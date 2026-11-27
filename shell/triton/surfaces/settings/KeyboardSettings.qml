@@ -29,7 +29,11 @@ Page {
                     { value: "kr", label: "Korean" },
                 ]
                 current: SettingsService.get("input", "keyboardLayout", "us")
-                onChosen: value => SettingsService.set("input", "keyboardLayout", value)
+                // A variant belongs to the layout it came with.
+                onChosen: value => {
+                    SettingsService.set("input", "keyboardVariant", "");
+                    SettingsService.set("input", "keyboardLayout", value);
+                }
             }
         }
     }

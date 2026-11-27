@@ -1,0 +1,2 @@
+# Live session only; the installer removes this.
+user ALL=(root) NOPASSWD:SETENV: /usr/bin/calamares

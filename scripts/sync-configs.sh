@@ -29,12 +29,19 @@ rm -rf \
     "$SKEL/gtk-3.0" \
     "$SKEL/gtk-4.0" \
     "$SKEL/mako" \
+    "$INCLUDES/etc/xdg/quickshell" \
+    "$INCLUDES/etc/calamares" \
+    "$INCLUDES/usr/share/callisto/shell" \
     "$INCLUDES/etc/greetd" \
     "$INCLUDES/usr/share/backgrounds/callisto" \
     "$INCLUDES/usr/local/bin"
 
+# The shell and the session config are system files, so that updates reach
+# every account; a user's own copy under ~/.config wins.
+SHELL_DIR="$INCLUDES/etc/xdg/quickshell/triton"
+
 mkdir -p \
-    "$SKEL/quickshell/triton" \
+    "$SHELL_DIR" \
     "$SKEL/hypr" \
     "$SKEL/fuzzel" \
     "$SKEL/gtk-3.0" \
@@ -52,8 +59,8 @@ mkdir -p "$REPO_ROOT/shell/triton/fonts"
 cp "$REPO_ROOT"/design/fonts/*.ttf "$REPO_ROOT/shell/triton/fonts/" 2>/dev/null || true
 qml_files=("$REPO_ROOT"/shell/triton/**/*.qml)
 if (( ${#qml_files[@]} > 0 )); then
-    cp -r "$REPO_ROOT/shell/triton/." "$SKEL/quickshell/triton/"
-    find "$SKEL/quickshell/triton" -name "*.qml" -exec chmod 0644 {} +
+    cp -r "$REPO_ROOT/shell/triton/." "$SHELL_DIR/"
+    find "$SHELL_DIR" -name "*.qml" -exec chmod 0644 {} +
     # Fonts also install system-wide so non-shell apps (fuzzel, foot, GTK)
     # see the same typography.
     mkdir -p "$INCLUDES/usr/share/fonts/triton"
@@ -63,8 +70,8 @@ else
 fi
 
 # --- Desktop configuration ---------------------------------------------------
-install -m 0644 "$REPO_ROOT/configs/hypr/hyprland.lua" "$SKEL/hypr/hyprland.lua" 2>/dev/null \
-    || echo "    (no hyprland.lua yet)"
+install -D -m 0644 "$REPO_ROOT/configs/hypr/hyprland.lua" "$INCLUDES/usr/share/callisto/hypr/hyprland.lua"
+install -m 0644 "$REPO_ROOT/configs/hypr/user-stub.lua" "$SKEL/hypr/hyprland.lua"
 install -m 0644 "$REPO_ROOT/configs/fuzzel/fuzzel.ini" "$SKEL/fuzzel/fuzzel.ini" 2>/dev/null \
     || echo "    (no fuzzel.ini yet)"
 if [[ -f "$REPO_ROOT/configs/gtk/gtk.css" ]]; then
@@ -139,15 +146,12 @@ install -D -m 0644 "$REPO_ROOT/configs/applications/org.callisto.Settings.deskto
 install -D -m 0644 "$REPO_ROOT/configs/systemd/user/callisto-shell.service" \
     "$INCLUDES/usr/lib/systemd/user/callisto-shell.service"
 
-# The greeter: its session script, compositor config, and a copy of the shell
-# it can read (the user's copy lives in their home).
+# The greeter: its session script and compositor config.
 install -m 0755 "$REPO_ROOT/scripts/callisto-greeter" "$INCLUDES/usr/local/bin/callisto-greeter"
 install -D -m 0644 "$REPO_ROOT/configs/greeter/hyprland.lua" \
     "$INCLUDES/usr/share/callisto/greeter/hyprland.lua"
 install -D -m 0644 "$REPO_ROOT/configs/greeter/tmpfiles.conf" \
     "$INCLUDES/usr/lib/tmpfiles.d/callisto-greeter.conf"
-rm -rf "$INCLUDES/usr/share/callisto/shell"
-cp -r "$REPO_ROOT/shell/triton" "$INCLUDES/usr/share/callisto/shell"
 
 # Session environment, default applications, and greetd's PAM stack.
 install -D -m 0644 "$REPO_ROOT/configs/session/uwsm-env" "$INCLUDES/etc/xdg/uwsm/env"
@@ -157,6 +161,22 @@ install -D -m 0644 "$REPO_ROOT/configs/pam/greetd" "$INCLUDES/etc/pam.d/greetd"
 
 # The lock screen's own PAM stack.
 install -D -m 0644 "$REPO_ROOT/configs/pam/callisto-lock" "$INCLUDES/etc/pam.d/callisto-lock"
+
+# Memory compression and the boot menu's name on an installed system.
+install -D -m 0644 "$REPO_ROOT/configs/boot/zram-generator.conf" "$INCLUDES/etc/systemd/zram-generator.conf"
+install -D -m 0644 "$REPO_ROOT/configs/boot/grub-callisto.cfg" "$INCLUDES/etc/default/grub.d/callisto.cfg"
+
+# The installer, and what offers it in the live session.
+INSTALLER="$REPO_ROOT/configs/installer"
+mkdir -p "$INCLUDES/etc/calamares"
+cp -r "$INSTALLER/settings.conf" "$INSTALLER/modules" "$INSTALLER/branding" "$INCLUDES/etc/calamares/"
+install -D -m 0755 "$INSTALLER/callisto-install" "$INCLUDES/usr/local/bin/callisto-install"
+install -D -m 0755 "$INSTALLER/install-prepare" "$INCLUDES/usr/lib/callisto/install-prepare"
+install -D -m 0755 "$INSTALLER/install-bootloader" "$INCLUDES/usr/lib/callisto/install-bootloader"
+install -D -m 0755 "$INSTALLER/live/callisto-install-hint" "$INCLUDES/usr/lib/callisto/install-hint"
+install -D -m 0644 "$INSTALLER/live/org.callisto.Install.desktop" "$INCLUDES/usr/share/applications/org.callisto.Install.desktop"
+install -D -m 0644 "$INSTALLER/live/callisto-install-hint.service" "$INCLUDES/usr/lib/systemd/user/callisto-install-hint.service"
+install -D -m 0440 "$INSTALLER/live/callisto-live.sudoers" "$INCLUDES/etc/sudoers.d/callisto-live"
 
 # Seed the compiled outputs so first-boot targets that fail hard on missing
 # includes (foot's include directive) find real files. These are the same

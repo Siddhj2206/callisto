@@ -2,3 +2,14 @@ live-boot
 live-config
 live-config-systemd
 systemd-sysv
+
+# The installer. Removed from the installed system.
+calamares
+libnotify-bin
+os-prober
+rsync
+dosfstools
+e2fsprogs
+btrfs-progs
+cryptsetup
+squashfs-tools

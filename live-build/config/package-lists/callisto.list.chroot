@@ -58,6 +58,8 @@ qml6-module-qtquick-effects
 # nothing useful on Hyprland sessions, and hyprqt6engine isn't packaged in
 # Debian. The engine generates qt6ct's color scheme from the Triton tokens.
 qt6ct
+# The style Qt apps are drawn with.
+kde-style-breeze
 
 # --- Desktop furniture (part of the OS, not apps) -------------------------------
 # fuzzel removed — the Triton launcher is the launcher
@@ -104,6 +106,14 @@ less
 vim-tiny
 htop
 fastfetch
+
+# --- An installed system ---------------------------------------------------------
+locales
+keyboard-configuration
+# Compressed swap in memory.
+systemd-zram-generator
+btrfs-progs
+dosfstools
 
 # --- Fonts ----------------------------------------------------------------------
 fonts-jetbrains-mono

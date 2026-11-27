@@ -1,0 +1,18 @@
+#!/bin/sh
+# Name the boot menu and let it boot by itself. live-build runs this in the
+# binary directory, after it has written the bootloader files.
+set -eu
+
+# UEFI
+if [ -f boot/grub/grub.cfg ]; then
+    sed -i 's/Live system (amd64 fail-safe mode)/Callisto (safe graphics)/g; s/Live system (amd64)/Try or install Callisto/g' boot/grub/grub.cfg
+    sed -i '/^set default=0/a set timeout=5' boot/grub/config.cfg
+    grep -q '^set timeout=5' boot/grub/config.cfg
+    grep -q 'Try or install Callisto' boot/grub/grub.cfg
+fi
+# BIOS
+if [ -f isolinux/live.cfg ]; then
+    sed -i 's/Live system (amd64 fail-safe mode)/Callisto (safe graphics)/g; s/\^Live system (amd64)/^Try or install Callisto/g' isolinux/live.cfg
+    sed -i 's/^timeout .*/timeout 50/' isolinux/isolinux.cfg
+    sed -i 's/^menu title .*/menu title Callisto OS/' isolinux/menu.cfg
+fi

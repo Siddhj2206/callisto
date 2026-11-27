@@ -89,6 +89,9 @@ systemctl --global enable callisto-clipboard.service \
     || echo "callisto: WARNING could not enable clipboard history" >&2
 systemctl --global enable callisto-settingsd.socket callisto-settingsd.service \
     || echo "callisto: WARNING could not enable the settings daemon" >&2
+systemctl --global enable callisto-install-hint.service \
+    || echo "callisto: WARNING could not enable the install hint" >&2
+chmod 0440 /etc/sudoers.d/callisto-live
 
 # Disable other display managers if any snuck in as dependencies; greetd is the
 # sole session entry point.
@@ -137,51 +140,37 @@ fi
 # --- Hardware services -------------------------------------------------------------
 systemctl enable power-profiles-daemon.service 2>/dev/null || true
 
-# --- Fonts that Debian does not package --------------------------------------------
-# Jost (display face) and Material Symbols Rounded (icons) are required by the
-# Triton design tokens. Fetched at build time; failure degrades typography to
-# the Inter fallback rather than failing the ISO build.
-mkdir -p /usr/local/share/fonts/triton
-if command -v curl >/dev/null 2>&1; then
-    curl -fsSL --max-time 60 -o /usr/local/share/fonts/triton/Jost.ttf \
-        "https://github.com/google/fonts/raw/main/ofl/jost/Jost%5Bwght%5D.ttf" \
-        || echo "callisto: WARNING Jost font fetch failed; using Inter fallback" >&2
-fi
+# --- Fonts --------------------------------------------------------------------------
+# The Triton faces ship in /usr/share/fonts/triton (includes.chroot).
 fc-cache -f >/dev/null 2>&1 || true
 
 # --- matugen ------------------------------------------------------------------------
 # The theme engine's color brain. Not packaged in Debian; the upstream release
-# binary is fetched at build time (same mechanism as the fonts). Statically
-# linked musl build — no dependency risk inside the live system.
-if command -v curl >/dev/null 2>&1; then
-    curl -fsSL --max-time 120 -o /tmp/matugen.tar.gz \
-        "https://github.com/InioX/matugen/releases/download/v4.2.0/matugen-4.2.0-x86_64.tar.gz" \
-        && tar -xzf /tmp/matugen.tar.gz -C /tmp \
-        && install -m 0755 /tmp/matugen /usr/local/bin/matugen \
-        && echo "callisto: matugen installed" \
-        || echo "callisto: WARNING matugen fetch failed; wallpaper theming degrades to defaults" >&2
-    rm -f /tmp/matugen.tar.gz /tmp/matugen
-fi
+# binary (a static musl build) is fetched at build time and checked against a
+# pinned hash. A build that cannot get exactly it fails.
+MATUGEN_VERSION=4.2.0
+MATUGEN_SHA256=a2e3b50e49ed6439999ba3c252ed04fabd98ee4e9d12e5e5dff2e66370569751
+curl -fsSL --retry 3 --max-time 120 -o /tmp/matugen.tar.gz \
+    "https://github.com/InioX/matugen/releases/download/v$MATUGEN_VERSION/matugen-$MATUGEN_VERSION-x86_64.tar.gz"
+echo "$MATUGEN_SHA256  /tmp/matugen.tar.gz" | sha256sum -c -
+tar -xzf /tmp/matugen.tar.gz -C /tmp matugen
+install -m 0755 /tmp/matugen /usr/local/bin/matugen
+rm -f /tmp/matugen.tar.gz /tmp/matugen
 
 # --- Flatpak app layer ------------------------------------------------------------
 # Callisto follows the immutable-distro split: apt ships the system, Flathub
 # ships the applications. The app list lives in package-lists/callisto.flatpaks.txt
 # and is installed system-wide here, inside the chroot, so it lands in the
-# squashfs. Failure is non-fatal: a live ISO without apps still demonstrates
-# the desktop, and users can install them post-boot.
-if command -v flatpak >/dev/null 2>&1 && [ -f /usr/share/callisto/flatpaks.txt ]; then
-    echo "callisto: installing flatpak app layer"
-    flatpak remote-add --system --if-not-exists flathub \
-        https://dl.flathub.org/repo/flathub.flatpakrepo \
-        || echo "callisto: WARNING could not add flathub remote" >&2
-    while IFS= read -r ref; do
-        case "$ref" in
-            ""|\#*) continue ;;
-        esac
-        ref="$(echo "$ref" | tr -d '[:space:]')"
-        flatpak install --system --noninteractive --assumeyes flathub "$ref" \
-            || echo "callisto: WARNING flatpak install failed: $ref" >&2
-    done < /usr/share/callisto/flatpaks.txt
-fi
+# squashfs. An ISO that is missing apps is a broken ISO, so failures are fatal.
+echo "callisto: installing flatpak app layer"
+flatpak remote-add --system --if-not-exists flathub \
+    https://dl.flathub.org/repo/flathub.flatpakrepo
+while IFS= read -r ref; do
+    case "$ref" in
+        ""|\#*) continue ;;
+    esac
+    ref="$(echo "$ref" | tr -d '[:space:]')"
+    flatpak install --system --noninteractive --assumeyes flathub "$ref"
+done < /usr/share/callisto/flatpaks.txt
 
 echo "callisto: setup hook complete"

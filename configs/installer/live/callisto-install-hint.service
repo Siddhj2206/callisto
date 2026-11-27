@@ -1,0 +1,12 @@
+[Unit]
+Description=Offer to install Callisto
+After=callisto-shell.service
+PartOf=graphical-session.target
+ConditionKernelCommandLine=boot=live
+
+[Service]
+Type=exec
+ExecStart=/usr/lib/callisto/install-hint
+
+[Install]
+WantedBy=graphical-session.target

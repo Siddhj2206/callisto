@@ -7,6 +7,7 @@ and idempotently. This is the ONLY sanctioned writer of these files:
 
     ~/.config/callisto/tokens.json        (Triton shell reads this)
     ~/.config/gtk-3.0/gtk.css             (+ gtk-4.0)
+    ~/.config/qt6ct/, kdeglobals colors   (Qt)
     ~/.config/callisto/foot-theme.ini     (foot.ini includes it)
     ~/.config/hypr/callisto-user.lua     (hyprland.lua requires it)
 
@@ -466,6 +467,84 @@ inactive_colors={line()}
 """
 
 
+# KDE's color sets, which Breeze and KDE apps read beside the Qt palette.
+# set: (background, alternate background, text)
+KDE_SETS = {
+    "Window": ("surface", "surface_container", "on_surface"),
+    "View": ("surface_container_lowest", "surface_container_low", "on_surface"),
+    "Button": ("surface_container_high", "surface_container", "on_surface"),
+    "Header": ("surface_container", "surface", "on_surface"),
+    "Header][Inactive": ("surface", "surface_container", "on_surface"),
+    "Tooltip": ("surface_container_high", "surface", "on_surface"),
+    "Complementary": ("surface_container", "surface", "on_surface"),
+    "Selection": ("primary", "primary_container", "on_primary"),
+}
+
+
+def kde_colors(tokens: dict) -> dict:
+    """{group: {key: value}} for kdeglobals. The group layout follows
+    dux-shell's template (MIT, Avenge Media)."""
+    dark = tokens["color"]["dark"]
+
+    def rgb(role):
+        value = dark[role].lstrip("#")
+        return ",".join(str(int(value[i:i + 2], 16)) for i in (0, 2, 4))
+
+    groups = {}
+    for name, (background, alternate, text) in KDE_SETS.items():
+        selected = name == "Selection"
+        groups["Colors:" + name] = {
+            "BackgroundNormal": rgb(background),
+            "BackgroundAlternate": rgb(alternate),
+            "ForegroundNormal": rgb(text),
+            "ForegroundInactive": rgb(text if selected else "on_surface_variant"),
+            "ForegroundActive": rgb(text if selected else "primary"),
+            "ForegroundLink": rgb(text if selected else "primary"),
+            "ForegroundVisited": rgb(text if selected else "tertiary"),
+            "ForegroundNegative": rgb(text if selected else "error"),
+            "ForegroundNeutral": rgb(text if selected else "tertiary"),
+            "ForegroundPositive": rgb(text if selected else "secondary"),
+            "DecorationFocus": rgb("primary"),
+            "DecorationHover": rgb("primary"),
+        }
+    groups["WM"] = {
+        "activeBackground": rgb("surface_container"), "activeForeground": rgb("on_surface"),
+        "inactiveBackground": rgb("surface"), "inactiveForeground": rgb("on_surface_variant"),
+    }
+    groups["General"] = {"ColorScheme": "Callisto"}
+    groups["KDE"] = {"widgetStyle": "Breeze"}
+    return groups
+
+
+def merge_ini(path: Path, groups: dict) -> str:
+    """The file at path with our keys set and everything else left as it was:
+    KDE apps keep their own settings in kdeglobals."""
+    import configparser
+    import io
+    parser = configparser.RawConfigParser(strict=False, delimiters=("=",))
+    parser.optionxform = str
+    try:
+        parser.read(path)
+    except (configparser.Error, UnicodeDecodeError) as error:
+        log(f"{path.name} unreadable ({error}), rewriting it")
+        parser = configparser.RawConfigParser(delimiters=("=",))
+        parser.optionxform = str
+    for group, values in groups.items():
+        if not parser.has_section(group):
+            parser.add_section(group)
+        for key, value in values.items():
+            parser.set(group, key, value)
+    out = io.StringIO()
+    parser.write(out, space_around_delimiters=False)
+    return out.getvalue()
+
+
+def qt_style() -> str:
+    """Breeze where it is installed (kde-style-breeze)."""
+    found = Path("/usr/lib").glob("*/qt6/plugins/styles/breeze*.so")
+    return "Breeze" if any(found) else "Fusion"
+
+
 def emit_hyprland_user(store: dict, tokens: dict) -> str:
     dark = tokens["color"]["dark"]
     windows = store.get("windows", {})
@@ -500,6 +579,7 @@ def emit_hyprland_user(store: dict, tokens: dict) -> str:
         "    },",
         "    input = {",
         f'        kb_layout = "{input_s.get("keyboardLayout", "us")}",',
+        f'        kb_variant = "{input_s.get("keyboardVariant", "")}",',
         f"        follow_mouse = {1 if windows.get('focusFollowsMouse', True) else 0},",
         f"        repeat_rate = {input_s.get('repeatRate', 25) if input_s.get('repeat', True) else 0},",
         f"        repeat_delay = {input_s.get('repeatDelay', 400)},",
@@ -557,10 +637,11 @@ def live_input(store: dict) -> None:
     windows = store.get("windows", {})
     input_s = store.get("input", {})
     hypr_eval(
-        'hl.config({ input = { kb_layout = "%s", follow_mouse = %d, repeat_rate = %d,'
+        'hl.config({ input = { kb_layout = "%s", kb_variant = "%s", follow_mouse = %d, repeat_rate = %d,'
         " repeat_delay = %d, sensitivity = %s,"
         " touchpad = { natural_scroll = %s, tap_to_click = %s } } })" % (
             input_s.get("keyboardLayout", "us"),
+            input_s.get("keyboardVariant", ""),
             1 if windows.get("focusFollowsMouse", True) else 0,
             input_s.get("repeatRate", 25) if input_s.get("repeat", True) else 0,
             input_s.get("repeatDelay", 400),
@@ -632,7 +713,7 @@ def live_appearance_keys(store: dict) -> None:
 
 
 # What Flatpak apps are allowed to read so that they take our colors.
-FLATPAK_THEME_DIRS = ("xdg-config/gtk-3.0", "xdg-config/gtk-4.0")
+FLATPAK_THEME_DIRS = ("xdg-config/gtk-3.0", "xdg-config/gtk-4.0", "xdg-config/kdeglobals")
 
 
 def live_apps(store: dict) -> None:
@@ -660,8 +741,10 @@ def write_palette(store: dict, effective: dict, active: dict) -> list:
         (XDG_CONFIG / "gtk-4.0" / "gtk.css", gtk4, "gtk4 css"),
         (qt6ct_colors, emit_qt6ct_colorscheme(active), "qt6ct colorscheme"),
         (XDG_CONFIG / "qt6ct" / "qt6ct.conf",
-         "[Appearance]\ncolor_scheme_path=" + str(qt6ct_colors) + "\ncustom_palette=true\nstyle=Fusion\n",
+         "[Appearance]\ncolor_scheme_path=" + str(qt6ct_colors) + "\ncustom_palette=true\nstyle="
+         + qt_style() + "\n",
          "qt6ct config"),
+        (XDG_CONFIG / "kdeglobals", merge_ini(XDG_CONFIG / "kdeglobals", kde_colors(active)), "kde colors"),
     )
     return [name for path, content, name in outputs if atomic_write(path, content)]
 
