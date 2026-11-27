@@ -74,7 +74,7 @@ before. The old shell code is a reference only. Rules and file layout are in
 - [x] Foundations and the primitives the bar and OSD use
 - [x] Component gallery, dark and light (`shell/triton/gallery/`, run with `scripts/test-shell.sh --gallery <page>`)
 - [x] Drop-down panel (`Popover`), tile, slider, switch, button, list row, text field
-- [x] Literal lint for `primitives/`, `patterns/`, `surfaces/` (`scripts/lint-literals.py`; run by hand until CI exists)
+- [x] Literal lint for `primitives/`, `patterns/`, `surfaces/` (`scripts/lint-literals.py`; part of `make check`)
 - [x] Desktop sizes approved "for now" (gallery)
 - [ ] Floating shadows (needs `qml6-module-qtquick-effects` and a higher `ignore_alpha`)
 - [ ] Screenshot-versus-board diff script (so far compared by eye)
@@ -182,5 +182,10 @@ Missing
 - [ ] Plymouth and fwupd (M18)
 - [ ] In-shell polkit agent (M19, without fingerprint)
 - [ ] Sunrise-based auto dark mode and night light (M20)
-- [ ] Repo hygiene: untrack `.isotest/`, fix `.gitignore`, update `README.md` (#18)
-- [ ] CI: lint, `qmllint`, ISO build, QEMU smoke test
+- [x] Repo hygiene (#18): stray files and old harnesses removed, programs in `bin/`, one gallery entry, docs rewritten, third-party notices
+- [x] CI runs `make check` (`.github/workflows/check.yml`); not yet seen to run, as nothing is pushed
+- [ ] CI: `qmllint`, shell harness, ISO build, QEMU smoke test
+- [ ] Choose a licence for the repository
+- [ ] A licence for the wallpaper, or another one (`THIRD_PARTY.md`)
+- [ ] Before the first push: history still carries about 170 MB of removed test screenshots
+- [ ] The step that cuts the icon font subsets is not in the repository

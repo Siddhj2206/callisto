@@ -1,43 +1,75 @@
-# Callisto
+<div align="center">
 
-A reproducible, bootable **Debian 13 (trixie) live ISO** running a customized **Hyprland** Wayland desktop, implementing the **Triton (Material 3 Futura)** design identity.
+<img src="design/logo/callisto-logo.svg" width="112" alt="">
 
-Named for Callisto — the most heavily cratered, geologically ancient and unchanging surface in the Solar System — this distribution is built on the rock-solid foundation of Debian Stable.
+# Callisto OS
 
-## Status
+A fast, quiet desktop on a Debian base: Hyprland, a shell and settings app
+written for it, and apps from Flathub.
 
-🚧 Early development. See [`docs/roadmap.md`](docs/roadmap.md) for the execution plan.
+</div>
 
-## Components
+Callisto, the moon, has one of the oldest surfaces in the Solar System. The
+idea is the same: Debian stable underneath, and one carefully made desktop on
+top.
 
-| Component | Type | Source |
-|---|---|---|
-| Triton Status Bar (`shell/triton-bar`) | **Built from scratch** | Qt6/QML on [Quickshell](https://quickshell.outfoxxed.me) layer-shell toolkit |
-| Fuzzel Launcher (`configs/fuzzel`) | **Customized existing** | [Fuzzel](https://codeberg.org/dnkl/fuzzel) styled to Triton tokens |
-| Hyprland, Quickshell, PipeWire, etc. | **Reused upstream** | Debian `trixie` / `trixie-backports` packages |
+**Status: early development.** It boots, installs and is usable in a virtual
+machine. It has not been tried on real hardware, and there are no releases or
+updates for its own files yet. The [roadmap](docs/roadmap.md) says exactly what
+has and has not been checked.
 
-## Design
+## What's in it
 
-All visual decisions derive from [`design/tokens.json`](design/tokens.json) — the Triton / Material 3 Futura token set. Reference boards live in [`references/`](references/).
+- **Its own shell**, built on [Quickshell](https://quickshell.org): bar,
+  launcher, quick settings, notifications, lock and login screens, overview,
+  window switcher, clipboard, wallpaper picker, screenshots and recording.
+- **A settings app** so that no configuration file has to be edited by hand.
+- **Colors from the wallpaper**, carried through to GTK, Qt and the terminal,
+  in light and dark.
+- **An offline installer** (Calamares), UEFI and BIOS, with optional disk
+  encryption.
+- **Debian 13** with a few packages from backports; graphical apps as Flatpaks,
+  Files excepted.
 
-**Triton principles:**
+## Try it
 
-1. Tiled windows: zero gaps, zero rounding. Radius and blur belong to floating surfaces only.
-2. Materials: Glass (70% alpha + compositor blur) for shell panels, Thick Glass (88%) for the launcher, solid for content. Never stack glass on glass.
-3. The 9-lobe Triton wave is reserved for identity elements (launcher button, avatars) — never generic icons.
+You need rootless podman, and QEMU with KVM to boot the result.
 
-## Layout
-
+```sh
+make iso      # build callisto-amd64.hybrid.iso
+make run      # boot it
 ```
-design/         design tokens + wallpaper (single source of truth for visuals)
-shell/          triton-bar — from-scratch Quickshell status bar
-configs/        hyprland, fuzzel, greetd, gtk configuration
-live-build/     Debian live-build configuration (ISO definition)
-scripts/        build, sync, and QEMU run scripts
-references/     Triton design boards (visual reference only)
-docs/           roadmap and architecture documentation
+
+The live session logs in by itself; the user's password is `live`. Install from
+the launcher.
+
+| Key | Does |
+|---|---|
+| `Super` + `Space` | Launcher |
+| `Super` + `Return` | Terminal |
+| `Super` + `,` | Settings |
+| `Super` + `I` / `N` / `V` | Quick settings / notifications / clipboard |
+| `Super` + `Tab`, `Alt` + `Tab` | Overview, window switcher |
+| `Super` + `B` | Show or hide the bar (it also appears at the top edge) |
+| `Super` + `Shift` + `S`, `Print` | Screenshot |
+| `Super` + `Escape` | Lock |
+| `Super` + `Shift` + `E` | Power |
+| `Super` + `Q` / `F` / `M` | Close / float / full screen |
+
+## Working on it
+
+```sh
+make          # all commands
+make check    # lint, generated files, contrast, daemon tests
 ```
 
-## License
+- [Contributing](CONTRIBUTING.md): setup, the rules, how changes are checked
+- [Architecture](docs/architecture.md): how the pieces fit
+- [Documentation index](docs/README.md)
 
-See individual component directories; upstream Debian packages retain their respective licenses.
+## Credits and licence
+
+Callisto stands on Debian, Hyprland, Quickshell and many others. Borrowed work
+and its licences are listed in [THIRD_PARTY.md](THIRD_PARTY.md).
+
+This repository does not have a licence of its own yet.

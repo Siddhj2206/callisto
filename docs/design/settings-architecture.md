@@ -75,36 +75,9 @@ but the panel structure must not preclude them.
 
 ## Store schema (v1)
 
-```json
-{
-  "version": 1,
-  "appearance": {
-    "mode": "dark",              // dark | light | auto
-    "accent": "planet",          // preset name or "#rrggbb"
-    "contrast": 0.0,             // -1..1, 0 = standard
-    "material": "mica",          // solid | mica | glass
-    "wallpaper": "/usr/share/backgrounds/callisto/wallpaper.jpg"
-  },
-  "shell": {
-    "barPosition": "top",
-    "clockFormat": "24h",
-    "reduceMotion": false
-  },
-  "windows": {
-    "focusFollowsMouse": true,
-    "workspaceSwipe": true
-  },
-  "input": {
-    "keyboardLayout": "us",
-    "naturalScroll": true,
-    "tapToClick": true
-  },
-  "notifications": {
-    "dnd": false,
-    "lockscreenNotifications": true
-  }
-}
-```
+The shipped defaults, with every key, are
+[`configs/callisto/default-settings.json`](../../configs/callisto/default-settings.json);
+what each key accepts is `SCHEMA` in `bin/callisto-settingsd`.
 
 The store covers *user preference*. Machine state (volume level, last wifi)
 lives in the system services themselves — settings reads it live, it is never
@@ -114,7 +87,8 @@ persisted in the store.
 
 | Output | Path | Consumer |
 |---|---|---|
-| Triton tokens | `~/.config/callisto/tokens.json` | quickshell Theme.qml reads this over the system copy when present |
+| Triton tokens | `~/.config/callisto/tokens.json` | the shell reads this over the system copy when present (`ThemeSync`) |
 | GTK4/GTK3 css | `~/.config/gtk-4.0/gtk.css` | flatpak gtk apps pick it up via gtk settings |
+| Qt colors | `~/.config/qt6ct/`, `kdeglobals` | Qt apps from Debian |
 | foot colors | `~/.config/callisto/foot-theme.ini` | foot.ini `include=` |
 | hyprland colors | `~/.config/hypr/callisto-user.lua` | hyprland.lua `require` |
