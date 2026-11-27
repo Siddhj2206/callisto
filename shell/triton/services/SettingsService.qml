@@ -4,6 +4,7 @@ pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import qs.tokens
 
 // The settings store: reads ~/.config/callisto/settings.json and sends changes
 // to callisto-settingsd, its only writer, which also compiles them.
@@ -126,6 +127,25 @@ Singleton {
             return s[key];
         return fallback;
     }
+
+    // Settings read in more than one place, so that their fallbacks agree
+    // (configs/callisto/default-settings.json has the shipped values).
+    readonly property string defaultWallpaper: "/usr/share/backgrounds/callisto/wallpaper.jpg"
+    readonly property string wallpaper: get("appearance", "wallpaper", "") || defaultWallpaper
+    readonly property bool wallpaperOnLock: get("appearance", "wallpaperOnLock", true)
+    readonly property string appearanceMode: get("appearance", "mode", "dark")
+    readonly property string accent: get("appearance", "accent", "wallpaper")
+    readonly property string material: get("appearance", "material", "mica")
+    readonly property string barMode: get("shell", "barMode", "edge") // "edge" | "hidden" | "pinned"
+    readonly property int revealDelay: get("shell", "revealDelay", Motion.barRevealDwell)
+    readonly property bool revealOnUrgent: get("shell", "revealOnUrgent", true)
+    readonly property bool showWindowTitle: get("shell", "showWindowTitle", true)
+    readonly property bool batteryWavyRing: get("shell", "batteryWavyRing", false)
+    readonly property bool clock24h: get("shell", "clockFormat", "24h") === "24h"
+    readonly property bool reduceMotion: get("shell", "reduceMotion", false)
+    readonly property bool dnd: get("notifications", "dnd", false)
+    readonly property bool lockscreenNotifications: get("notifications", "lockscreenNotifications", true)
+    readonly property bool nightLight: get("display", "nightLight", false)
 
     function set(section, key, value) {
         const change = {};

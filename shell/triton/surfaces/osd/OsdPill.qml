@@ -28,7 +28,7 @@ Item {
         case "micOff": return Icons.micOff;
         case "battery": return Icons.batteryAlert;
         case "brightness": return value < 0.34 ? Icons.brightnessLow : value < 0.67 ? Icons.brightnessMedium : Icons.brightnessHigh;
-        default: return value <= 0 ? Icons.volumeMute : value < 0.5 ? Icons.volumeDown : Icons.volumeUp;
+        default: return Icons.volume(value, false);
         }
     }
 

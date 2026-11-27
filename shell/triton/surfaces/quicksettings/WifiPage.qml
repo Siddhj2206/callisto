@@ -106,7 +106,7 @@ ListPage {
                         height: Metrics.control
                         text: "Join"
                         interactive: field.text.length >= 8
-                        opacity: interactive ? 1 : 0.5
+                        opacity: interactive ? 1 : Theme.stateDimmed
                         onClicked: parent.send()
                     }
                 }

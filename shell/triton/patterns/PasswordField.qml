@@ -28,8 +28,7 @@ Item {
     }
 
     function shake() {
-        if (!Motion.reduce)
-            nudge.restart();
+        wobble.kick(-Metrics.shake);
     }
 
     function submit() {
@@ -39,14 +38,11 @@ Item {
 
     implicitHeight: Metrics.lockField
 
-    transform: Translate { id: shift }
+    transform: Translate { x: wobble.value }
 
-    SequentialAnimation {
-        id: nudge
-        NumberAnimation { target: shift; property: "x"; to: -Metrics.shake; duration: Motion.fadeFast }
-        NumberAnimation { target: shift; property: "x"; to: Metrics.shake; duration: Motion.fadeFast }
-        NumberAnimation { target: shift; property: "x"; to: -Metrics.shake / 2; duration: Motion.fadeFast }
-        NumberAnimation { target: shift; property: "x"; to: 0; duration: Motion.fadeFast }
+    Spring {
+        id: wobble
+        token: Motion.shake
     }
 
     Timer {

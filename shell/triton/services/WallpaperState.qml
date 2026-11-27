@@ -11,8 +11,7 @@ import qs.services
 Singleton {
     id: root
 
-    readonly property string fallback: "/usr/share/backgrounds/callisto/wallpaper.jpg"
-    readonly property string committed: SettingsService.get("appearance", "wallpaper", "") || fallback
+    readonly property string committed: SettingsService.wallpaper
     property string preview: "" // tried on the real desktop while picking
     readonly property string shown: preview || committed
 
@@ -53,6 +52,12 @@ Singleton {
             'd="$(xdg-user-dir PICTURES)"; [ "$d" = "$HOME" ] && d="$HOME/Pictures"; mkdir -p "$d/Wallpapers" && exec uwsm app -- xdg-open "$d/Wallpapers"']);
     }
 
+    // For other programs (Settings): the picker belongs to the shell, because
+    // the desktop is its preview.
+    function openInShell() {
+        Quickshell.execDetached(["qs", "-c", "triton", "ipc", "call", "wallpaper", "toggle"]);
+    }
+
     // ---- what there is --------------------------------------------------------
     Process {
         id: scan
@@ -63,7 +68,7 @@ Singleton {
             onStreamFinished: root.items = text.split("\n").filter(l => l !== "").map(line => {
                 const [source, path] = line.split("\t");
                 const file = path.slice(path.lastIndexOf("/") + 1).replace(/\.[^.]+$/, "");
-                return { source: source, path: path, name: path === root.fallback ? "Orbit" : file };
+                return { source: source, path: path, name: path === SettingsService.defaultWallpaper ? "Orbit" : file };
             })
         }
     }

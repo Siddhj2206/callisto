@@ -11,6 +11,7 @@ Item {
     property color fill: "transparent"
     property color ink: Theming.of(root).onsurface // color of the state layer
     property real radius: height / 2
+    property real radiusRight: radius // differs in connected groups
     property bool interactive: true
     property string label: "" // accessible name
 
@@ -36,10 +37,23 @@ Item {
         to: root.pressed ? Math.min(root.radius, Metrics.pressRadius) : root.radius
         token: Motion.spatialFast
     }
+    Spring {
+        id: morphRight
+        to: root.pressed ? Math.min(root.radiusRight, Metrics.pressRadius) : root.radiusRight
+        token: Motion.spatialFast
+    }
 
-    Rectangle {
+    // The spring overshoots; a corner radius past half the height is undefined.
+    component Shaped: Rectangle {
+        property real grown: 0 // how far outside the control it is drawn
+        topLeftRadius: Math.min(morph.value, root.height / 2) + grown
+        bottomLeftRadius: topLeftRadius
+        topRightRadius: Math.min(morphRight.value, root.height / 2) + grown
+        bottomRightRadius: topRightRadius
+    }
+
+    Shaped {
         anchors.fill: parent
-        radius: root.shapeRadius
         color: root.fill
         Behavior on color { ColorFade {} }
     }
@@ -49,19 +63,18 @@ Item {
         anchors.fill: parent
     }
 
-    Rectangle {
+    Shaped {
         anchors.fill: parent
-        radius: root.shapeRadius
         color: root.ink
         opacity: !root.interactive ? 0 : root.pressed ? Theme.statePress : root.hovered ? Theme.stateHover : 0
         Behavior on opacity { Fade { duration: Motion.fadeFast } }
     }
 
-    Rectangle {
+    Shaped {
         visible: root.activeFocus
         anchors.fill: parent
         anchors.margins: -(Metrics.focusOffset + Metrics.focusRing)
-        radius: root.shapeRadius + Metrics.focusOffset
+        grown: Metrics.focusOffset
         color: "transparent"
         border.width: Metrics.focusRing
         border.color: Theming.of(root).onsurface

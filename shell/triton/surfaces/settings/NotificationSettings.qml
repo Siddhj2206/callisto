@@ -14,7 +14,7 @@ Page {
             subtitle: "Only urgent notifications pop up"
             Switch {
                 label: "Do not disturb"
-                checked: SettingsService.get("notifications", "dnd", false)
+                checked: SettingsService.dnd
                 onToggled: on => SettingsService.set("notifications", "dnd", on)
             }
         }
@@ -24,7 +24,7 @@ Page {
             subtitle: "Off hides what notifications say while locked"
             Switch {
                 label: "Notification content on the lock screen"
-                checked: SettingsService.get("notifications", "lockscreenNotifications", true)
+                checked: SettingsService.lockscreenNotifications
                 onToggled: on => SettingsService.set("notifications", "lockscreenNotifications", on)
             }
         }

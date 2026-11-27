@@ -43,7 +43,7 @@ Singleton {
 
     // An urgent notification shows the bar briefly.
     function flashForUrgent() {
-        if (!SettingsService.get("shell", "revealOnUrgent", true))
+        if (!SettingsService.revealOnUrgent)
             return;
         revealed = true;
         scheduleHide(Motion.urgentPeek);
@@ -56,7 +56,7 @@ Singleton {
 
     Timer {
         id: revealTimer
-        interval: SettingsService.get("shell", "revealDelay", Motion.barRevealDwell)
+        interval: SettingsService.revealDelay
         onTriggered: root.revealed = true
     }
 

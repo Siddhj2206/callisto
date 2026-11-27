@@ -43,6 +43,12 @@ PanelWindow {
         menu.forceActiveFocus();
     }
 
+    Spring {
+        id: grow
+        to: root.open ? 1 : Metrics.enterScale
+        epsilon: 0.001
+    }
+
     ThemeScope {
         id: scope
         mode: "dark"
@@ -68,8 +74,7 @@ PanelWindow {
                 visible: root.primary
                 focus: true
                 anchors.fill: parent
-                scale: root.open ? 1 : Metrics.enterScale
-                Behavior on scale { Fade {} }
+                scale: grow.value
 
                 greeting: root.open ? PowerService.greeting() : greeting
                 uptime: PowerService.uptime()

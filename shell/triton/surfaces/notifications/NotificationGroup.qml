@@ -108,7 +108,7 @@ Column {
             width: parent.width - Metrics.peekInset * 2
             height: Metrics.peekHeight
             color: root.scheme.veil
-            opacity: 0.5
+            opacity: Theme.stateDimmed
             bottomLeftRadius: Metrics.listCardRadius
             bottomRightRadius: Metrics.listCardRadius
         }

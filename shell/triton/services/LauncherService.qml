@@ -151,8 +151,8 @@ Singleton {
     }
 
     readonly property var commands: {
-        const night = SettingsService.get("display", "nightLight", false);
-        const dark = SettingsService.get("appearance", "mode", "dark") === "dark";
+        const night = SettingsService.nightLight;
+        const dark = SettingsService.appearanceMode === "dark";
         const state = on => on ? "Currently on" : "Currently off";
         const all = [
             // Titles stay put whatever the state, so the same words find them.

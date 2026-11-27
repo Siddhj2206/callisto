@@ -13,8 +13,8 @@ Page {
     title: "Bar & Shell"
 
     readonly property Scheme scheme: Theming.of(root)
-    readonly property string mode: SettingsService.get("shell", "barMode", "edge")
-    readonly property int revealDelay: SettingsService.get("shell", "revealDelay", 120)
+    readonly property string mode: SettingsService.barMode
+    readonly property int revealDelay: SettingsService.revealDelay
 
     SettingGroup {
         SettingRow {
@@ -77,7 +77,7 @@ Page {
             title: "Show it for urgent notifications"
             Switch {
                 label: "Show the bar for urgent notifications"
-                checked: SettingsService.get("shell", "revealOnUrgent", true)
+                checked: SettingsService.revealOnUrgent
                 onToggled: on => SettingsService.set("shell", "revealOnUrgent", on)
             }
         }
@@ -90,7 +90,7 @@ Page {
             title: "Window title"
             Switch {
                 label: "Window title"
-                checked: SettingsService.get("shell", "showWindowTitle", true)
+                checked: SettingsService.showWindowTitle
                 onToggled: on => SettingsService.set("shell", "showWindowTitle", on)
             }
         }
@@ -98,7 +98,7 @@ Page {
             title: "Battery as a wavy ring"
             Switch {
                 label: "Battery as a wavy ring"
-                checked: SettingsService.get("shell", "batteryWavyRing", false)
+                checked: SettingsService.batteryWavyRing
                 onToggled: on => SettingsService.set("shell", "batteryWavyRing", on)
             }
         }
@@ -107,7 +107,7 @@ Page {
             subtitle: "Also on the lock screen"
             Switch {
                 label: "24-hour clock"
-                checked: SettingsService.get("shell", "clockFormat", "24h") === "24h"
+                checked: SettingsService.clock24h
                 onToggled: on => SettingsService.set("shell", "clockFormat", on ? "24h" : "12h")
             }
         }

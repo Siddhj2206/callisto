@@ -25,7 +25,8 @@ PanelWindow {
     // Hyprland focuses a new layer that accepts the keyboard, so a toast would
     // steal what is being typed. Ask for it only to let a reply be written.
     WlrLayershell.keyboardFocus: stack.wantsKeyboard ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
-    // Never in a screenshot.
+    // Each toast comes and goes through its own Presence (Toast.qml), so this
+    // only maps the surface. Never in a screenshot, so that cuts at once.
     visible: NotificationState.toasts.length > 0 && !ScreenshotState.open
     mask: Region { item: stack }
 
@@ -37,7 +38,7 @@ PanelWindow {
             root.screen = focused;
     }
 
-    readonly property bool underBar: BarState.revealed || SettingsService.get("shell", "barMode", "edge") === "pinned"
+    readonly property bool underBar: BarState.revealed || SettingsService.barMode === "pinned"
 
     Spring {
         id: top

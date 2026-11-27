@@ -10,7 +10,7 @@ import qs.tokens
 Scope {
     id: root
 
-    readonly property bool solid: SettingsService.get("appearance", "material", "mica") === "solid"
+    readonly property bool solid: SettingsService.material === "solid"
 
     // The wallpaper's extremes, from a small sample about as smooth as its blur.
     ColorQuantizer {
@@ -48,7 +48,6 @@ Scope {
         onFileChanged: reload()
         onLoaded: {
             try {
-                Theme.reduceMotion = SettingsService.get("shell", "reduceMotion", false);
                 Theme.applyUserTokens(JSON.parse(text()));
             } catch (e) {
                 console.warn("triton: user tokens unparseable, keeping compiled defaults:", e);
@@ -67,10 +66,9 @@ Scope {
     }
 
     // An accessibility preference, not a color role, so it is not in the tokens.
-    Connections {
-        target: SettingsService
-        function onStoreChanged() {
-            Theme.reduceMotion = SettingsService.get("shell", "reduceMotion", false);
-        }
+    Binding {
+        target: Theme
+        property: "reduceMotion"
+        value: SettingsService.reduceMotion
     }
 }

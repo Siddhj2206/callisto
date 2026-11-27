@@ -223,7 +223,7 @@ Item {
 
                     width: Math.round(Metrics.ribbonThumb * Math.max(Metrics.aspectMin, Math.min(Metrics.aspectMax, modelData.aspect)))
                     height: Metrics.ribbonThumb
-                    opacity: root.dragged?.address === modelData.address ? 0.5 : 1
+                    opacity: root.dragged?.address === modelData.address ? Theme.stateDimmed : 1
 
                     WindowPreview {
                         anchors.fill: parent

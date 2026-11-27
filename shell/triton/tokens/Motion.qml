@@ -11,6 +11,7 @@ QtObject {
     readonly property var spatialFast: [800, 0.6]
     readonly property var spatialDefault: [380, 0.8]
     readonly property var spatialSlow: [200, 0.8]
+    readonly property var shake: [1400, 0.2]
 
     property bool reduce: Theme.reduceMotion
     readonly property int fadeFast: reduce ? 120 : 70
@@ -28,6 +29,8 @@ QtObject {
     readonly property int powerCountdown: 5000
     readonly property int passwordReveal: 5000
     readonly property int switcherOpenDelay: 120
-    readonly property int captureSettle: 150
+    readonly property int captureSettle: 200
     readonly property int shotCardHold: 5000
+    readonly property int monitorRefresh: 600
+    readonly property int positionTick: 1000
 }

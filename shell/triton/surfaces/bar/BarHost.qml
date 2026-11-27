@@ -17,7 +17,7 @@ Scope {
 
     required property ShellScreen screen
 
-    readonly property string mode: SettingsService.get("shell", "barMode", "edge") // "edge" | "hidden" | "pinned"
+    readonly property string mode: SettingsService.barMode // "edge" | "hidden" | "pinned"
     readonly property bool pinned: mode === "pinned"
     // A revealed bar leaves for screenshots; a pinned one is part of the screen.
     readonly property bool shown: pinned ? !WallpaperState.open : BarState.revealed && !WallpaperState.open && !ScreenshotState.open
@@ -100,20 +100,19 @@ Scope {
                 workspaceCount: Math.max(4, host.highestWorkspace)
                 activeWorkspace: host.workspace?.id ?? 1
 
-                appName: SettingsService.get("shell", "showWindowTitle", true) && host.appId !== ""
+                appName: SettingsService.showWindowTitle && host.appId !== ""
                     ? (DesktopEntries.heuristicLookup(host.appId)?.name ?? host.appId) : ""
                 windowTitle: host.toplevel?.title ?? ""
 
-                time: Qt.formatDateTime(clock.date, SettingsService.get("shell", "clockFormat", "24h") === "24h" ? "HH:mm" : "h:mm AP")
+                time: Qt.formatDateTime(clock.date, SettingsService.clock24h ? "HH:mm" : "h:mm AP")
                 date: Qt.formatDateTime(clock.date, "ddd d MMM")
 
                 networkGlyph: NetworkService.wired ? Icons.lan
                     : NetworkService.connected ? Icons.wifi : Icons.wifiOff
                 volumeGlyph: !AudioService.available ? ""
-                    : AudioService.muted ? Icons.volumeOff
-                    : AudioService.volume < 0.5 ? Icons.volumeDown : Icons.volumeUp
+                    : Icons.volume(AudioService.volume, AudioService.muted)
                 batteryPercent: host.batteryPercent
-                batteryRing: SettingsService.get("shell", "batteryWavyRing", false)
+                batteryRing: SettingsService.batteryWavyRing
                 batteryGlyph: {
                     if (!host.hasBattery)
                         return "";

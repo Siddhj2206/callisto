@@ -1,18 +1,14 @@
-import Quickshell
-import Quickshell.Hyprland
 import Quickshell.Wayland
 import QtQuick
 import qs.foundations
 import qs.tokens
 
-// A panel that drops from the top-right corner on the focused monitor. It
-// covers the screen invisibly so that a click outside (or Esc) dismisses it,
-// and holds the keyboard while open.
-PanelWindow {
+// A panel that drops from the top-right corner. A click outside (or Esc)
+// dismisses it.
+OverlayWindow {
     id: root
 
     default property alias content: panel.data
-    property bool open: false
     property bool centred: false // under the middle of the bar instead
     property real panelWidth: Metrics.panelWidth
     property real panelHeight: 0
@@ -20,40 +16,10 @@ PanelWindow {
 
     // Esc, or Left/Backspace that nothing inside used, asks to step back.
     signal back
-    signal dismissed
 
-    anchors {
-        top: true
-        bottom: true
-        left: true
-        right: true
-    }
-    color: "transparent"
     WlrLayershell.namespace: "triton-glass"
-    exclusionMode: ExclusionMode.Ignore
-    WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
-    visible: presence.mapped
-    // While fading out, let clicks through.
-    mask: open ? null : nothing
-
-    Region { id: nothing }
-
-    onOpenChanged: {
-        if (!open)
-            return;
-        if (!presence.mapped) {
-            const focused = Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name);
-            if (focused)
-                root.screen = focused;
-        }
-        keys.forceActiveFocus();
-    }
-
-    MouseArea {
-        anchors.fill: parent
-        onClicked: root.dismissed()
-    }
+    presence: motion
+    onOpening: keys.forceActiveFocus()
 
     FocusScope {
         id: keys
@@ -66,7 +32,7 @@ PanelWindow {
         }
 
         Presence {
-            id: presence
+            id: motion
             show: root.open
             fromY: -Metrics.osdRise
             fromScale: Metrics.enterScale

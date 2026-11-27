@@ -120,7 +120,7 @@ Column {
         }
         SliderRow {
             visible: root.hasVolume
-            glyph: root.muted ? Icons.volumeOff : root.volume < 0.5 ? Icons.volumeDown : Icons.volumeUp
+            glyph: Icons.volume(root.volume, root.muted)
             label: "Volume"
             value: root.muted ? 0 : root.volume
             toggles: true

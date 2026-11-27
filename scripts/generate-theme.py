@@ -95,7 +95,7 @@ def ui_tokens(tokens: dict) -> dict:
     typography = [density, "", "    readonly property var roles: ({", *roles, "    })"]
 
     motion = ['    // Springs are [stiffness, damping ratio].']
-    for name in ("spatial_fast", "spatial_default", "spatial_slow"):
+    for name in ("spatial_fast", "spatial_default", "spatial_slow", "shake"):
         k, z = tokens["motion"][name]
         motion.append(f"    readonly property var {camel(name)}: [{k}, {z}]")
     motion.append("")
@@ -452,7 +452,15 @@ def main() -> int:
                 prop = prop + "Icon"
             icon_lines.append(f'    readonly property string {prop}: "\\u{cp}"')
             count += 1
-        icon_lines += ["}", ""]
+        icon_lines += [
+            "",
+            "    // The speaker for a volume from 0 to 1.",
+            "    function volume(level, muted) {",
+            "        return muted ? volumeOff : level <= 0 ? volumeMute : level < 0.5 ? volumeDown : volumeUp;",
+            "    }",
+            "}",
+            "",
+        ]
         outputs = {ICONS_PATH: "\n".join(icon_lines)}
     else:
         outputs = {}

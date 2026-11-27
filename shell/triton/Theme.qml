@@ -70,6 +70,7 @@ QtObject {
     readonly property real stateDrag: 0.16
     readonly property real stateDisabledcontent: 0.38
     readonly property real stateDisabledcontainer: 0.12
+    readonly property real stateDimmed: 0.5
 
     // ---- Shape (logical px) ----
     readonly property real radiusTiled: 0

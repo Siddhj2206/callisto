@@ -1,50 +1,14 @@
 pragma ComponentBehavior: Bound
 
-import Quickshell
-import Quickshell.Io
 import QtQuick
 import qs
 import qs.patterns
+import qs.services
 
 Page {
-    id: root
-
     title: "Apps"
 
-    property var defaults: ({})
-    property var flatpaks: []
-    property bool listed: false
-
-    // Reads the list, not byId(), so names appear once the entries have loaded.
-    function appName(file) {
-        const id = file.replace(/\.desktop$/, "");
-        return DesktopEntries.applications.values.find(entry => entry.id === id)?.name ?? id;
-    }
-
-    Process {
-        running: true
-        command: ["sh", "-c", 'echo "browser=$(xdg-settings get default-web-browser)"; echo "files=$(xdg-mime query default inode/directory)"; echo "images=$(xdg-mime query default image/png)"']
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const found = {};
-                for (const line of text.trim().split("\n")) {
-                    const [kind, id] = line.split("=");
-                    found[kind] = id;
-                }
-                root.defaults = found;
-            }
-        }
-    }
-    Process {
-        running: true
-        command: ["flatpak", "list", "--app", "--columns=name,version"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                root.flatpaks = text.trim().split("\n").filter(line => line !== "").map(line => line.split("\t"));
-                root.listed = true;
-            }
-        }
-    }
+    Component.onCompleted: AppsService.refresh()
 
     SettingGroup {
         title: "Opens with"
@@ -60,7 +24,7 @@ Page {
                 required property var modelData
                 glyph: modelData.glyph
                 title: modelData.title
-                subtitle: root.defaults[modelData.key] ? root.appName(root.defaults[modelData.key]) : "Nothing set"
+                subtitle: AppsService.defaults[modelData.key] ? AppsService.appName(AppsService.defaults[modelData.key]) : "Nothing set"
             }
         }
     }
@@ -69,7 +33,7 @@ Page {
         title: "Installed from Flathub"
 
         Repeater {
-            model: root.flatpaks
+            model: AppsService.flatpaks
 
             SettingRow {
                 required property var modelData
@@ -78,7 +42,7 @@ Page {
             }
         }
         SettingRow {
-            visible: root.listed && root.flatpaks.length === 0
+            visible: AppsService.listed && AppsService.flatpaks.length === 0
             title: "None yet"
         }
     }

@@ -76,7 +76,7 @@ Variants {
                     anchors.fill: parent
                     focus: true
                     wallpaper: {
-                        const path = SettingsService.get("appearance", "wallpaper", "/usr/share/backgrounds/callisto/wallpaper.jpg");
+                        const path = SettingsService.wallpaper;
                         return path !== "" ? "file://" + path : "";
                     }
                     ribbons: window.ribbons

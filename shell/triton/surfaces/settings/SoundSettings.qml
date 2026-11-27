@@ -14,7 +14,7 @@ Page {
         title: "Output"
 
         SettingRow {
-            glyph: AudioService.muted ? Icons.volumeOff : Icons.volumeUp
+            glyph: Icons.volume(AudioService.volume, AudioService.muted)
             title: "Volume"
             subtitle: !AudioService.available ? "No output device"
                 : AudioService.muted ? "Muted" : Math.round(AudioService.volume * 100) + "%"

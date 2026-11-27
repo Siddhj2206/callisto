@@ -19,7 +19,7 @@ Popover {
 
     // Players do not report their position unasked.
     Timer {
-        interval: 1000
+        interval: Motion.positionTick
         repeat: true
         triggeredOnStart: true
         running: root.open && MediaService.playing

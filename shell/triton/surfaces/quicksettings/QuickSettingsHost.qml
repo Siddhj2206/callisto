@@ -12,7 +12,7 @@ Popover {
 
     readonly property string page: QuickSettingsState.page
 
-    readonly property bool nightLight: SettingsService.get("display", "nightLight", false)
+    readonly property bool nightLight: SettingsService.nightLight
 
     open: QuickSettingsState.open
     panelHeight: panel.implicitHeight
@@ -66,7 +66,7 @@ Popover {
                 if (AudioService.available)
                     list.push({
                         key: "sound",
-                        glyph: AudioService.muted ? Icons.volumeOff : Icons.volumeUp,
+                        glyph: Icons.volume(AudioService.volume, AudioService.muted),
                         title: "Sound",
                         subtitle: AudioService.muted ? "Muted" : AudioService.name(AudioService.sink),
                         on: !AudioService.muted,

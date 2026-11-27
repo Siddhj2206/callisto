@@ -99,6 +99,7 @@ Scope {
 
     // The countdown takes no input, so menus can be opened while it runs.
     PanelWindow {
+        id: badge
         color: "transparent"
         exclusionMode: ExclusionMode.Ignore
         WlrLayershell.layer: WlrLayer.Overlay
@@ -106,15 +107,33 @@ Scope {
         implicitWidth: Metrics.countdownBadge
         implicitHeight: Metrics.countdownBadge + Metrics.hintHeight
         mask: Region {}
-        visible: ScreenshotState.countdown > 0
+        // Gone before the capture: the settle time outlasts the fade.
+        visible: countdownPresence.mapped
+
+        // The last second stays up while it fades.
+        property int seconds: 0
+        Connections {
+            target: ScreenshotState
+            function onCountdownChanged() {
+                if (ScreenshotState.countdown > 0)
+                    badge.seconds = ScreenshotState.countdown;
+            }
+        }
 
         ThemeScope {
             mode: "dark"
             anchors.fill: parent
 
-            Countdown {
+            Presence {
+                id: countdownPresence
+                show: ScreenshotState.countdown > 0
+                fromScale: Metrics.enterScale
                 anchors.fill: parent
-                seconds: ScreenshotState.countdown
+
+                Countdown {
+                    anchors.fill: parent
+                    seconds: badge.seconds
+                }
             }
         }
     }

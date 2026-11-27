@@ -36,18 +36,18 @@ WlSessionLock {
                 readonly property int minutes: Math.max(0, Math.floor((clock.date.getTime() - LockState.lockedAt) / 60000))
 
                 wallpaper: {
-                    if (!SettingsService.get("appearance", "wallpaperOnLock", true))
+                    if (!SettingsService.wallpaperOnLock)
                         return "";
-                    const path = SettingsService.get("appearance", "wallpaper", "/usr/share/backgrounds/callisto/wallpaper.jpg");
+                    const path = SettingsService.wallpaper;
                     return path !== "" ? "file://" + path : "";
                 }
                 date: Qt.formatDate(clock.date, "dddd, d MMMM")
-                time: Qt.formatTime(clock.date, SettingsService.get("shell", "clockFormat", "24h") === "24h" ? "HH:mm" : "h:mm")
+                time: Qt.formatTime(clock.date, SettingsService.clock24h ? "HH:mm" : "h:mm")
                 name: PowerService.displayName
                 caption: minutes === 0 ? "Locked" : "Locked " + minutes + (minutes === 1 ? " minute ago" : " minutes ago")
                 error: LockState.error
                 busy: LockState.busy
-                waiting: SettingsService.get("notifications", "lockscreenNotifications", true)
+                waiting: SettingsService.lockscreenNotifications
                     ? NotificationState.groups.map(g => ({ app: g.app, count: g.items.length })) : []
                 networkGlyph: SessionStatus.networkGlyph
                 batteryGlyph: SessionStatus.batteryGlyph

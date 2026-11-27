@@ -17,7 +17,7 @@ Page {
     subtitle: "Everything here applies as you change it."
 
     readonly property Scheme scheme: Theming.of(root)
-    readonly property string accent: SettingsService.get("appearance", "accent", "wallpaper")
+    readonly property string accent: SettingsService.accent
     readonly property bool custom: accent.startsWith("#")
 
     ClippingRectangle {
@@ -28,7 +28,7 @@ Page {
 
         Image {
             anchors.fill: parent
-            source: "file://" + SettingsService.get("appearance", "wallpaper", "/usr/share/backgrounds/callisto/wallpaper.jpg")
+            source: "file://" + SettingsService.wallpaper
             fillMode: Image.PreserveAspectCrop
             asynchronous: true
             sourceSize.width: Metrics.settingsContent
@@ -40,8 +40,7 @@ Page {
             variant: "container"
             glyph: Icons.wallpaper
             text: "Change wallpaper"
-            // The picker belongs to the shell: the desktop is its preview.
-            onClicked: Quickshell.execDetached(["qs", "-c", "triton", "ipc", "call", "wallpaper", "toggle"])
+            onClicked: WallpaperState.openInShell()
         }
     }
 
@@ -52,7 +51,7 @@ Page {
             below: ChoiceChips {
                 width: parent.width
                 options: [{ value: "dark", label: "Dark" }, { value: "light", label: "Light" }, { value: "auto", label: "Auto" }]
-                current: SettingsService.get("appearance", "mode", "dark")
+                current: SettingsService.appearanceMode
                 onChosen: value => SettingsService.set("appearance", "mode", value)
             }
         }
@@ -158,7 +157,7 @@ Page {
                         title: modelData.title
                         caption: modelData.caption
                         // Stores from before may say "glass": anything not solid is translucent.
-                        selected: (SettingsService.get("appearance", "material", "mica") === "solid") === (modelData.value === "solid")
+                        selected: (SettingsService.material === "solid") === (modelData.value === "solid")
                         onClicked: SettingsService.set("appearance", "material", modelData.value)
 
                         Rectangle {
@@ -188,7 +187,7 @@ Page {
             subtitle: "Short fades instead of movement"
             Switch {
                 label: "Reduce motion"
-                checked: SettingsService.get("shell", "reduceMotion", false)
+                checked: SettingsService.reduceMotion
                 onToggled: on => SettingsService.set("shell", "reduceMotion", on)
             }
         }

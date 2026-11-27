@@ -12,7 +12,7 @@ Singleton {
     id: root
 
     readonly property int historyLimit: 100
-    readonly property bool dndActive: SettingsService.get("notifications", "dnd", false)
+    readonly property bool dndActive: SettingsService.dnd
     property bool centerOpen: false
 
     // Newest first.

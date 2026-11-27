@@ -6,6 +6,7 @@ import qs
 import qs.patterns
 import qs.primitives
 import qs.services
+import qs.tokens
 
 Page {
     id: root
@@ -20,7 +21,7 @@ Page {
     Component.onCompleted: Hyprland.refreshMonitors()
     Timer {
         id: refresh
-        interval: 600
+        interval: Motion.monitorRefresh
         onTriggered: Hyprland.refreshMonitors()
     }
 
@@ -70,7 +71,7 @@ Page {
             subtitle: "Warmer colors, easier on the eyes at night"
             Switch {
                 label: "Night light"
-                checked: SettingsService.get("display", "nightLight", false)
+                checked: SettingsService.nightLight
                 onToggled: on => SettingsService.set("display", "nightLight", on)
             }
         }

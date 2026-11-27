@@ -28,6 +28,18 @@ QtObject {
         value = v;
     }
 
+    // Knocks the value off its target to swing back, first reaching about
+    // `amplitude` away. Underdamped tokens only.
+    function kick(amplitude) {
+        if (Motion.reduce)
+            return;
+        const w = Math.sqrt(token[0]), z = token[1];
+        const wd = w * Math.sqrt(1 - z * z);
+        const peak = Math.atan2(wd, z * w) / wd; // when it gets furthest
+        velocity = amplitude * wd / (Math.exp(-z * w * peak) * Math.sin(wd * peak));
+        clock.start();
+    }
+
     onToChanged: {
         if (!ready || Motion.reduce)
             snap(to);

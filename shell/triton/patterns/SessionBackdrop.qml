@@ -1,6 +1,7 @@
 import QtQuick
 import qs.foundations
 import qs.tokens
+import qs
 
 // The wallpaper behind the lock and login screens: blurred inside the shell,
 // since no compositor blur reaches a session lock, and tinted.
@@ -32,6 +33,6 @@ Item {
     Rectangle {
         anchors.fill: parent
         color: root.scheme.backdrop
-        opacity: 0.5
+        opacity: Theme.stateDimmed
     }
 }

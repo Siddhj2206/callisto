@@ -181,4 +181,9 @@ QtObject {
     readonly property string wifi: "\ue63e"
     readonly property string wifiLock: "\ue1e1"
     readonly property string wifiOff: "\ue648"
+
+    // The speaker for a volume from 0 to 1.
+    function volume(level, muted) {
+        return muted ? volumeOff : level <= 0 ? volumeMute : level < 0.5 ? volumeDown : volumeUp;
+    }
 }

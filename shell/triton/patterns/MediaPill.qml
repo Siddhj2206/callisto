@@ -45,7 +45,7 @@ Item {
                 PlayerArt {
                     anchors.verticalCenter: parent.verticalCenter
                     source: root.player?.trackArtUrl ?? ""
-                    opacity: root.playing ? 1 : 0.5
+                    opacity: root.playing ? 1 : Theme.stateDimmed
                 }
                 AppText {
                     anchors.verticalCenter: parent.verticalCenter

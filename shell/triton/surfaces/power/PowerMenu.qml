@@ -141,7 +141,7 @@ FocusScope {
                     glyph: modelData.glyph
                     text: modelData.text
                     container: modelData.container ?? (modelData.ends ? "tertiaryContainer" : "secondaryContainer")
-                    content: modelData.content ?? (modelData.ends ? "ontertiarycontainer" : "onsecondarycontainer")
+                    inkRole: modelData.content ?? (modelData.ends ? "ontertiarycontainer" : "onsecondarycontainer")
                     strong: modelData.ends ?? false
                     focused: root.current === index
                     first: index === 0

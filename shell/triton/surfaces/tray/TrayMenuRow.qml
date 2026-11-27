@@ -27,7 +27,7 @@ Item {
         radius: Metrics.listInner
         label: root.entry?.text ?? ""
         interactive: root.entry?.enabled ?? false
-        opacity: interactive ? 1 : 0.5
+        opacity: interactive ? 1 : Theme.stateDimmed
         onClicked: root.chosen()
 
         AppText {

@@ -1,6 +1,5 @@
 pragma ComponentBehavior: Bound
 
-import Quickshell.Io
 import QtQuick
 import qs.foundations
 import qs.patterns
@@ -12,31 +11,6 @@ Page {
     id: root
 
     title: "About"
-
-    property string osName: ""
-    property string processor: ""
-    property string memory: ""
-    property string kernel: ""
-
-    FileView {
-        path: "/etc/os-release"
-        onLoaded: root.osName = text().match(/^PRETTY_NAME="?([^"\n]*)/m)?.[1] ?? ""
-    }
-    FileView {
-        path: "/proc/cpuinfo"
-        onLoaded: root.processor = text().match(/^model name\s*:\s*(.*)$/m)?.[1] ?? ""
-    }
-    FileView {
-        path: "/proc/meminfo"
-        onLoaded: {
-            const kib = Number(text().match(/^MemTotal:\s*(\d+)/m)?.[1] ?? 0);
-            root.memory = (kib / 1048576).toFixed(1) + " GiB";
-        }
-    }
-    FileView {
-        path: "/proc/sys/kernel/osrelease"
-        onLoaded: root.kernel = text().trim()
-    }
 
     Row {
         spacing: Metrics.panelPad
@@ -54,7 +28,7 @@ Page {
             }
             AppText {
                 tone: "onsurfacevariant"
-                text: root.osName
+                text: MachineInfo.osName
             }
         }
     }
@@ -65,9 +39,9 @@ Page {
         Repeater {
             model: [
                 ["Name", PowerService.hostName],
-                ["Processor", root.processor],
-                ["Memory", root.memory],
-                ["Kernel", root.kernel],
+                ["Processor", MachineInfo.processor],
+                ["Memory", MachineInfo.memory],
+                ["Kernel", MachineInfo.kernel],
             ]
 
             SettingRow {
