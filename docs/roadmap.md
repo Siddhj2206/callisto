@@ -55,9 +55,9 @@ Branch `fix/broken-basics`. Tested on a booted ISO in QEMU on 2026-11-27.
 
 - [x] Dedicated lock-screen PAM stack, `callisto-lock`, falling back to `login` if the file is missing (#8, #22, M3). In QEMU. Fingerprint is not in the first release
 - [x] Clipboard via `cliphist` as a user service, skipping password-manager copies (#9, M4). In QEMU on a built ISO: service active, a copy shows in the list
-- [ ] Atomic settings store writes (#4, M6)
-- [ ] Don't drop a change made while the engine is running (#3; M9 replaces this)
-- [ ] Display scale can return to 1.0 (#6)
+- [x] Atomic settings store writes (#4, M6): `callisto-settingsd` is the only writer
+- [x] Don't drop a change made while the engine is running (#3), or while the daemon is down. Checked by `scripts/test-settingsd.py` and in QEMU
+- [x] Display scale can return to 1.0 (#6). In QEMU: 1.25 and back
 - [ ] Test Bluetooth and keyring storage on real hardware
 - [ ] Boot menu: Callisto branding and a timeout (it says Debian and waits for Enter)
 
@@ -82,7 +82,7 @@ before. The old shell code is a reference only. Rules and file layout are in
 
 - [ ] Keybinds through `GlobalShortcut`; media keys without `uwsm app` (#7, M7)
 - [x] Shell as `callisto-shell.service`, with lock restore (M8). In QEMU: killed while locked, it restarts and locks again. The unit starts on a built ISO
-- [ ] `callisto-settingsd` replaces `callisto-apply` (#3, #4, #5, M9)
+- [x] `callisto-settingsd` (#3, #4, #5, M9): socket-activated, validates values, applies only what changed, owns the day/night schedule. `callisto-apply` stays as its compiler, and for seeding before the session. In QEMU, not yet in a built ISO. Open: the portal Settings backend (with M16), night light on a schedule, the power profile still passes through the store (M10)
 - [ ] Power profile set by the shell (M10)
 - [ ] Simpler start-up (#25 part, M11)
 - [ ] Settings as its own process (#16, M12)

@@ -1,0 +1,11 @@
+[Unit]
+Description=Callisto settings daemon socket
+PartOf=graphical-session.target
+
+[Socket]
+ListenStream=%t/callisto/settingsd.sock
+SocketMode=0600
+DirectoryMode=0700
+
+[Install]
+WantedBy=graphical-session.target

@@ -35,6 +35,20 @@ Rules:
 4. **Apply is live.** No "log out and back in" for anything visual. The few
    things that cannot apply live (kernel args) are surfaced as such in the UI.
 
+## Who writes the store
+
+`callisto-settingsd` (`scripts/engine/callisto-settingsd`) is the only writer.
+It listens on `$XDG_RUNTIME_DIR/callisto/settingsd.sock` for JSON lines
+(`{"op":"set","key":"appearance.mode","value":"light"}`, `{"op":"get"}`),
+refuses keys and values outside its schema, writes the store atomically, and
+after 120 ms of quiet runs the engine for the domains that changed (palette,
+material, input, display, nightlight, idle, profile). `shell.*` and
+`notifications.*` keys run nothing: the shell reads them from the store.
+
+A new setting needs a schema entry in the daemon, and a domain if something
+outside the shell must follow it. `scripts/test-settingsd.py` exercises the
+daemon without a session.
+
 ## Panels (from the Settings board, mapped to backends)
 
 | Panel group | Panel | Backend | Applies how |
@@ -103,4 +117,4 @@ persisted in the store.
 | Triton tokens | `~/.config/callisto/tokens.json` | quickshell Theme.qml reads this over the system copy when present |
 | GTK4/GTK3 css | `~/.config/gtk-4.0/gtk.css` | flatpak gtk apps pick it up via gtk settings |
 | foot colors | `~/.config/callisto/foot-theme.ini` | foot.ini `include=` |
-| hyprland colors | `~/.config/hypr/callisto-user.conf` | hyprland.conf `source=` |
+| hyprland colors | `~/.config/hypr/callisto-user.lua` | hyprland.lua `require` |

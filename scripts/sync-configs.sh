@@ -114,6 +114,13 @@ install -m 0644 "$REPO_ROOT/configs/callisto/default-settings.json" \
 install -m 0755 "$REPO_ROOT/scripts/engine/callisto-apply" \
     "$INCLUDES/usr/local/bin/callisto-apply"
 
+# The settings daemon: the only writer of the store. It loads the engine from
+# beside itself.
+install -m 0755 "$REPO_ROOT/scripts/engine/callisto-settingsd" "$INCLUDES/usr/local/bin/"
+for unit in callisto-settingsd.socket callisto-settingsd.service; do
+    install -D -m 0644 "$REPO_ROOT/configs/systemd/user/$unit" "$INCLUDES/usr/lib/systemd/user/$unit"
+done
+
 # Clipboard history: the user service, its filter, and the picker's helper.
 install -m 0755 "$REPO_ROOT/scripts/engine/callisto-clip" \
     "$REPO_ROOT/scripts/engine/callisto-clip-store" "$INCLUDES/usr/local/bin/"

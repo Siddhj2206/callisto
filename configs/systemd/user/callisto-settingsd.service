@@ -1,0 +1,17 @@
+[Unit]
+Description=Callisto settings daemon
+PartOf=graphical-session.target
+After=graphical-session.target
+Requires=callisto-settingsd.socket
+ConditionEnvironment=WAYLAND_DISPLAY
+
+[Service]
+Type=notify
+ExecStart=/usr/local/bin/callisto-settingsd
+Restart=on-failure
+Slice=background-graphical.slice
+
+[Install]
+# Started with the session, not on first use: it brings the compositor and
+# night light in line with the store, and keeps the day/night schedule.
+WantedBy=graphical-session.target

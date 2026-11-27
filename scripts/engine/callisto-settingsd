@@ -1,0 +1,310 @@
+#!/usr/bin/env python3
+"""callisto-settingsd — the only writer of the settings store.
+
+Listens on $XDG_RUNTIME_DIR/callisto/settingsd.sock for JSON lines:
+
+    {"op": "set", "key": "appearance.mode", "value": "light"}
+    {"op": "get"}
+
+and answers each with one line, {"ok": true, ...} or {"ok": false, "error"}.
+A change is written to the store at once, then compiled after a short quiet
+period, and only for the domains it touches. Changes that arrive while an
+apply is running are picked up by the next one.
+
+See docs/design/settings-architecture.md.
+"""
+
+import asyncio
+import json
+import math
+import os
+import re
+import socket
+import sys
+import tempfile
+from importlib.machinery import SourceFileLoader
+from importlib.util import module_from_spec, spec_from_loader
+from pathlib import Path
+
+DEBOUNCE = 0.12
+# How often to check whether "auto" has crossed from day to night.
+SCHEDULE_TICK = 60
+
+
+def load_engine():
+    path = str(Path(__file__).resolve().with_name("callisto-apply"))
+    loader = SourceFileLoader("callisto_apply", path)
+    module = module_from_spec(spec_from_loader(loader.name, loader))
+    sys.dont_write_bytecode = True
+    loader.exec_module(module)
+    return module
+
+
+engine = load_engine()
+
+
+def log(message: str) -> None:
+    print(f"callisto-settingsd: {message}", flush=True)
+
+
+# --- Schema ------------------------------------------------------------------
+# Values reach Lua and config files, so only what is listed here gets in.
+
+def boolean(value):
+    return isinstance(value, bool)
+
+
+def number(low, high, integer=False):
+    def check(value):
+        if isinstance(value, bool) or not isinstance(value, int if integer else (int, float)):
+            return False
+        return math.isfinite(value) and low <= value <= high
+    return check
+
+
+def one_of(*choices):
+    return lambda value: isinstance(value, str) and value in choices
+
+
+def matching(pattern):
+    return lambda value: isinstance(value, str) and re.fullmatch(pattern, value) is not None
+
+
+SCHEMA = {
+    "appearance.mode": one_of("dark", "light", "auto"),
+    "appearance.accent": matching(r"wallpaper|planet|hull|rock|shadow|haze|#[0-9A-Fa-f]{6}"),
+    "appearance.contrast": number(-1, 1),
+    "appearance.material": one_of("solid", "mica", "glass"),
+    "appearance.wallpaper": matching(r"/[^\x00-\x1f]{1,4000}"),
+    "appearance.wallpaperOnLock": boolean,
+    "shell.barPosition": one_of("top", "bottom"),
+    "shell.barMode": one_of("edge", "hidden", "pinned"),
+    "shell.revealDelay": number(0, 2000, integer=True),
+    "shell.revealOnUrgent": boolean,
+    "shell.showWindowTitle": boolean,
+    "shell.batteryWavyRing": boolean,
+    "shell.clockFormat": one_of("24h", "12h"),
+    "shell.reduceMotion": boolean,
+    "windows.focusFollowsMouse": boolean,
+    "windows.workspaceSwipe": boolean,
+    "input.keyboardLayout": matching(r"[A-Za-z0-9_,]{1,64}"),
+    "input.naturalScroll": boolean,
+    "input.tapToClick": boolean,
+    "input.repeat": boolean,
+    "input.repeatRate": number(1, 100, integer=True),
+    "input.repeatDelay": number(100, 2000, integer=True),
+    "input.sensitivity": number(-1, 1),
+    "notifications.dnd": boolean,
+    "notifications.lockscreenNotifications": boolean,
+    "display.scale": number(0.5, 4),
+    "display.refreshRate": one_of("60", "120", "auto"),
+    "display.vrr": boolean,
+    "display.nightLight": boolean,
+    "power.profile": one_of("power-saver", "balanced", "performance"),
+    "power.dimIdle": boolean,
+    "power.suspendIdle": boolean,
+}
+
+# Which domain of the engine a key needs. Keys not listed (shell.*,
+# notifications.*) are read by the shell straight from the store.
+DOMAIN_OF = {
+    "appearance.mode": "palette",
+    "appearance.accent": "palette",
+    "appearance.contrast": "palette",
+    "appearance.wallpaper": "palette",
+    "appearance.material": "material",
+    "windows.focusFollowsMouse": "input",
+    "input.keyboardLayout": "input",
+    "input.naturalScroll": "input",
+    "input.tapToClick": "input",
+    "input.repeat": "input",
+    "input.repeatRate": "input",
+    "input.repeatDelay": "input",
+    "input.sensitivity": "input",
+    "display.scale": "display",
+    "display.refreshRate": "display",
+    "display.vrr": "display",
+    "display.nightLight": "nightlight",
+    "power.profile": "profile",
+    "power.dimIdle": "idle",
+    "power.suspendIdle": "idle",
+}
+
+
+# --- Store -------------------------------------------------------------------
+
+def read_store(path: Path) -> dict:
+    """The user's store, without any value the schema would refuse."""
+    try:
+        store = json.loads(path.read_text())
+        if not isinstance(store, dict):
+            raise ValueError("not an object")
+    except FileNotFoundError:
+        return {"version": 1}
+    except (OSError, ValueError) as error:
+        # Keep the unreadable file for whoever wants to look, and carry on.
+        log(f"store unreadable ({error}), moved to {path.name}.bad")
+        os.replace(path, path.with_name(path.name + ".bad"))
+        return {"version": 1}
+    for section, values in store.items():
+        if not isinstance(values, dict):
+            continue
+        for key in list(values):
+            check = SCHEMA.get(f"{section}.{key}")
+            if check and not check(values[key]):
+                log(f"dropped invalid {section}.{key}")
+                del values[key]
+    return store
+
+
+def write_store(path: Path, store: dict) -> None:
+    """Durably and in one step: readers never see half a file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.")
+    try:
+        with os.fdopen(fd, "w") as file:
+            file.write(json.dumps(store, indent=2) + "\n")
+            file.flush()
+            os.fsync(file.fileno())
+        os.replace(tmp, path)
+    except BaseException:
+        os.unlink(tmp)
+        raise
+    directory = os.open(path.parent, os.O_DIRECTORY)
+    try:
+        os.fsync(directory)
+    finally:
+        os.close(directory)
+
+
+# --- Daemon ------------------------------------------------------------------
+
+class Daemon:
+    def __init__(self):
+        self.store = read_store(engine.STORE)
+        self.dirty = set()
+        self.wake = asyncio.Event()
+        self.mode = None
+        if not engine.STORE.exists():
+            write_store(engine.STORE, self.store)
+
+    def effective(self) -> dict:
+        """The store over the system defaults."""
+        merged = {}
+        if engine.DEFAULT_STORE.exists():
+            merged = json.loads(engine.DEFAULT_STORE.read_text())
+        for section, values in self.store.items():
+            if isinstance(values, dict) and isinstance(merged.get(section), dict):
+                merged[section].update(values)
+            else:
+                merged[section] = values
+        return merged
+
+    def mark(self, *domains) -> None:
+        self.dirty.update(domains)
+        self.wake.set()
+
+    def set(self, key, value) -> None:
+        check = SCHEMA.get(key) if isinstance(key, str) else None
+        if check is None:
+            raise ValueError(f"unknown key {key!r}")
+        if not check(value):
+            raise ValueError(f"invalid value for {key}: {value!r}")
+        section, name = key.split(".", 1)
+        values = self.store.get(section)
+        if not isinstance(values, dict):
+            values = {}
+        if name in values and values[name] == value:
+            return
+        updated = {**self.store, section: {**values, name: value}}
+        write_store(engine.STORE, updated)
+        self.store = updated
+        if key in DOMAIN_OF:
+            self.mark(DOMAIN_OF[key])
+
+    def handle(self, line: bytes) -> dict:
+        try:
+            request = json.loads(line)
+            if request.get("op") == "set":
+                self.set(request.get("key"), request.get("value"))
+                return {"ok": True}
+            if request.get("op") == "get":
+                return {"ok": True, "store": self.effective()}
+            raise ValueError("unknown op")
+        except (ValueError, AttributeError, OSError) as error:
+            log(str(error))
+            return {"ok": False, "error": str(error)}
+
+    async def client(self, reader, writer) -> None:
+        try:
+            while line := await reader.readline():
+                writer.write(json.dumps(self.handle(line)).encode() + b"\n")
+                await writer.drain()
+        except (ConnectionError, ValueError):
+            pass  # the client went away, or sent a line past the limit
+        finally:
+            writer.close()
+
+    async def applier(self) -> None:
+        while True:
+            await self.wake.wait()
+            # Trailing: a slider drag becomes one apply.
+            while self.wake.is_set():
+                self.wake.clear()
+                await asyncio.sleep(DEBOUNCE)
+            domains, self.dirty = self.dirty, set()
+            store = self.effective()
+            if "palette" in domains:
+                self.mode = engine.resolve_mode(store.get("appearance", {}).get("mode", "dark"))
+            try:
+                changed = await asyncio.to_thread(engine.apply, store, domains)
+                log(f"applied {', '.join(sorted(domains))}" + (f" (wrote {', '.join(changed)})" if changed else ""))
+            except (Exception, SystemExit) as error:
+                log(f"apply of {', '.join(sorted(domains))} failed: {error!r}")
+
+    async def schedule(self) -> None:
+        while True:
+            await asyncio.sleep(SCHEDULE_TICK)
+            mode = self.effective().get("appearance", {}).get("mode", "dark")
+            if engine.resolve_mode(mode) != self.mode:
+                self.mark("palette")
+
+
+def listening_socket() -> socket.socket:
+    """The one systemd passed in, or our own when run by hand."""
+    if os.environ.get("LISTEN_PID") == str(os.getpid()) and int(os.environ.get("LISTEN_FDS", 0)) >= 1:
+        return socket.socket(fileno=3)
+    path = Path(os.environ["XDG_RUNTIME_DIR"]) / "callisto" / "settingsd.sock"
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    path.unlink(missing_ok=True)
+    sock = socket.socket(socket.AF_UNIX)
+    sock.bind(str(path))
+    path.chmod(0o600)
+    sock.listen()
+    return sock
+
+
+def notify_ready() -> None:
+    address = os.environ.get("NOTIFY_SOCKET")
+    if not address:
+        return
+    if address.startswith("@"):
+        address = "\0" + address[1:]
+    with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as sock:
+        sock.sendto(b"READY=1", address)
+
+
+async def main() -> None:
+    daemon = Daemon()
+    server = await asyncio.start_unix_server(daemon.client, sock=listening_socket())
+    tasks = [asyncio.create_task(daemon.applier()), asyncio.create_task(daemon.schedule())]
+    # Bring the session in line with the store once. A power profile is only
+    # set if the user ever chose one.
+    daemon.mark(*engine.DOMAINS)
+    notify_ready()
+    async with server:
+        await asyncio.gather(server.serve_forever(), *tasks)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

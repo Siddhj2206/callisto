@@ -87,6 +87,8 @@ systemctl --global enable callisto-shell.service \
     || echo "callisto: WARNING could not enable the shell" >&2
 systemctl --global enable callisto-clipboard.service \
     || echo "callisto: WARNING could not enable clipboard history" >&2
+systemctl --global enable callisto-settingsd.socket callisto-settingsd.service \
+    || echo "callisto: WARNING could not enable the settings daemon" >&2
 
 # Disable other display managers if any snuck in as dependencies; greetd is the
 # sole session entry point.

@@ -178,26 +178,14 @@ ShellRoot {
         }
     }
 
-    // Auto light/dark: re-resolve the scheme on the minute boundary. Cheap —
-    // applyUserTokens only repaints when active_mode flips the palette.
+    // Auto light/dark: re-resolve on the minute boundary. Cheap, since
+    // applyUserTokens only repaints when active_mode flips the palette. Other
+    // apps follow through settingsd, which keeps the same schedule.
     Timer {
         interval: 60000
         running: Theme.userTokens !== null
         repeat: true
-        property string lastMode: ""
-        onTriggered: {
-            const before = Theme.activeMode;
-            Theme.applyUserTokens(Theme.userTokens);
-            // Crossing the day/night boundary re-runs the engine so external
-            // apps (gtk, foot, flatpaks via the portal) follow the flip.
-            if (Theme.activeMode !== before)
-                autoFlipProc.running = true;
-        }
-    }
-
-    Process {
-        id: autoFlipProc
-        command: ["callisto-apply"]
+        onTriggered: Theme.applyUserTokens(Theme.userTokens)
     }
 
     // reduceMotion follows the store reactively — it lives outside the

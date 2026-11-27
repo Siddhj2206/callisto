@@ -8,10 +8,10 @@ and idempotently. This is the ONLY sanctioned writer of these files:
     ~/.config/callisto/tokens.json        (Triton shell reads this)
     ~/.config/gtk-3.0/gtk.css             (+ gtk-4.0)
     ~/.config/callisto/foot-theme.ini     (foot.ini includes it)
-    ~/.config/hypr/callisto-user.lua     (hyprland.conf sources it)
+    ~/.config/hypr/callisto-user.lua     (hyprland.lua requires it)
 
-Users never edit any of these by hand; the Settings app edits the store and
-re-runs this program. See docs/design/settings-architecture.md.
+Users never edit any of these by hand. In a session, callisto-settingsd owns
+the store and calls apply() here with only the domains that changed. See docs/design/settings-architecture.md.
 
 Usage:
     callisto-apply            compile + apply everything, live
@@ -46,6 +46,7 @@ def atomic_write(path: Path, content: str) -> bool:
         log(f"would write {path}")
         return True
     path.parent.mkdir(parents=True, exist_ok=True)
+    # Unique per writer: this and settingsd can both be at work.
     fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix=path.name + ".")
     try:
         with os.fdopen(fd, "w") as f:
@@ -414,84 +415,78 @@ def emit_hyprland_user(store: dict, tokens: dict) -> str:
         "",
     ]
 
-    # Monitor scale: persisted rule so the scaling survives restart, not just
-    # the live keyword push. Applies to all displays (unnamed glob).
-    scale = store.get("display", {}).get("scale", 1.0)
-    if scale != 1.0:
-        lines.append(f'hl.monitor(",preferred,auto,{scale}")')
-        lines.append("")
+    display = store.get("display", {})
+    if "vrr" in display:
+        lines += ["hl.config({ misc = { vrr = %d } })" % (1 if display["vrr"] else 0), ""]
+    # Any scale the user chose, 1.0 included: the session's default rule is
+    # "auto", which is not the same thing.
+    if "scale" in display:
+        lines += [monitor_rule(display["scale"]), ""]
     return "\n".join(lines)
 
 
-def apply_live(store: dict, tokens: dict) -> None:
-    """Push what can be pushed live right now."""
-    if DRY:
-        return
-    # hyprctl reload is cheap and safe; keyword pushes target the few values
-    # that need instant effect. Errors are non-fatal — the compositor may not
-    # be running (build-time seeding, greeter phase).
-    # Targeted keyword pushes: instant effect, no config reload flicker.
-    # Errors are non-fatal — the compositor may not be running (build-time
-    # seeding, greeter phase, first boot before Hyprland starts).
+def monitor_rule(scale) -> str:
+    return 'hl.monitor({ output = "", mode = "preferred", position = "auto", scale = %s })' % float(scale)
+
+
+def run_quiet(*command: str, timeout: float = 5) -> None:
+    """Errors are not fatal: the compositor or a service may not be running
+    (seeding before the session, the greeter, a build)."""
     import subprocess
+    try:
+        subprocess.run(command, capture_output=True, timeout=timeout)
+    except Exception:
+        pass
+
+
+def hypr_eval(lua: str) -> None:
+    # The Lua config manager rejects `hyprctl keyword`.
+    run_quiet("hyprctl", "eval", lua)
+
+
+def live_borders(active: dict) -> None:
+    primary = active["color"]["dark"]["primary"].lstrip("#")
+    hypr_eval('hl.config({ general = { col = { active_border = "rgba(%saa)",'
+              ' inactive_border = "rgba(44474f44)" } } })' % primary)
+
+
+def live_material(store: dict) -> None:
+    on = "false" if store.get("appearance", {}).get("material") == "solid" else "true"
+    hypr_eval("hl.config({ decoration = { blur = { enabled = %s }, shadow = { enabled = %s } } })" % (on, on))
+
+
+def live_input(store: dict) -> None:
     windows = store.get("windows", {})
     input_s = store.get("input", {})
-    # Use the in-memory effective tokens — re-reading our own output file
-    # raced/skipped writes and pushed fallback gray borders on accent changes.
-    dark = tokens["color"]["dark"]["primary"].lstrip("#")
-    inactive = "44474f"
-    # Live pushes must speak the Lua engine's dialect: hyprctl keyword is
-    # rejected outright under the lua config manager ("keyword can't work
-    # with non-legacy parsers"). One eval applies everything atomically.
-    repeat_rate = input_s.get("repeatRate", 25) if input_s.get("repeat", True) else 0
-    vrr = 1 if store.get("display", {}).get("vrr", True) else 0
-    lua = (
-        "hl.config({"
-        "general = { col = { active_border = \"rgba(%saa)\","
-        " inactive_border = \"rgba(%s44)\" } },"
-        "input = { kb_layout = \"%s\", follow_mouse = %d,"
-        " repeat_rate = %d, repeat_delay = %d, sensitivity = %s,"
-        " touchpad = { natural_scroll = %s, tap_to_click = %s } },"
-        "misc = { vrr = %d }"
-        "})"
-    ) % (
-        dark, inactive,
-        input_s.get("keyboardLayout", "us"),
-        1 if windows.get("focusFollowsMouse", True) else 0,
-        repeat_rate,
-        input_s.get("repeatDelay", 400),
-        input_s.get("sensitivity", 0.0),
-        "true" if input_s.get("naturalScroll", True) else "false",
-        "true" if input_s.get("tapToClick", True) else "false",
-        vrr,
-    )
-    try:
-        subprocess.run(["hyprctl", "eval", lua], capture_output=True, timeout=3)
-    except Exception:
-        pass
-    # Monitor scale: a rule, not a config key — eval'd hl.monitor merges it.
-    scale = store.get("display", {}).get("scale", 1.0)
-    if scale != 1.0:
-        try:
-            subprocess.run(["hyprctl", "eval",
-                            "hl.monitor({ output = \"\", scale = %s })" % scale],
-                           capture_output=True, timeout=3)
-        except Exception:
-            pass
+    hypr_eval(
+        'hl.config({ input = { kb_layout = "%s", follow_mouse = %d, repeat_rate = %d,'
+        " repeat_delay = %d, sensitivity = %s,"
+        " touchpad = { natural_scroll = %s, tap_to_click = %s } } })" % (
+            input_s.get("keyboardLayout", "us"),
+            1 if windows.get("focusFollowsMouse", True) else 0,
+            input_s.get("repeatRate", 25) if input_s.get("repeat", True) else 0,
+            input_s.get("repeatDelay", 400),
+            input_s.get("sensitivity", 0.0),
+            "true" if input_s.get("naturalScroll", True) else "false",
+            "true" if input_s.get("tapToClick", True) else "false",
+        ))
 
-    # Night light: hyprsunset is already running in the session; temperature
-    # control is a hyprctl keyword. Store key is display.nightLight.
-    nl = store.get("display", {}).get("nightLight", False)
-    try:
-        subprocess.run(["hyprctl", "hyprsunset", "temperature",
-                        "4500" if nl else "6000"],
-                       capture_output=True, timeout=3)
-    except Exception:
-        pass
 
-    # Idle behavior: regenerate hypridle.conf from power.dimIdle/suspendIdle.
-    # hypridle cannot reload: it has no SIGHUP handler, so a HUP kills it for
-    # good. Restart its unit instead, and only when the config changed.
+def live_display(store: dict) -> None:
+    display = store.get("display", {})
+    hypr_eval("hl.config({ misc = { vrr = %d } })" % (1 if display.get("vrr", True) else 0))
+    if "scale" in display:
+        hypr_eval(monitor_rule(display["scale"]))
+
+
+def live_nightlight(store: dict) -> None:
+    on = store.get("display", {}).get("nightLight", False)
+    run_quiet("hyprctl", "hyprsunset", "temperature", "4500" if on else "6000")
+
+
+def live_idle(store: dict) -> None:
+    """hypridle cannot reload (a HUP kills it), so restart its unit, and only
+    when its config changed."""
     power = store.get("power", {})
     dim_idle = power.get("dimIdle", True)
     suspend_idle = power.get("suspendIdle", True)
@@ -523,41 +518,68 @@ def apply_live(store: dict, tokens: dict) -> None:
         ]
     if atomic_write(HOME / ".config" / "hypr" / "hypridle.conf",
                     "\n".join(idle_lines) + "\n"):
-        try:
-            subprocess.run(["systemctl", "--user", "try-restart", "hypridle.service"],
-                           capture_output=True, timeout=10)
-        except Exception:
-            pass
+        run_quiet("systemctl", "--user", "try-restart", "hypridle.service", timeout=10)
 
-    # Power profile: power-profiles-daemon exposes a dbus API, but the CLI is
-    # the stable interface and idempotent — setting the active profile is
-    # a no-op when unchanged.
+
+def live_profile(store: dict) -> None:
     profile = store.get("power", {}).get("profile")
     if profile in ("power-saver", "balanced", "performance"):
-        try:
-            subprocess.run(["powerprofilesctl", "set", profile],
-                           capture_output=True, timeout=5)
-        except Exception:
-            pass
+        run_quiet("powerprofilesctl", "set", profile)
 
-    # Appearance propagation: xdg-desktop-portal-gtk reads these gsettings
-    # keys and republishes them as the freedesktop appearance portal keys —
-    # THE channel dark mode reaches GTK4/libadwaita, Firefox, Electron, and
-    # flatpaks through. gtk.css can't do any of that.
-    appearance = store.get("appearance", {})
-    scheme = "prefer-light" if resolve_mode(appearance.get("mode", "dark")) == "light" else "prefer-dark"
-    gsettings_keys = [
-        ("org.gnome.desktop.interface", "color-scheme", scheme),
-        ("org.gnome.desktop.interface", "gtk-theme", "Adwaita"),
-        ("org.gnome.desktop.interface", "cursor-theme", "Adwaita"),
-        ("org.gnome.desktop.interface", "cursor-size", "24"),
-    ]
-    for schema, key, val in gsettings_keys:
-        try:
-            subprocess.run(["gsettings", "set", schema, key, val if val.isdigit() else f"'{val}'"],
-                           capture_output=True, timeout=3)
-        except Exception:
-            pass
+
+def live_appearance_keys(store: dict) -> None:
+    # xdg-desktop-portal-gtk republishes these as the appearance portal keys,
+    # which is how dark mode reaches GTK4, Firefox, Electron and Flatpaks.
+    mode = resolve_mode(store.get("appearance", {}).get("mode", "dark"))
+    for key, value in (("color-scheme", "'prefer-light'" if mode == "light" else "'prefer-dark'"),
+                       ("gtk-theme", "'Adwaita'"),
+                       ("cursor-theme", "'Adwaita'"),
+                       ("cursor-size", "24")):
+        run_quiet("gsettings", "set", "org.gnome.desktop.interface", key, value)
+
+
+def write_palette(store: dict, effective: dict, active: dict) -> list:
+    qt6ct_colors = XDG_CONFIG / "qt6ct" / "colors" / "callisto.conf"
+    gtk = emit_gtk_css(active)
+    outputs = (
+        (XDG_CONFIG / "callisto" / "tokens.json", emit_triton_tokens(effective, store), "triton tokens"),
+        (XDG_CONFIG / "callisto" / "foot-theme.ini", emit_foot_theme(active), "foot theme"),
+        (XDG_CONFIG / "gtk-3.0" / "gtk.css", gtk, "gtk3 css"),
+        (XDG_CONFIG / "gtk-4.0" / "gtk.css", gtk, "gtk4 css"),
+        (qt6ct_colors, emit_qt6ct_colorscheme(active), "qt6ct colorscheme"),
+        (XDG_CONFIG / "qt6ct" / "qt6ct.conf",
+         "[Appearance]\ncolor_scheme_path=" + str(qt6ct_colors) + "\ncustom_palette=true\nstyle=Fusion\n",
+         "qt6ct config"),
+    )
+    return [name for path, content, name in outputs if atomic_write(path, content)]
+
+
+# What a change can touch. settingsd passes only the ones that changed.
+DOMAINS = ("palette", "material", "input", "display", "nightlight", "idle", "profile")
+
+
+def apply(store: dict, domains=DOMAINS) -> list:
+    """Compile and push the given domains. Returns what was rewritten."""
+    domains = set(domains)
+    changed = []
+    if domains & {"palette", "material", "input", "display"}:
+        effective = resolve_tokens(store, load_tokens())
+        active = {"color": {"dark": active_scheme(store, effective)}}
+        if "palette" in domains:
+            changed += write_palette(store, effective, active)
+        if atomic_write(XDG_CONFIG / "hypr" / "callisto-user.lua", emit_hyprland_user(store, active)):
+            changed.append("hyprland user config")
+    if DRY:
+        return changed
+    if "palette" in domains:
+        live_borders(active)
+        live_appearance_keys(store)
+    for domain, push in (("material", live_material), ("input", live_input),
+                         ("display", live_display), ("nightlight", live_nightlight),
+                         ("idle", live_idle), ("profile", live_profile)):
+        if domain in domains:
+            push(store)
+    return changed
 
 
 def preview_scheme(image_path: str) -> int:
@@ -573,29 +595,7 @@ def preview_scheme(image_path: str) -> int:
 def main() -> int:
     if len(sys.argv) == 3 and sys.argv[1] == "--scheme":
         return preview_scheme(sys.argv[2])
-    store = load_store()
-    tokens = load_tokens()
-    effective = resolve_tokens(store, tokens)
-
-    changed = []
-    if atomic_write(XDG_CONFIG / "callisto" / "tokens.json", emit_triton_tokens(effective, store)):
-        changed.append("triton tokens")
-    active = {"color": {"dark": active_scheme(store, effective)}}
-    if atomic_write(XDG_CONFIG / "callisto" / "foot-theme.ini", emit_foot_theme(active)):
-        changed.append("foot theme")
-    gtk = emit_gtk_css(active)
-    if atomic_write(XDG_CONFIG / "gtk-3.0" / "gtk.css", gtk):
-        changed.append("gtk3 css")
-    if atomic_write(XDG_CONFIG / "gtk-4.0" / "gtk.css", gtk):
-        changed.append("gtk4 css")
-    if atomic_write(XDG_CONFIG / "hypr" / "callisto-user.lua", emit_hyprland_user(store, active)):
-        changed.append("hyprland user config")
-    if atomic_write(XDG_CONFIG / "qt6ct" / "colors" / "callisto.conf", emit_qt6ct_colorscheme(active)):
-        changed.append("qt6ct colorscheme")
-    qt6ct_conf = "[Appearance]\ncolor_scheme_path=" + str(XDG_CONFIG / "qt6ct" / "colors" / "callisto.conf") + "\ncustom_palette=true\nstyle=Fusion\n"
-    atomic_write(XDG_CONFIG / "qt6ct" / "qt6ct.conf", qt6ct_conf)
-
-    apply_live(store, effective)
+    changed = apply(load_store())
     if changed:
         log("applied: " + ", ".join(changed))
     else:
