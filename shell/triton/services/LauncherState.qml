@@ -12,6 +12,8 @@ Singleton {
     id: root
 
     property bool open: false
+    // What to open with, for a surface that hands typing over.
+    property string seed: ""
 
     function toggle() {
         root.open = !root.open;
@@ -19,5 +21,6 @@ Singleton {
 
     function dismiss() {
         root.open = false;
+        root.seed = "";
     }
 }

@@ -13,7 +13,8 @@ singleton LauncherService 1.0 LauncherService.qml
 singleton LockState 1.0 LockState.qml
 singleton NetworkService 1.0 NetworkService.qml
 singleton BluetoothService 1.0 BluetoothService.qml
-singleton OverviewService 1.0 OverviewService.qml
+singleton WindowService 1.0 WindowService.qml
+singleton SwitcherState 1.0 SwitcherState.qml
 OsdProducers 1.0 OsdProducers.qml
 singleton AudioService 1.0 AudioService.qml
 singleton BrightnessService 1.0 BrightnessService.qml

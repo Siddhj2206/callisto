@@ -41,3 +41,13 @@ Esc/click empty area closes.
 Keep: `OverviewService` (workspaces/ribbons from Hyprland, `activateWindow`),
 `OverviewState`. Window thumbnails need `ScreencopyView` (Quickshell
 `Quickshell.Wayland`) - not used today. Visual code: replace.
+
+## As built
+
+`surfaces/overview/{OverviewScreen,OverviewHost}`, one window per screen with
+that screen's workspaces and an empty one at the end.
+
+- The backdrop is the blurred wallpaper (`patterns/SessionBackdrop`).
+- Typing closes the overview and opens the launcher with what was typed.
+- Delete or a middle click closes a window (Q would clash with typing).
+- Previews are `patterns/WindowPreview`, shared with the switcher.

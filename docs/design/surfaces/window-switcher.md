@@ -43,3 +43,15 @@ Logic in `WindowSwitcher.qml:35` (Keys handling) and the Hyprland client list
 -> `WindowSwitcherState` (focus history, `next/prev/commit/cancel`, `close`,
 `float`). Visual code: replace. Thumbnails via `ScreencopyView` (shared with
 Overview and Bar workspace popover).
+
+## As built
+
+`surfaces/switcher/{SwitcherPanel,SwitcherHost}`, `services/SwitcherState` and
+`services/WindowService` (most-recent order, shared with the overview).
+
+- Alt+Tab, Alt+Shift+Tab, Alt+\` and the release of Alt are Hyprland *global
+  shortcuts*, so they reach the shell in order. The release bind needs
+  `release = true, transparent = true`, and arrives as `released`; without
+  either, a quick tap leaves the panel open.
+- Cards only: no compact or type-to-find mode (the launcher lists windows), no
+  private windows, no scrim.

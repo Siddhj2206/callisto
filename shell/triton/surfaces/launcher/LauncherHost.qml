@@ -39,6 +39,8 @@ PanelWindow {
         }
         LauncherService.reset();
         panel.reset();
+        panel.query = LauncherState.seed;
+        LauncherService.query = LauncherState.seed;
         panel.focusInput();
     }
 

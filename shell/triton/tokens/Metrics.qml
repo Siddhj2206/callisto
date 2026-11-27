@@ -131,6 +131,15 @@ QtObject {
     readonly property real avatarSelected: board ? 150 : 112
     readonly property real avatarRing: board ? 180 : 136
     readonly property real brandMark: board ? 56 : 40
+    readonly property real switcherWidth: board ? 1212 : 900
+    readonly property real switcherCard: board ? 220 : 180
+    readonly property real switcherThumb: board ? 124 : 104
+    readonly property real ribbonThumb: board ? 300 : 200
+    readonly property real ribbonLabel: board ? 200 : 120
+    readonly property real overviewSearch: board ? 520 : 360
+    readonly property real dragThreshold: 8
+    readonly property real aspectMin: 0.6
+    readonly property real aspectMax: 2.4
     readonly property real lockSide: board ? 68 : 32
     readonly property real lockNotifications: board ? 380 : 300
     readonly property real lockField: board ? 56 : 44

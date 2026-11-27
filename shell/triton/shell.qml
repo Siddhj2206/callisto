@@ -3,7 +3,6 @@ pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Io
 import QtQuick
-import "overview"
 import "wallpaper"
 import "settings"
 import "services"
@@ -12,6 +11,8 @@ import qs.surfaces.bar
 import qs.surfaces.clipboard
 import qs.surfaces.launcher
 import qs.surfaces.lock
+import qs.surfaces.overview
+import qs.surfaces.switcher
 import qs.surfaces.notifications
 import qs.surfaces.osd
 import qs.surfaces.power
@@ -73,7 +74,9 @@ ShellRoot {
 
     ClipboardHost {}
 
-    OverviewWindow {}
+    OverviewHost {}
+
+    SwitcherHost {}
 
     WallpaperWindow {}
 
