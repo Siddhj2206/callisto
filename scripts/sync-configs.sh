@@ -185,6 +185,7 @@ install -D -m 0755 "$INSTALLER/live/setxkbmap" "$INCLUDES/usr/local/bin/setxkbma
 install -D -m 0755 "$INSTALLER/install-prepare" "$INCLUDES/usr/lib/callisto/install-prepare"
 install -D -m 0755 "$INSTALLER/install-bootloader" "$INCLUDES/usr/lib/callisto/install-bootloader"
 install -D -m 0755 "$INSTALLER/live/callisto-install-hint" "$INCLUDES/usr/lib/callisto/install-hint"
+install -D -m 0644 "$INSTALLER/live/live-only" "$INCLUDES/usr/lib/callisto/live-only"
 install -D -m 0644 "$INSTALLER/live/org.callisto.Install.desktop" "$INCLUDES/usr/share/applications/org.callisto.Install.desktop"
 install -D -m 0644 "$INSTALLER/live/callisto-install-hint.service" "$INCLUDES/usr/lib/systemd/user/callisto-install-hint.service"
 install -D -m 0440 "$INSTALLER/live/callisto-live.sudoers" "$INCLUDES/etc/sudoers.d/callisto-live"

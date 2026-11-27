@@ -30,7 +30,7 @@ lb config noauto \
     --image-name callisto \
     --iso-volume "CALLISTO_OS" \
     --iso-application "Callisto OS" \
-    --iso-preparer "callisto-build https://github.com/callisto-os" \
+    --iso-preparer "callisto-build https://github.com/siddhj2206/callisto" \
     --iso-publisher "Callisto" \
     --chroot-squashfs-compression-type zstd \
     --chroot-squashfs-compression-level 19 \

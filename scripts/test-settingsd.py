@@ -105,12 +105,22 @@ with tempfile.TemporaryDirectory() as tmp:
         put("input.repeatRate", 32)
         check("a change during an apply is not lost", "repeat_rate = 32" in new_calls())
 
-        for key, value in (("input.keyboardLayout", 'us" })os.exit()--'), ("display.scale", 9),
+        put("input.keyboardOptions", "grp:alt_shift_toggle,ctrl:nocaps")
+        check("keyboard options reach the compositor",
+              'kb_options = "grp:alt_shift_toggle,ctrl:nocaps"' in new_calls()
+              and 'kb_options = "grp:alt_shift_toggle,ctrl:nocaps"' in user_lua.read_text())
+
+        for key, value in (("input.keyboardLayout", 'us" })os.exit()--'), ("input.keyboardOptions", 'a" })'), ("display.scale", 9),
                            ("display.scale", True), ("nope.key", 1), ("appearance.mode", "blue")):
             check(f"refuses {key}={value!r}", not put(key, value)["ok"])
         reply = send({"op": "get"})
         check("get merges the defaults", reply["store"]["shell"]["barMode"] == "edge"
               and reply["store"]["shell"]["clockFormat"] == "12h")
+        idle = (home / ".config/hypr/hypridle.conf")
+        put("power.dimIdle", True)
+        new_calls()
+        check("display off is a Lua dispatcher",
+              """hyprctl dispatch 'hl.dsp.dpms({ action = "disable" })'""" in idle.read_text())
         client.sendall(b"not json\n")
         check("survives a bad line", not json.loads(lines.readline())["ok"] and send({"op": "get"})["ok"])
         check("no temp files left", [p.name for p in store.parent.glob(".settings*")] == [])

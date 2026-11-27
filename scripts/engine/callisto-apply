@@ -580,6 +580,7 @@ def emit_hyprland_user(store: dict, tokens: dict) -> str:
         "    input = {",
         f'        kb_layout = "{input_s.get("keyboardLayout", "us")}",',
         f'        kb_variant = "{input_s.get("keyboardVariant", "")}",',
+        f'        kb_options = "{input_s.get("keyboardOptions", "")}",',
         f"        follow_mouse = {1 if windows.get('focusFollowsMouse', True) else 0},",
         f"        repeat_rate = {input_s.get('repeatRate', 25) if input_s.get('repeat', True) else 0},",
         f"        repeat_delay = {input_s.get('repeatDelay', 400)},",
@@ -601,6 +602,11 @@ def emit_hyprland_user(store: dict, tokens: dict) -> str:
     if "scale" in display:
         lines += [monitor_rule(display["scale"]), ""]
     return "\n".join(lines)
+
+
+def dpms(action: str) -> str:
+    # The Lua config manager takes dispatchers as Lua, not as `dpms off`.
+    return "hyprctl dispatch 'hl.dsp.dpms({ action = \"%s\" })'" % action
 
 
 def monitor_rule(scale) -> str:
@@ -637,11 +643,12 @@ def live_input(store: dict) -> None:
     windows = store.get("windows", {})
     input_s = store.get("input", {})
     hypr_eval(
-        'hl.config({ input = { kb_layout = "%s", kb_variant = "%s", follow_mouse = %d, repeat_rate = %d,'
-        " repeat_delay = %d, sensitivity = %s,"
+        'hl.config({ input = { kb_layout = "%s", kb_variant = "%s", kb_options = "%s", follow_mouse = %d,'
+        " repeat_rate = %d, repeat_delay = %d, sensitivity = %s,"
         " touchpad = { natural_scroll = %s, tap_to_click = %s } } })" % (
             input_s.get("keyboardLayout", "us"),
             input_s.get("keyboardVariant", ""),
+            input_s.get("keyboardOptions", ""),
             1 if windows.get("focusFollowsMouse", True) else 0,
             input_s.get("repeatRate", 25) if input_s.get("repeat", True) else 0,
             input_s.get("repeatDelay", 400),
@@ -674,7 +681,7 @@ def live_idle(store: dict) -> None:
         "general {",
         "    lock_cmd = qs -c triton ipc call lock lock",
         "    before_sleep_cmd = qs -c triton ipc call lock lock",
-        "    after_sleep_cmd = hyprctl dispatch dpms on",
+        f"    after_sleep_cmd = {dpms('enable')}",
         "}",
         "",
     ]
@@ -682,8 +689,8 @@ def live_idle(store: dict) -> None:
         idle_lines += [
             "listener {",
             "    timeout = 600",
-            "    on-timeout = hyprctl dispatch dpms off",
-            "    on-resume = hyprctl dispatch dpms on",
+            f"    on-timeout = {dpms('disable')}",
+            f"    on-resume = {dpms('enable')}",
             "}",
             "",
         ]

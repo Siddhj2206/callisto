@@ -13,26 +13,24 @@ fi
 # Automatic login belongs to the live session.
 sed -i '/^\[initial_session\]/,/^\[default_session\]/{/^\[default_session\]/!d}' "$root/etc/greetd/config.toml"
 
-rm -rf "$root/etc/calamares" "$root/usr/lib/callisto/install-prepare" \
-    "$root/usr/lib/callisto/install-bootloader"
-rm -f "$root/etc/sudoers.d/callisto-live" \
-    "$root/usr/local/bin/callisto-install" \
-    "$root/usr/local/bin/setxkbmap" \
-    "$root/usr/share/applications/org.callisto.Install.desktop" \
-    "$root/usr/lib/systemd/user/callisto-install-hint.service" \
-    "$root/usr/lib/callisto/install-hint" \
-    "$root/etc/systemd/user/graphical-session.target.wants/callisto-install-hint.service"
+# Everything else that is only for the live session, the installer included.
+while read -r path; do
+    case $path in
+        '' | '#'*) ;;
+        /*) rm -rf "${root:?}$path" ;;
+    esac
+done <"$root/usr/lib/callisto/live-only"
 
 # The layout chosen in the installer is every new account's starting point.
 if [ -f "$root/etc/default/keyboard" ]; then
-    XKBLAYOUT=us XKBVARIANT=
+    XKBLAYOUT=us XKBVARIANT= XKBOPTIONS=
     . "$root/etc/default/keyboard"
-    case "$XKBLAYOUT$XKBVARIANT" in
-        *[!A-Za-z0-9_,-]*) echo "ignoring odd keyboard layout" >&2 ;;
+    case "$XKBLAYOUT$XKBVARIANT$XKBOPTIONS" in
+        *[!A-Za-z0-9_,:+-]*) echo "ignoring odd keyboard layout" >&2 ;;
         *)
             mkdir -p "$root/etc/skel/.config/callisto"
-            printf '{"version": 1, "input": {"keyboardLayout": "%s", "keyboardVariant": "%s"}}\n' \
-                "${XKBLAYOUT:-us}" "$XKBVARIANT" >"$root/etc/skel/.config/callisto/settings.json"
+            printf '{"version": 1, "input": {"keyboardLayout": "%s", "keyboardVariant": "%s", "keyboardOptions": "%s"}}\n' \
+                "${XKBLAYOUT:-us}" "$XKBVARIANT" "$XKBOPTIONS" >"$root/etc/skel/.config/callisto/settings.json"
             ;;
     esac
 fi

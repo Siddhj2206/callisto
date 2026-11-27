@@ -11,6 +11,14 @@ if [ -d /sys/firmware/efi ]; then
 else
     packages="grub-pc"
 fi
+# fstab.conf gives every encrypted partition `keyscript=/bin/cat`, which reads
+# the key from a file. One without a key file ("none") must ask instead, or cat
+# is handed "none" and the disk never opens.
+if [ -f "$root/etc/crypttab" ]; then
+    sed -i -E '/^[^#[:space:]]+[[:space:]]+[^[:space:]]+[[:space:]]+none[[:space:]]/ s/,keyscript=\/bin\/cat//' \
+        "$root/etc/crypttab"
+fi
+
 # Calamares has written crypttab by now when the disk is encrypted.
 encrypted=
 if [ -s "$root/etc/crypttab" ] && grep -q '^[^#]' "$root/etc/crypttab"; then

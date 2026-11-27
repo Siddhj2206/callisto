@@ -3,19 +3,23 @@
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" })
 
 -- The layout the password was chosen with.
-local layout, variant = "us", ""
+local layout, variant, options = "us", "", ""
 local keyboard = io.open("/etc/default/keyboard")
 if keyboard then
     for line in keyboard:lines() do
-        local key, value = line:match('^(XKB%u+)="?([%w_,%-]*)"?$')
+        local key, value = line:match('^(XKB%u+)="?([%w_,:+%-]*)"?$')
         if key == "XKBLAYOUT" and value ~= "" then layout = value end
         if key == "XKBVARIANT" then variant = value end
+        if key == "XKBOPTIONS" then options = value end
     end
     keyboard:close()
 end
 
 hl.config({
-    input = { kb_layout = layout, kb_variant = variant, accel_profile = "flat", touchpad = { tap_to_click = true } },
+    input = {
+        kb_layout = layout, kb_variant = variant, kb_options = options,
+        accel_profile = "flat", touchpad = { tap_to_click = true },
+    },
     animations = { enabled = false },
     misc = {
         disable_hyprland_logo = true,

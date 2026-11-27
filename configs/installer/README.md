@@ -4,8 +4,9 @@ Calamares, copying the live squashfs to disk.
 
 - `settings.conf`, `modules/`, `branding/` go to `/etc/calamares` on the ISO.
 - `install-prepare` removes what belongs to the live session (the `user`
-  account, automatic login, the installer itself) and records the keyboard
-  layout for new accounts.
+  account, automatic login, and the files listed in `live/live-only`) and
+  records the keyboard layout for new accounts. A new live-only file goes in
+  that list.
 - `install-bootloader` installs GRUB from the package pool on the medium
   (`live-build/config/package-lists/installer-*.list.binary`), so installing
   needs no network.

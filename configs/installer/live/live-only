@@ -1,0 +1,12 @@
+# What an installed system must not keep. install-prepare removes these.
+/etc/calamares
+/etc/sudoers.d/callisto-live
+/usr/local/bin/callisto-install
+/usr/local/bin/setxkbmap
+/usr/share/applications/org.callisto.Install.desktop
+/usr/lib/systemd/user/callisto-install-hint.service
+/etc/systemd/user/graphical-session.target.wants/callisto-install-hint.service
+/usr/lib/callisto/install-hint
+/usr/lib/callisto/install-prepare
+/usr/lib/callisto/install-bootloader
+/usr/lib/callisto/live-only
