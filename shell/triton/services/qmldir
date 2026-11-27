@@ -25,3 +25,5 @@ singleton GreeterState 1.0 GreeterState.qml
 singleton SettingsCatalog 1.0 SettingsCatalog.qml
 ThemeSync 1.0 ThemeSync.qml
 singleton MediaService 1.0 MediaService.qml
+singleton PrivacyService 1.0 PrivacyService.qml
+singleton TrayState 1.0 TrayState.qml

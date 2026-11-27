@@ -26,6 +26,11 @@ Item {
     property bool unread: false
     property bool dnd: false
     property var media: null // the player to show in the middle, if any
+    property bool background: false // there are background apps
+    property bool backgroundOpen: false
+    property alias micApp: privacy.micApp
+    property alias micMuted: privacy.micMuted
+    property alias video: privacy.video
 
     readonly property Item leftItem: left
     readonly property Item rightItem: right
@@ -41,6 +46,7 @@ Item {
     signal mediaNextRequested
     signal mediaPreviousRequested
     signal mediaRequested
+    signal backgroundRequested
 
     implicitHeight: Metrics.barHeight
 
@@ -108,6 +114,17 @@ Item {
 
         HoverHandler { id: rightHover }
 
+        PrivacyChips {
+            id: privacy
+            visible: active
+        }
+        IconButton {
+            visible: root.background
+            variant: root.backgroundOpen ? "tonal" : "standard"
+            glyph: Icons.moreHoriz
+            label: "Background apps"
+            onClicked: root.backgroundRequested()
+        }
         Clock {
             time: root.time
             date: root.date

@@ -17,7 +17,7 @@ Singleton {
 
     readonly property bool hovered: edgeHovered || barHovered
     readonly property bool held: LauncherState.open || QuickSettingsState.open || NotificationState.centerOpen
-        || MediaService.popoverOpen
+        || MediaService.popoverOpen || TrayState.open
 
     onHoveredChanged: {
         if (hovered) {

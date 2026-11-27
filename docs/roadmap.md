@@ -101,7 +101,8 @@ definition of done is in `component-system.md` §7.
   - [ ] Layout and workspace variants
 - [x] Bar (#13): edge reveal by default, pinned, window title. Checked in QEMU, which also showed that clicking a workspace had never worked on Hyprland 0.55
   - [x] Media pill
-  - [ ] Recording and mic chips, workspace preview, tray
+  - [x] Mic and screen/camera chips, background apps. In QEMU with stand-ins; a real portal share and camera have not been tried
+  - [ ] Recording chip, workspace preview
   - [ ] Fade a long window title instead of cutting it; suppress reveal over fullscreen
   - [ ] Window title appears only after the first focus change if the shell restarts
 - [x] Launcher (#12): ranked by match and habit, open windows, commands, arithmetic, app actions; apps start in their own systemd scope. Checked in QEMU
@@ -143,8 +144,8 @@ Broken
 
 Missing
 - [x] Media: bar pill, popover with player list, lock pill, quick settings card, track OSD (`design/surfaces/media.md`). Open: level meter, popover volume slider
-- [ ] Background apps (tray) behind the bar's overflow button
-- [ ] Privacy chips: microphone in use, screen shared or recorded
+- [x] Background apps (tray) behind the bar's overflow button
+- [x] Privacy chips: microphone in use, screen shared or camera on
 - [ ] Urgent workspace pulses and reveals the bar
 - [ ] GTK apps get colors only: no translucent header bar and sidebar, no 20 px buttons (`Adwaita` board); the terminal has no Mica background
 - [ ] Greeter: network and accessibility buttons; disk unlock screen (with Plymouth)

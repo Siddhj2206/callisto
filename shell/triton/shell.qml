@@ -1,3 +1,4 @@
+//@ pragma IconTheme Adwaita
 pragma ComponentBehavior: Bound
 
 import Quickshell
@@ -12,6 +13,7 @@ import qs.surfaces.lock
 import qs.surfaces.media
 import qs.surfaces.overview
 import qs.surfaces.switcher
+import qs.surfaces.tray
 import qs.surfaces.wallpaper
 import qs.surfaces.notifications
 import qs.surfaces.osd
@@ -58,6 +60,7 @@ ShellRoot {
     QuickSettingsHost {}
 
     MediaHost {}
+    TrayHost {}
 
     Variants {
         model: Quickshell.screens

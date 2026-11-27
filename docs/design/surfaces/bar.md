@@ -107,3 +107,20 @@ New services needed: recording state (from Screenshot record mode / pipewire
 screencast), mic-in-use (pipewire source output nodes), workspace window
 thumbnails for the preview popover (Hyprland toplevel export), tray overflow
 (StatusNotifier via `Quickshell.Services.SystemTray`).
+
+## As built: background apps and privacy chips
+
+- The overflow button shows only while a background app exists. Left click
+  activates an app, right click (or the Menu key) shows its menu in the same
+  panel, middle click is the secondary action. Esc steps back, then closes.
+- An item whose icon the theme lacks gets a generic glyph. One that offers
+  neither a themed icon nor a usable image still draws Qt's checkerboard.
+- Mic chip: any app recording from a microphone, by name. Video chip: "Camera"
+  for a device, otherwise "Screen shared".
+- **Differs from the board:** while the bar is hidden, the chips stay in the top
+  right corner by themselves, click-through. The bar is hidden by default, so
+  a chip only on the bar would rarely be seen.
+- Checked in QEMU: a stand-in tray app (menu, submenu, activate), `pw-record`
+  for the mic, a stand-in PipeWire video source for the screen chip. Not
+  checked: a real app's screen share through the portal, a real camera.
+- Not built: the recording chip (needs screen recording).
