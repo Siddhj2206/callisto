@@ -165,14 +165,22 @@ Missing
 - [ ] Greeter: network and accessibility buttons; disk unlock screen (with Plymouth)
 - [ ] Lock: next calendar event, keyboard layout in the status pill
 
+ISO rebuilt from the reorganised repository (clean, `6305eae`) and checked in
+QEMU: `make smoke`; no failed units in the live session; Settings opens; an
+offline UEFI install with encrypted ext4 boots, takes the passphrase, logs in
+through the greeter on a UK layout, locks and unlocks, and keeps nothing from
+the live session.
+
 ## 6. Release
 
 - [ ] Flatpak accent portal and color override (M16)
 - [x] Greeter on greetd and Calamares installer (M17): offline, UEFI and BIOS bootloaders on the medium, optional LUKS, ext4 or btrfs. In QEMU, offline: UEFI with encrypted ext4, and BIOS with encrypted btrfs; both boot, log in on a UK layout and have no failed units.
 - [x] Idle turns the display off and on again under the Lua config (the old commands were rejected). In a VM: the commands run by hand, `dpmsStatus` 0 then 1; the idle timeout itself was not waited out
 - [x] Clipboard history on a fresh session says "nothing copied yet", not "unavailable". In a VM
-- [ ] Keyboard options (`XKBOPTIONS`) carry over from the installer. Settings daemon test and a VM live session; not run through an install
+- [ ] Keyboard options (`XKBOPTIONS`) carry over from the installer. Settings daemon test and a VM live session; an install ran, but with a layout that sets no options
 - [ ] Manual layout with a second encrypted partition and no key file: `install-bootloader` drops `keyscript`. Checked on sample lines only
+- [ ] A user's avatar color differs between the greeter and the lock screen
+- [ ] `scripts/render-board.sh` needs a container image nothing here builds
 - [ ] Try the ISO on a spare machine: the biggest unknown
 - [ ] Install checks not run yet: unencrypted, manual partitioning, dual boot
 - [ ] After a session is force-killed the greeter can fall back to tuigreet (the graphics device is still busy)
