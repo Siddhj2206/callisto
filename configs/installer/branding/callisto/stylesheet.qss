@@ -1,3 +1,6 @@
 /* The account always asks for its password; automatic login is for the live
    session only, and nothing would act on this box. */
 QCheckBox#checkBoxDoAutoLogin { max-height: 0px; margin: 0px; padding: 0px; }
+
+/* The sidebar is dark whatever the palette says. */
+QPushButton#aboutButton { color: #E2E2E9; }
