@@ -16,6 +16,8 @@ to check a particular wallpaper's colors.
 
 import json
 import sys
+from importlib.machinery import SourceFileLoader
+from importlib.util import module_from_spec, spec_from_loader
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -87,6 +89,20 @@ def pairs(tokens, mode):
         yield shape, "veil on surface", ratio(role[shape], backgrounds["veil on surface"]), SHAPE
 
 
+def terminal(tokens, mode):
+    """The terminal theme the engine would write for this scheme."""
+    loader = SourceFileLoader("engine", str(REPO / "scripts/engine/callisto-apply"))
+    engine = module_from_spec(spec_from_loader(loader.name, loader))
+    sys.dont_write_bytecode = True
+    loader.exec_module(engine)
+    theme = dict(line.split("=", 1) for line in engine.emit_foot_theme({"color": {"dark": tokens["color"][mode]}}).splitlines() if "=" in line)
+    background = rgb(theme["background"])
+    # "Black" on dark and bright black are for backgrounds and comments.
+    names = [f"{kind}{i}" for kind in ("regular", "bright") for i in range(1, 8)]
+    for name in names:
+        yield "terminal " + name, "terminal", ratio(rgb(theme[name]), background), TEXT
+
+
 def main(argv):
     every = "--all" in argv
     paths = [Path(a) for a in argv if not a.startswith("--")] or [REPO / "design/tokens.json"]
@@ -94,7 +110,7 @@ def main(argv):
     for path in paths:
         tokens = json.loads(path.read_text())
         for mode in ("dark", "light"):
-            for foreground, background, got, wanted in pairs(tokens, mode):
+            for foreground, background, got, wanted in [*pairs(tokens, mode), *terminal(tokens, mode)]:
                 failed = got < wanted
                 misses += failed
                 if failed or every:

@@ -9,6 +9,7 @@ import qs.surfaces.bar
 import qs.surfaces.clipboard
 import qs.surfaces.launcher
 import qs.surfaces.lock
+import qs.surfaces.media
 import qs.surfaces.overview
 import qs.surfaces.switcher
 import qs.surfaces.wallpaper
@@ -55,6 +56,8 @@ ShellRoot {
     CenterHost {}
 
     QuickSettingsHost {}
+
+    MediaHost {}
 
     Variants {
         model: Quickshell.screens
@@ -119,6 +122,14 @@ ShellRoot {
     IpcHandler {
         target: "osd"
         function volume(value: real): void { OsdState.show("volume", value); }
+        // To look at the warning on a machine without a battery.
+        function battery(percent: int): void { OsdState.warn(percent / 100, "About 40 minutes left", false); }
+    }
+    IpcHandler {
+        target: "media"
+        function toggle(): void { MediaService.key("toggle"); }
+        function next(): void { MediaService.key("next"); }
+        function previous(): void { MediaService.key("previous"); }
     }
     IpcHandler {
         target: "wallpaper"

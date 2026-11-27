@@ -89,6 +89,15 @@ Popover {
             volume: AudioService.volume
             muted: AudioService.muted
 
+            media: MediaService.present ? MediaService.current : null
+            onMediaToggled: MediaService.togglePlaying()
+            onMediaNextRequested: MediaService.next()
+            onMediaPreviousRequested: MediaService.previous()
+            onMediaRequested: {
+                QuickSettingsState.dismiss();
+                MediaService.popoverOpen = true;
+            }
+
             onTileToggled: key => {
                 if (key === "wifi")
                     NetworkService.setWifiEnabled(!NetworkService.wifiEnabled);

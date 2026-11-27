@@ -23,6 +23,10 @@ Item {
     property string networkGlyph: ""
     property string batteryGlyph: ""
     property int batteryPercent: -1
+    property var media: null
+    signal mediaToggled
+    signal mediaNextRequested
+    signal mediaPreviousRequested
 
     signal submitted(string password)
 
@@ -131,6 +135,26 @@ Item {
                 title: modelData.app
                 subtitle: modelData.count === 1 ? "1 notification" : modelData.count + " notifications"
             }
+        }
+    }
+
+    Material {
+        visible: root.media !== null
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: Metrics.panelPad
+        width: pill.implicitWidth + Metrics.tileGap * 2
+        height: Metrics.buttonHeight
+        radius: height / 2
+
+        MediaPill {
+            id: pill
+            anchors.centerIn: parent
+            player: root.media
+            wide: true
+            onToggleRequested: root.mediaToggled()
+            onNextRequested: root.mediaNextRequested()
+            onPreviousRequested: root.mediaPreviousRequested()
         }
     }
 

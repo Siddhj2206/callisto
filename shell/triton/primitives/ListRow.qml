@@ -12,11 +12,13 @@ Item {
     property string title: ""
     property string subtitle: ""
     property string trailingGlyph: ""
+    property string trailingAction: "" // makes the trailing glyph a button, named this
     property bool selected: false
     property bool first: true
     property bool last: true
 
     signal clicked
+    signal trailingClicked
 
     readonly property Scheme scheme: Theming.of(root)
     readonly property real topRadius: first ? Metrics.listOuter : Metrics.listInner
@@ -75,11 +77,23 @@ Item {
             anchors.right: parent.right
             anchors.rightMargin: Metrics.rowPad
             anchors.verticalCenter: parent.verticalCenter
-            visible: root.trailingGlyph !== ""
+            visible: root.trailingGlyph !== "" && root.trailingAction === ""
+            width: root.trailingAction !== "" ? Metrics.barSlot : pixels
             glyph: root.trailingGlyph
             fill: root.selected
             tone: root.selected ? "primary" : "onsurfacevariant"
         }
+    }
+
+    IconButton {
+        visible: root.trailingAction !== ""
+        anchors.right: parent.right
+        anchors.rightMargin: Metrics.rowPad
+        y: (line.height - height) / 2
+        variant: "veil"
+        glyph: root.trailingGlyph
+        label: root.trailingAction
+        onClicked: root.trailingClicked()
     }
 
     Item {

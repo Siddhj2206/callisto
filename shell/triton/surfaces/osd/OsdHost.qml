@@ -1,5 +1,6 @@
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Services.UPower
 import Quickshell.Wayland
 import QtQuick
 import qs.foundations
@@ -8,7 +9,7 @@ import qs.surfaces.osd
 import qs.tokens
 
 // Bottom-center window for the OSD, on the focused monitor. It never takes
-// focus and lets all pointer input through.
+// focus, and only the battery warning, which has a button, takes the pointer.
 PanelWindow {
     id: root
 
@@ -24,7 +25,13 @@ PanelWindow {
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     visible: presence.mapped
-    mask: Region {}
+    mask: OsdState.open && OsdState.kind === "battery" ? onPill : nowhere
+
+    Region { id: nowhere }
+    Region {
+        id: onPill
+        item: presence
+    }
 
     // Pick the monitor only while hidden: moving a mapped window remaps it.
     Connections {
@@ -54,6 +61,12 @@ PanelWindow {
             id: pill
             kind: OsdState.kind
             value: OsdState.value
+            detail: OsdState.detail
+            track: OsdState.track
+            onSaverRequested: {
+                PowerProfiles.profile = PowerProfile.PowerSaver;
+                OsdState.dismiss();
+            }
         }
     }
 }

@@ -97,9 +97,11 @@ One at a time, each checked against its board and recorded for motion. The
 definition of done is in `component-system.md` §7.
 
 - [x] OSD: volume, mute, brightness, microphone. Volume and mute checked on a booted ISO in QEMU
-  - [ ] Layout, workspace, track and low-battery variants (no producers yet)
+  - [x] Track and low-battery variants. In QEMU, including the Saver button; a real battery has not been tried
+  - [ ] Layout and workspace variants
 - [x] Bar (#13): edge reveal by default, pinned, window title. Checked in QEMU, which also showed that clicking a workspace had never worked on Hyprland 0.55
-  - [ ] Media pill, recording and mic chips, workspace preview, tray
+  - [x] Media pill
+  - [ ] Recording and mic chips, workspace preview, tray
   - [ ] Fade a long window title instead of cutting it; suppress reveal over fullscreen
   - [ ] Window title appears only after the first focus change if the shell restarts
 - [x] Launcher (#12): ranked by match and habit, open windows, commands, arithmetic, app actions; apps start in their own systemd scope. Checked in QEMU
@@ -108,7 +110,8 @@ definition of done is in `component-system.md` §7.
 - [x] Quick Settings: main, Wi-Fi, Bluetooth and Sound pages. Clicks, slider, drill-in, Esc and click-outside checked in QEMU on Hyprland
   - [ ] Try Wi-Fi joining, Bluetooth and brightness on real hardware (the VM has none)
   - [ ] Arrow-key grid navigation between tiles (Tab works)
-  - [ ] Battery line, media card
+  - [x] Media card
+  - [ ] Battery line
 - [x] Notifications: toasts and center. Timeout, hover pause, overflow, replace, withdraw, actions, inline reply and Do Not Disturb checked in QEMU, with the replies seen on D-Bus
   - [ ] Wavy progress, call and screenshot card kinds
   - [ ] Center keyboard navigation (Tab and Esc work)
@@ -118,7 +121,7 @@ definition of done is in `component-system.md` §7.
   - [ ] Retention settings; grouping by day
 - [x] Window switcher and Overview (#10). In QEMU: quick Alt+Tab, hold and cycle, close, live previews, drag to a workspace, type to launch. Open: compact and find modes, private windows, drag by touchpad on real hardware, multi-monitor
 - [x] Wallpaper picker (#15): the real desktop is the preview, system and Pictures wallpapers, colors shown before they are applied. In QEMU: preview, apply, revert. Open: more shipped wallpapers (only one exists), dynamic and solid sets, per-display, greeter wallpaper, light-image prompt
-- [x] Lock (#10, #14): pure view and host, shared backdrop, login card and password field. In QEMU: wrong and right password, restart while locked, with and without the blur module. Open: media pill, caps-lock chip, unlocking state, a look on real multi-monitor hardware
+- [x] Lock (#10, #14): pure view and host, shared backdrop, login card and password field. In QEMU: wrong and right password, restart while locked, with and without the blur module. Open: caps-lock chip, unlocking state, a look on real multi-monitor hardware
 - [x] Greeter: greetd running the shell's `greeter.qml`, tuigreet behind it. In QEMU: login, back after logout, wrong and right password, shut down, fallback. On a built ISO: back after logout and login. Open: other users by name, keyboard layout and session pickers, multi-monitor
 - [x] Screenshot (#10): frozen screen, region, window and screen modes, delay, result card. In QEMU: region, whole screen and window captures reach the file and the clipboard. Open: video recording, markup editor, selection handles, private windows, multi-monitor, window hover on real hardware (the VM delivers motion without a pointer frame)
 - [x] Settings app (#11, #16): 14 pages on the component library, only controls that do something. In QEMU: every page, search by typing, accent, light mode, bar mode, power mode, one instance, closing ends it. **Not yet in a built ISO**. Open: the apply checklist toast, monitor arrangement and per-display settings, the shortcuts list, per-app volume, default-app choosers, Wi-Fi password and Bluetooth pairing on real hardware, page transitions
@@ -133,12 +136,13 @@ units; launcher, clipboard, screenshot, overview, lock, greeter and login work.
 All 30 boards read against the code. Not tracked in section 5 before:
 
 Broken
-- [ ] No low-battery warning at all; the bar that would turn red is hidden by default
-- [ ] Super+B is not bound (only the `bar toggle` IPC exists)
-- [ ] Terminal ANSI colors are fixed pastels, unreadable on the light scheme
+- [x] Low-battery warning as an OSD, since the bar that would turn red is hidden by default
+- [x] Super+B shows and hides the bar
+- [x] Terminal ANSI colors follow light and dark, and `check-contrast.py` measures them
+- [x] Jagged panel corners over dark windows: blur now starts only where a panel is nearly opaque
 
 Missing
-- [ ] Media: no MPRIS anywhere. Bar pill, popover with player list, lock pill, quick settings card, track OSD (`design/surfaces/media.md`)
+- [x] Media: bar pill, popover with player list, lock pill, quick settings card, track OSD (`design/surfaces/media.md`). Open: level meter, popover volume slider
 - [ ] Background apps (tray) behind the bar's overflow button
 - [ ] Privacy chips: microphone in use, screen shared or recorded
 - [ ] Urgent workspace pulses and reveals the bar

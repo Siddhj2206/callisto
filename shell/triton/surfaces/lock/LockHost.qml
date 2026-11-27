@@ -53,6 +53,11 @@ WlSessionLock {
                 batteryGlyph: SessionStatus.batteryGlyph
                 batteryPercent: SessionStatus.batteryPercent
 
+                media: MediaService.present ? MediaService.current : null
+                onMediaToggled: MediaService.togglePlaying()
+                onMediaNextRequested: MediaService.next()
+                onMediaPreviousRequested: MediaService.previous()
+
                 onSubmitted: password => LockState.submit(password)
 
                 Component.onCompleted: reset()

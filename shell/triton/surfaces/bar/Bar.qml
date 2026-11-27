@@ -25,16 +25,22 @@ Item {
     property alias statusState: status.health
     property bool unread: false
     property bool dnd: false
+    property var media: null // the player to show in the middle, if any
 
     readonly property Item leftItem: left
     readonly property Item rightItem: right
-    readonly property bool hovered: leftHover.hovered || rightHover.hovered || stripHover.hovered
+    readonly property Item centreItem: centre
+    readonly property bool hovered: leftHover.hovered || centreHover.hovered || rightHover.hovered || stripHover.hovered
 
     signal launcherRequested
     signal workspaceRequested(int number)
     signal statusRequested
     signal notificationsRequested
     signal volumeStepped(real steps)
+    signal mediaToggled
+    signal mediaNextRequested
+    signal mediaPreviousRequested
+    signal mediaRequested
 
     implicitHeight: Metrics.barHeight
 
@@ -75,6 +81,23 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             appName: root.appName
             title: root.windowTitle
+        }
+    }
+
+    Island {
+        id: centre
+        visible: root.media !== null
+        docked: root.pinned
+        x: Math.round((root.width - width) / 2)
+
+        HoverHandler { id: centreHover }
+
+        MediaPill {
+            player: root.media
+            onToggleRequested: root.mediaToggled()
+            onNextRequested: root.mediaNextRequested()
+            onPreviousRequested: root.mediaPreviousRequested()
+            onOpened: root.mediaRequested()
         }
     }
 

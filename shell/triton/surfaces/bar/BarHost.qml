@@ -71,6 +71,12 @@ Scope {
                 height: Metrics.barHeight
             }
             Region {
+                x: bar.centreItem.x
+                y: Metrics.barTop
+                width: bar.media !== null ? bar.centreItem.width : 0
+                height: Metrics.barHeight
+            }
+            Region {
                 x: bar.rightItem.x
                 y: Metrics.barTop
                 width: bar.rightItem.width
@@ -121,6 +127,12 @@ Scope {
                 }
                 statusState: host.batteryLow ? "urgent"
                     : !NetworkService.online ? "attention" : "ok"
+
+                media: MediaService.present ? MediaService.current : null
+                onMediaToggled: MediaService.togglePlaying()
+                onMediaNextRequested: MediaService.next()
+                onMediaPreviousRequested: MediaService.previous()
+                onMediaRequested: MediaService.popoverOpen = !MediaService.popoverOpen
 
                 unread: NotificationState.unreadCount > 0
                 dnd: NotificationState.dndActive

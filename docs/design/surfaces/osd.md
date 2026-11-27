@@ -49,3 +49,10 @@ Keep: `OsdState` (variant/value/icon/text/...); the Pipewire sink `Connections`
 producer from `shell.qml` (with its "skip first observation" fix) moves to
 `services/OsdProducers.qml`; mic mute, brightness and layout producers added.
 Visual code: replace.
+
+## As built
+
+- Track and low-battery pills exist. Layout and workspace do not.
+- The battery warns at 20, 10 and 5 percent, once per discharge; at 5 it stays
+  until the charger is in. `Saver` sets the power profile.
+- `qs -c triton ipc call osd battery 15` shows it on a machine without a battery.

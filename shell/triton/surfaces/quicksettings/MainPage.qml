@@ -19,12 +19,17 @@ Column {
     property bool hasVolume: true
     property real volume: 0
     property bool muted: false
+    property var media: null // the player, if something is playing
 
     signal tileToggled(string key)
     signal tileDrilled(string key)
     signal brightnessMoved(real value)
     signal volumeMoved(real value)
     signal muteToggled
+    signal mediaToggled
+    signal mediaNextRequested
+    signal mediaPreviousRequested
+    signal mediaRequested
     signal settingsRequested
     signal powerRequested
 
@@ -121,6 +126,26 @@ Column {
             toggles: true
             onMoved: v => root.volumeMoved(v)
             onIconClicked: root.muteToggled()
+        }
+    }
+
+    Rectangle {
+        visible: root.media !== null
+        width: parent.width
+        height: pill.implicitHeight + Metrics.tileGap * 2
+        radius: height / 2
+        color: Theming.of(root).veil
+
+        MediaPill {
+            id: pill
+            x: Metrics.tileGap
+            anchors.verticalCenter: parent.verticalCenter
+            player: root.media
+            wide: true
+            onToggleRequested: root.mediaToggled()
+            onNextRequested: root.mediaNextRequested()
+            onPreviousRequested: root.mediaPreviousRequested()
+            onOpened: root.mediaRequested()
         }
     }
 

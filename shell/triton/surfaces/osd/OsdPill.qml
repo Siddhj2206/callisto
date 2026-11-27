@@ -1,6 +1,7 @@
 import QtQuick
 import qs
 import qs.foundations
+import qs.patterns
 import qs.primitives
 import qs.tokens
 
@@ -11,15 +12,21 @@ Item {
 
     property string kind: "volume" // "volume" | "muted" | "brightness" | "micOff"
     property real value: 0
+    property string detail: ""
+    property var track: null // { title, artist, art, playing }
+    signal saverRequested
 
     readonly property Scheme scheme: Theming.of(root)
     readonly property bool numeric: kind === "volume" || kind === "brightness"
     readonly property bool off: kind === "muted" || kind === "micOff"
+    readonly property bool warning: kind === "micOff" || kind === "battery"
+    readonly property bool isTrack: kind === "track"
 
     readonly property string glyph: {
         switch (kind) {
         case "muted": return Icons.volumeOff;
         case "micOff": return Icons.micOff;
+        case "battery": return Icons.batteryAlert;
         case "brightness": return value < 0.34 ? Icons.brightnessLow : value < 0.67 ? Icons.brightnessMedium : Icons.brightnessHigh;
         default: return value <= 0 ? Icons.volumeMute : value < 0.5 ? Icons.volumeDown : Icons.volumeUp;
         }
@@ -28,7 +35,9 @@ Item {
     implicitHeight: Metrics.osdHeight
     implicitWidth: morph.value
     Accessible.role: Accessible.AlertMessage
-    Accessible.name: kind === "micOff" ? "Microphone off" : kind === "muted" ? "Muted"
+    Accessible.name: kind === "battery" ? "Battery " + Math.round(value * 100) + " percent. " + detail
+        : isTrack ? (track?.playing ? "Playing " : "Paused ") + (track?.title ?? "")
+        : kind === "micOff" ? "Microphone off" : kind === "muted" ? "Muted"
         : kind + " " + Math.round(value * 100)
 
     Spring {
@@ -53,32 +62,40 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             spacing: Metrics.osdGap
 
+            PlayerArt {
+                visible: root.isTrack
+                anchors.verticalCenter: parent.verticalCenter
+                size: Metrics.osdDisc
+                source: root.track?.art ?? ""
+            }
+
             Item {
+                visible: !root.isTrack
                 anchors.verticalCenter: parent.verticalCenter
                 width: Metrics.osdDisc
                 height: Metrics.osdDisc
 
                 Rectangle {
-                    visible: !root.off
+                    visible: !root.off && !root.warning
                     anchors.fill: parent
                     radius: width / 2
                     color: root.scheme.veil
                 }
                 WaveShape {
-                    visible: root.off
+                    visible: root.off || root.warning
                     anchors.fill: parent
-                    color: root.kind === "micOff" ? root.scheme.errorContainer : root.scheme.tertiaryContainer
+                    color: root.warning ? root.scheme.errorContainer : root.scheme.tertiaryContainer
                 }
                 Icon {
                     anchors.centerIn: parent
                     glyph: root.glyph
                     fill: true
-                    tone: root.kind === "micOff" ? "onerrorcontainer" : root.off ? "ontertiarycontainer" : "onsurface"
+                    tone: root.warning ? "onerrorcontainer" : root.off ? "ontertiarycontainer" : "onsurface"
                 }
             }
 
             Slider {
-                visible: root.kind !== "micOff"
+                visible: !root.warning && !root.isTrack
                 anchors.verticalCenter: parent.verticalCenter
                 interactive: false
                 width: Metrics.osdTrackWidth
@@ -103,6 +120,56 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 role: "label"
                 text: root.kind === "micOff" ? "Microphone off" : "Muted"
+            }
+
+            Column {
+                visible: root.isTrack
+                anchors.verticalCenter: parent.verticalCenter
+
+                AppText {
+                    width: Math.min(implicitWidth, Metrics.mediaTitleMax)
+                    role: "label"
+                    textFormat: Text.PlainText
+                    text: root.track?.title ?? ""
+                }
+                AppText {
+                    visible: text !== ""
+                    width: Math.min(implicitWidth, Metrics.mediaTitleMax)
+                    role: "bodySmall"
+                    tone: "onsurfacevariant"
+                    textFormat: Text.PlainText
+                    text: root.track?.artist ?? ""
+                }
+            }
+
+            Icon {
+                visible: root.isTrack
+                anchors.verticalCenter: parent.verticalCenter
+                glyph: root.track?.playing ? Icons.playArrow : Icons.pause
+                fill: true
+            }
+
+            Column {
+                visible: root.kind === "battery"
+                anchors.verticalCenter: parent.verticalCenter
+
+                AppText {
+                    role: "label"
+                    text: "Battery " + Math.round(root.value * 100) + "%"
+                }
+                AppText {
+                    visible: text !== ""
+                    role: "bodySmall"
+                    tone: "onsurfacevariant"
+                    text: root.detail
+                }
+            }
+
+            Button {
+                visible: root.kind === "battery"
+                anchors.verticalCenter: parent.verticalCenter
+                text: "Saver"
+                onClicked: root.saverRequested()
             }
         }
     }

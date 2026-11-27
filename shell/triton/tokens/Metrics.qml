@@ -9,6 +9,15 @@ import QtQuick
 QtObject {
     readonly property bool board: Quickshell.env("CALLISTO_DENSITY") === "board"
 
+    readonly property real mediaTitleMax: board ? 200 : 180
+    readonly property real mediaArt: board ? 40 : 28
+    readonly property real mediaArtLarge: board ? 112 : 88
+    readonly property real mediaWidth: board ? 440 : 400
+    readonly property real waveAmplitude: board ? 3 : 2.5
+    readonly property real waveLength: board ? 24 : 20
+    readonly property real wavePlayed: board ? 4 : 3
+    readonly property real waveRow: board ? 24 : 20
+    readonly property real playButton: board ? 64 : 52
     readonly property real barHeight: board ? 56 : 36
     readonly property real barSlot: board ? 44 : 28
     readonly property real barPad: board ? 6 : 4

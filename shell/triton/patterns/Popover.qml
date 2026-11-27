@@ -13,6 +13,7 @@ PanelWindow {
 
     default property alias content: panel.data
     property bool open: false
+    property bool centred: false // under the middle of the bar instead
     property real panelWidth: Metrics.panelWidth
     property real panelHeight: 0
     property real panelRadius: Metrics.radiusPanelM
@@ -69,11 +70,9 @@ PanelWindow {
             show: root.open
             fromY: -Metrics.osdRise
             fromScale: Metrics.enterScale
-            transformOrigin: Item.TopRight
-            anchors.top: parent.top
-            anchors.right: parent.right
-            anchors.topMargin: Metrics.popoverTop
-            anchors.rightMargin: Metrics.barSide
+            transformOrigin: root.centred ? Item.Top : Item.TopRight
+            x: root.centred ? Math.round((parent.width - width) / 2) : parent.width - width - Metrics.barSide
+            y: Metrics.popoverTop
             width: root.panelWidth
             height: Math.min(root.panelHeight, root.height - Metrics.popoverTop - Metrics.barSide)
 

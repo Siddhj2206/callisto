@@ -21,6 +21,9 @@ QtObject {
     readonly property int barHideDelay: 600
     readonly property int urgentPeek: 4000
     readonly property int osdHold: 1200
+    readonly property int osdAction: 6000
+    readonly property int mediaPauseFade: 120000
+    readonly property int mediaAnnounce: 2000
     readonly property int toastHold: 6000
     readonly property int powerCountdown: 5000
     readonly property int passwordReveal: 5000

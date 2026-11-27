@@ -54,3 +54,15 @@ meter static.
 recently played), `title/artist/album/artUrl/position/length/playbackState/
 shuffle/loop/volume`, actions. Position needs a 1 s `SystemClock`-driven tick
 only while the popover is visible (no polling elsewhere).
+
+## As built
+
+Checked in QEMU with two stand-in MPRIS players: the bar pill, the popover,
+switching player, shuffle, repeat, next, seek, the media keys and their track
+OSD, the quick settings card, the lock screen pill, and a paused player leaving
+the bar after 2 minutes and returning on play.
+
+- `MediaService`, `MediaPill`, `PlayerArt`, `WavyProgress`,
+  `surfaces/media/{MediaHost,PlayerCard}`.
+- Album art is clipped to a circle, not a wave.
+- Not built: the level meter, and the popover's volume slider with Up/Down.

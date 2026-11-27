@@ -165,6 +165,7 @@ hl.bind("ALT + Tab",         hl.dsp.global("callisto:switcher-next"))
 hl.bind("ALT + SHIFT + Tab", hl.dsp.global("callisto:switcher-previous"))
 hl.bind("ALT + grave",       hl.dsp.global("callisto:switcher-same-app"))
 hl.bind("ALT + Alt_L",       hl.dsp.global("callisto:switcher-commit"), { release = true, transparent = true })
+hl.bind(mod .. " + B",           qsipc("bar", "toggle"))
 hl.bind(mod .. " + V",           qsipc("clipboard", "toggle"))
 hl.bind(mod .. " + N",           qsipc("notifications", "toggle"))
 hl.bind(mod .. " + I",           qsipc("quicksettings", "toggle"))
@@ -205,9 +206,14 @@ hl.bind("XF86AudioMute",         hl.dsp.exec_cmd("uwsm app -- wpctl set-mute @DE
 hl.bind("XF86AudioMicMute",      hl.dsp.exec_cmd("uwsm app -- wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),     { repeating = true, locked = true })
 hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("uwsm app -- brightnessctl set 5%+"),                            { repeating = true, locked = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("uwsm app -- brightnessctl set 5%-"),                            { repeating = true, locked = true })
-hl.bind("XF86AudioPlay",         hl.dsp.exec_cmd("uwsm app -- playerctl play-pause"), { locked = true })
-hl.bind("XF86AudioNext",         hl.dsp.exec_cmd("uwsm app -- playerctl next"),       { locked = true })
-hl.bind("XF86AudioPrev",         hl.dsp.exec_cmd("uwsm app -- playerctl previous"),   { locked = true })
+-- Media keys go through the shell, which says what is playing; playerctl is
+-- there for when it is not.
+local function media(fn, fallback)
+    return hl.dsp.exec_cmd("sh -c 'qs -c triton ipc call media " .. fn .. " || playerctl " .. fallback .. "'")
+end
+hl.bind("XF86AudioPlay",         media("toggle", "play-pause"), { locked = true })
+hl.bind("XF86AudioNext",         media("next", "next"),         { locked = true })
+hl.bind("XF86AudioPrev",         media("previous", "previous"), { locked = true })
 
 -- Lock — the Triton lock surface owns auth presentation (ext-session-lock
 -- inside the shell). hyprlock remains installed as a manual fallback.

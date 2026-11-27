@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import Quickshell
+import Quickshell.Services.UPower
 import QtQuick
 
 // Shows the matching OSD when volume, microphone mute or backlight change,
@@ -47,6 +48,48 @@ Scope {
         }
     }
 
+    // Each level warns once per discharge. Not held back by quick settings, and
+    // the first reading counts: logging in on an empty battery should say so.
+    readonly property var levels: [5, 10, 20]
+    property int warned: 101 // the lowest level already warned about
+    readonly property bool draining: SessionStatus.hasBattery && UPower.onBattery
+    readonly property int percent: SessionStatus.batteryPercent
+
+    function timeLeft(seconds) {
+        if (seconds <= 0)
+            return "";
+        const minutes = Math.round(seconds / 60);
+        if (minutes < 60)
+            return "About " + minutes + " minutes left";
+        const hours = Math.round(minutes / 60);
+        return "About " + hours + (hours === 1 ? " hour left" : " hours left");
+    }
+
+    function checkBattery() {
+        if (!draining) {
+            warned = 101;
+            if (OsdState.kind === "battery")
+                OsdState.dismiss();
+            return;
+        }
+        const level = levels.find(l => percent <= l && l < warned);
+        if (level === undefined)
+            return;
+        warned = level;
+        OsdState.warn(percent / 100, timeLeft(SessionStatus.battery.timeToEmpty), level === levels[0]);
+    }
+
+    onDrainingChanged: checkBattery()
+    onPercentChanged: checkBattery()
+
+    Connections {
+        target: MediaService
+        function onAnnounced() {
+            if (MediaService.current)
+                OsdState.showTrack(MediaService.current);
+        }
+    }
+
     property real lastBrightness: -1
     Connections {
         target: BrightnessService
@@ -57,5 +100,8 @@ Scope {
             root.lastBrightness = level;
         }
     }
-    Component.onCompleted: lastBrightness = BrightnessService.level
+    Component.onCompleted: {
+        lastBrightness = BrightnessService.level;
+        checkBattery();
+    }
 }
