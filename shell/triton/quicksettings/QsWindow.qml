@@ -5,6 +5,7 @@ import Quickshell.Io
 import Quickshell.Services.Pipewire
 import Quickshell.Wayland
 import QtQuick
+import qs.tokens
 import ".."
 import "../services"
 
@@ -18,7 +19,7 @@ PanelWindow {
 
     anchors { top: true; right: true }
     implicitWidth: 400 + 16
-    implicitHeight: panel.implicitHeight + 78
+    implicitHeight: panel.implicitHeight + Metrics.barHeight + Metrics.barTop * 2 + 6
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.keyboardFocus: visible ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
@@ -45,7 +46,7 @@ PanelWindow {
     QuickSettingsPanel {
         id: panel
         x: 0
-        y: 72 // clear the bar zone
+        y: Metrics.barHeight + Metrics.barTop * 2 // clear the bar
         page: internalPage
         volume: root.hasSink ? root.sink.audio.volume : 0
 

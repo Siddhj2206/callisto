@@ -3,58 +3,67 @@ pragma ComponentBehavior: Bound
 
 import Quickshell
 import QtQuick
+import qs.tokens
 
-// Bar reveal state for hidden/edge autohide modes. In pinned mode the bar
-// ignores this entirely. Revealing also happens automatically while the
-// launcher is open — the bar is the launcher's visual context.
-
+// When the bar is not pinned, this decides whether it is showing. The pointer
+// reveals it from the top edge, keeps it while it is on the bar, and it hides
+// shortly after leaving. Super+B toggles it.
 Singleton {
     id: root
 
     property bool revealed: false
+    property bool edgeHovered: false
+    property bool barHovered: false
 
-    // Hover-driven reveal with a hide delay — without the delay the bar
-    // vanishes the instant the pointer slips one pixel off the sensor.
-    property bool hovering: false
-    onHoveringChanged: {
-        if (hovering) {
+    readonly property bool hovered: edgeHovered || barHovered
+    readonly property bool held: LauncherState.open || QuickSettingsState.open || NotificationState.centerOpen
+
+    onHoveredChanged: {
+        if (hovered) {
             hideTimer.stop();
-            // Reveal delay: the pointer must rest at the edge — bumping
-            // through it must not flash the bar.
-            revealTimer.interval = SettingsService.get("shell", "revealDelay", 300);
-            revealTimer.restart();
+            if (!revealed)
+                revealTimer.restart();
         } else {
             revealTimer.stop();
-            hideTimer.restart();
+            scheduleHide(Motion.barHideDelay);
         }
     }
-
-    Timer {
-        id: revealTimer
-        interval: 300
-        onTriggered: root.revealed = true
+    onHeldChanged: {
+        if (held)
+            revealed = true;
+        else if (!hovered)
+            scheduleHide(Motion.barHideDelay);
     }
 
-    // Urgent-notification peek: 4 seconds, per the BarShell settings copy.
+    function scheduleHide(delay) {
+        hideTimer.interval = delay;
+        hideTimer.restart();
+    }
+
+    // An urgent notification shows the bar briefly.
     function flashForUrgent() {
         if (!SettingsService.get("shell", "revealOnUrgent", true))
             return;
         revealed = true;
-        hideTimer.interval = 4000;
-        hideTimer.restart();
+        scheduleHide(Motion.urgentPeek);
+    }
+
+    function toggle() {
+        hideTimer.stop();
+        revealed = !revealed;
+    }
+
+    Timer {
+        id: revealTimer
+        interval: SettingsService.get("shell", "revealDelay", Motion.barRevealDwell)
+        onTriggered: root.revealed = true
     }
 
     Timer {
         id: hideTimer
-        interval: 1200
         onTriggered: {
-            interval = 1200; // restore after an urgent flash
-            if (!root.hovering && !LauncherState.open)
+            if (!root.hovered && !root.held)
                 root.revealed = false;
         }
-    }
-
-    function toggle() {
-        revealed = !revealed;
     }
 }

@@ -2,11 +2,8 @@ pragma ComponentBehavior: Bound
 
 import Quickshell
 import Quickshell.Io
-import Quickshell.Services.Pipewire
 import QtQuick
-import "bar"
 import "launcher"
-import "osd"
 import "notifications"
 import "quicksettings"
 import "power"
@@ -16,6 +13,9 @@ import "wallpaper"
 import "settings"
 import "lock"
 import "services"
+import qs.foundations
+import qs.surfaces.bar
+import qs.surfaces.osd
 
 // Triton shell entry point. Thin by design: fonts, then one copy of each
 // persistent surface per screen. State lives in singletons and services.
@@ -23,21 +23,7 @@ import "services"
 ShellRoot {
     id: shellRoot
 
-    // The bundled Triton fonts. Static instances per family/weight — Qt
-    // resolves "Jost SemiBold" as a distinct family, which is more reliable
-    // than weight matching against a variable font. Paths are relative to
-    // shell.qml so this works in the repo and installed layouts.
-    FontLoader { source: Qt.resolvedUrl("fonts/Jost-Regular.ttf") }
-    FontLoader { source: Qt.resolvedUrl("fonts/Jost-Medium.ttf") }
-    FontLoader { source: Qt.resolvedUrl("fonts/Jost-SemiBold.ttf") }
-    FontLoader { source: Qt.resolvedUrl("fonts/GoogleSansFlex-Regular.ttf") }
-    FontLoader { source: Qt.resolvedUrl("fonts/GoogleSansFlex-Medium.ttf") }
-    FontLoader { source: Qt.resolvedUrl("fonts/GoogleSansFlex-SemiBold.ttf") }
-    FontLoader { source: Qt.resolvedUrl("fonts/JetBrainsMono-Regular.ttf") }
-    FontLoader { source: Qt.resolvedUrl("fonts/JetBrainsMono-Medium.ttf") }
-    FontLoader { source: Qt.resolvedUrl("fonts/JetBrainsMono-SemiBold.ttf") }
-    FontLoader { source: Qt.resolvedUrl("fonts/TritonSymbols.ttf") }
-    FontLoader { source: Qt.resolvedUrl("fonts/TritonSymbols-Filled.ttf") }
+    Fonts {}
 
     Variants {
         model: Quickshell.screens
@@ -51,7 +37,7 @@ ShellRoot {
     Variants {
         model: Quickshell.screens
 
-        Bar {
+        BarHost {
             required property var modelData
             screen: modelData
         }
@@ -62,35 +48,13 @@ ShellRoot {
     Launcher {}
 
     // OSD: state-driven, invisible until a producer shows something.
-    OsdWindow {}
+    OsdHost {}
+    OsdProducers {}
 
     // The session lock exists for the shell's lifetime — it must never be
     // created on demand (window-creation latency at lock time is a security
     // hole) and never destroyed while locked.
     LockWindow {}
-
-    // Edge-reveal sensor: a 2px strip at the top edge of every screen, only
-    // in edge/hidden bar modes. Pointer resting here reveals the bar.
-    Variants {
-        model: Quickshell.screens
-
-        PanelWindow {
-            required property var modelData
-            screen: modelData
-            anchors { top: true; left: true; right: true }
-            implicitHeight: 2
-            visible: SettingsService.get("shell", "barMode", "pinned") !== "pinned"
-            exclusionMode: ExclusionMode.Ignore
-            color: "transparent"
-
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                onEntered: BarState.hovering = true
-                onExited: BarState.hovering = false
-            }
-        }
-    }
 
     // Notifications: toasts appear on demand; the center opens from the bell.
     ToastWindow {}
@@ -126,49 +90,6 @@ ShellRoot {
 
         SettingsWindow {
             anchors.fill: parent
-        }
-    }
-
-    // OSD producers: the default sink's volume/mute drives the OSD whenever
-    // anything (keys, quicksettings slider, another app) changes it. The
-    // first observation is skipped so boot doesn't flash the volume OSD.
-    PwObjectTracker { objects: [Pipewire.defaultAudioSink] }
-
-    Connections {
-        target: Pipewire.defaultAudioSink ? Pipewire.defaultAudioSink.audio : null
-
-        property bool primed: false
-        property real lastVolume: -1
-        property bool lastMuted: false
-
-        function onVolumeChanged() {
-            if (!Pipewire.defaultAudioSink || !Pipewire.defaultAudioSink.audio)
-                return;
-            const v = Pipewire.defaultAudioSink.audio.volume;
-            if (!primed) {
-                primed = true;
-                lastVolume = v;
-                return;
-            }
-            if (Math.abs(v - lastVolume) > 0.001) {
-                lastVolume = v;
-                OsdState.show(Osd.Variant.Volume, { value: v, icon: Icons.volumeUp });
-            }
-        }
-
-        function onMutedChanged() {
-            if (!Pipewire.defaultAudioSink || !Pipewire.defaultAudioSink.audio)
-                return;
-            const m = Pipewire.defaultAudioSink.audio.muted;
-            if (m !== lastMuted) {
-                lastMuted = m;
-                if (primed) {
-                    if (m)
-                        OsdState.show(Osd.Variant.Muted, { icon: Icons.volumeOff });
-                    else
-                        OsdState.show(Osd.Variant.Volume, { value: Pipewire.defaultAudioSink.audio.volume, icon: Icons.volumeUp });
-                }
-            }
         }
     }
 
@@ -211,54 +132,9 @@ ShellRoot {
         target: "lock"
         function lock(): void { LockState.lock(); }
     }
-    // Brightness OSD producer: /sys/class/backlight is the hardware truth.
-    // brightnessctl writes there; the FileView watch fires on change and the
-    // OSD reflects actual level regardless of what changed it.
-    property int backlightMax: 0
-    property real lastBrightnessFrac: -1
-
-    FileView {
-        id: backlightMaxFile
-        path: "/sys/class/backlight/" + backlightDevice.device + "/max_brightness"
-        blockLoading: false
-        onLoaded: shellRoot.backlightMax = parseInt(text()) || 0
-    }
-
-    FileView {
-        id: backlightFile
-        path: backlightDevice.device !== ""
-            ? "/sys/class/backlight/" + backlightDevice.device + "/brightness"
-            : ""
-        watchChanges: true
-        blockLoading: false
-        onLoaded: {
-            if (shellRoot.backlightMax <= 0)
-                return;
-            const frac = (parseInt(text()) || 0) / shellRoot.backlightMax;
-            // Skip the boot-time first read — same discipline as volume.
-            if (shellRoot.lastBrightnessFrac >= 0 && Math.abs(frac - shellRoot.lastBrightnessFrac) > 0.005)
-                OsdState.show(Osd.Variant.Brightness, { value: frac, icon: Icons.brightness7 });
-            shellRoot.lastBrightnessFrac = frac;
-        }
-    }
-
-    // First backlight device — enumerated once at startup.
-    Process {
-        id: backlightProbe
-        command: ["sh", "-c", "ls /sys/class/backlight/ 2>/dev/null | head -1"]
-        running: true
-        stdout: SplitParser {
-            onRead: data => backlightDevice.device = data.trim()
-        }
-    }
-    QtObject {
-        id: backlightDevice
-        property string device: ""
-    }
-
     IpcHandler {
         target: "osd"
-        function volume(value: real): void { OsdState.show(Osd.Variant.Volume, { value: value, icon: Icons.volumeUp }); }
+        function volume(value: real): void { OsdState.show("volume", value); }
     }
     IpcHandler {
         target: "wallpaper"

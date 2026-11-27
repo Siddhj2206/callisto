@@ -57,6 +57,136 @@ def strip_commentish(value):
     return value
 
 
+UI_DIR = REPO_ROOT / "shell" / "triton" / "tokens"
+
+
+def camel(name: str) -> str:
+    """Material role name -> QML property (on_primary -> onprimary)."""
+    prop = re.sub(r"_([a-z])", lambda m: m.group(1).upper(), name)
+    return prop.lower() if re.match(r"on[A-Z]", prop) else prop
+
+
+def singleton(imports: list, body: list) -> str:
+    return "\n".join([HEADER, "pragma Singleton", *imports, "", "QtObject {", *body, "}", ""])
+
+
+def ui_tokens(tokens: dict) -> dict:
+    """Render the component-shell token singletons. Returns {path: text}."""
+    ui = require(tokens, "ui", "root")
+    shape = tokens["shape"]["wave"]
+    density = '    readonly property bool board: Quickshell.env("CALLISTO_DENSITY") === "board"'
+
+    metrics = [density, ""]
+    for name, (compact, board) in ui["metrics"].items():
+        value = compact if compact == board else f"board ? {board} : {compact}"
+        metrics.append(f"    readonly property real {name}: {value}")
+    metrics += ["", f'    readonly property string wavePath: "{shape["path"]}"']
+
+    families = tokens["type"]["families"]
+    roles = []
+    for name, spec in ui["type"].items():
+        if name.startswith("_"):
+            continue
+        family, weight, size, line = spec
+        roles.append(
+            f'        "{name}": {{ family: "{families[family]}", weight: {weight}, '
+            f"size: board ? {size[1]} : {size[0]}, line: board ? {line[1]} : {line[0]} }},"
+        )
+    typography = [density, "", "    readonly property var roles: ({", *roles, "    })"]
+
+    motion = ['    // Springs are [stiffness, damping ratio].']
+    for name in ("spatial_fast", "spatial_default", "spatial_slow"):
+        k, z = tokens["motion"][name]
+        motion.append(f"    readonly property var {camel(name)}: [{k}, {z}]")
+    motion.append("")
+    motion.append("    property bool reduce: Theme.reduceMotion")
+    fade = ui["fade"]
+    for name in ("fast", "default", "slow"):
+        key = "fade" + name.capitalize()
+        motion.append(f'    readonly property int {key}: reduce ? {fade["reduced"]} : {fade[name]}')
+    motion.append("")
+    for name, val in ui["timing"].items():
+        motion.append(f"    readonly property int {name}: {val}")
+
+    colors = []
+    for mode in ("dark", "light"):
+        colors.append(f"    readonly property Scheme {mode}: Scheme {{")
+        for name, val in tokens["color"][mode].items():
+            v = strip_commentish(val)
+            if re.fullmatch(r"#[0-9A-Fa-f]{6}", v):
+                colors.append(f'        {camel(name)}: "{v.upper()}"')
+        for name, val in ui["material"][mode].items():
+            key = name if name == "ink" else name + "Alpha"
+            colors.append(f'        {key}: "{val}"' if name == "ink" else f"        {key}: {val}")
+        colors.append("    }")
+    colors += [
+        "",
+        '    readonly property Scheme current: Theme.activeMode === "light" ? light : dark',
+        "",
+        "    // The engine writes the user's palette to tokens.json; Theme parses it.",
+        "    function load() {",
+        "        const user = Theme.userTokens?.color;",
+        "        if (!user)",
+        "            return;",
+        "        dark.assign(user.dark);",
+        "        light.assign(user.light);",
+        "    }",
+        "",
+        "    property Connections follow: Connections {",
+        "        target: Theme",
+        "        function onUserTokensChanged() { root.load(); }",
+        "    }",
+        "    Component.onCompleted: load()",
+    ]
+    colors = ["    id: root", "", *colors]
+
+    scheme_names = [camel(n) for n, v in tokens["color"]["dark"].items()
+                    if re.fullmatch(r"#[0-9A-Fa-f]{6}", strip_commentish(v))]
+    scheme = [HEADER, "import QtQuick", "",
+              "// One color scheme: the Material roles plus the materials derived from them.",
+              "QtObject {"]
+    scheme += [f"    property color {n}" for n in scheme_names]
+    scheme += [
+        "",
+        "    property color ink",
+        "    property real micaAlpha",
+        "    property real glassAlpha",
+        "    property real thickAlpha",
+        "    property real veilAlpha",
+        "    property real veilHiAlpha",
+        "    property real highlightAlpha",
+        "    property real hairlineAlpha",
+        "",
+        "    readonly property color mica: Qt.alpha(surfaceContainerLow, micaAlpha)",
+        "    readonly property color glass: Qt.alpha(surfaceContainerHigh, glassAlpha)",
+        "    readonly property color thick: Qt.alpha(surfaceContainerHigh, thickAlpha)",
+        "    readonly property color veil: Qt.alpha(ink, veilAlpha)",
+        "    readonly property color veilHi: Qt.alpha(ink, veilHiAlpha)",
+        '    readonly property color highlight: Qt.rgba(1, 1, 1, highlightAlpha)',
+        "    readonly property color hairline: Qt.alpha(ink, hairlineAlpha)",
+        "",
+        "    function assign(roles) {",
+        "        for (const key in roles) {",
+        "            let prop = key.replace(/_([a-z])/g, (m, c) => c.toUpperCase());",
+        "            if (/^on[A-Z]/.test(prop))",
+        "                prop = prop.toLowerCase();",
+        "            if (prop in this)",
+        "                this[prop] = roles[key];",
+        "        }",
+        "    }",
+        "}",
+        "",
+    ]
+
+    return {
+        UI_DIR / "Metrics.qml": singleton(["import Quickshell", "import QtQuick"], metrics),
+        UI_DIR / "Typography.qml": singleton(["import Quickshell", "import QtQuick"], typography),
+        UI_DIR / "Motion.qml": singleton(["import QtQuick", "import qs"], motion),
+        UI_DIR / "Colors.qml": singleton(["import QtQuick", "import qs"], colors),
+        UI_DIR / "Scheme.qml": "\n".join(scheme),
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true")
@@ -128,12 +258,8 @@ def main() -> int:
         f'    readonly property real thickGlassBlur: {thick.get("blur", 0)}',
     ]
 
-    # "veil" — the shell's subtle resting-state tint (inactive pills, hover
-    # washes) — is not a named token; it is the hover state layer of pure
-    # white. Deriving it here keeps the definition in one place.
-    hover = float(state_layer.get("hover", 0.08))
-    lines.append(f'    readonly property color veil: "{qml_color("FFFFFF", hover)}"')
-    lines.append(f'    readonly property color veilBright: "{qml_color("FFFFFF", float(state_layer.get("focus", 0.1)))}"')
+    lines.append(f'    readonly property color veil: "{qml_color("FFFFFF", float(tokens["ui"]["material"]["dark"]["veil"]))}"')
+    lines.append(f'    readonly property color veilBright: "{qml_color("FFFFFF", float(tokens["ui"]["material"]["dark"]["veilHi"]))}"')
 
     lines += [
         "",
@@ -296,19 +422,25 @@ def main() -> int:
             icon_lines.append(f'    readonly property string {prop}: "\\u{cp}"')
             count += 1
         icon_lines += ["}", ""]
-        ICONS_PATH.write_text("\n".join(icon_lines))
-        print(f"generate-theme: wrote {ICONS_PATH.relative_to(REPO_ROOT)} ({count} icons)")
+        outputs = {ICONS_PATH: "\n".join(icon_lines)}
+    else:
+        outputs = {}
+
+    outputs[THEME_PATH] = output
+    outputs.update(ui_tokens(tokens))
 
     if args.check:
-        existing = THEME_PATH.read_text() if THEME_PATH.exists() else ""
-        if existing != output:
-            print("generate-theme: Theme.qml is out of sync with tokens.json", file=sys.stderr)
-            return 1
-        print("generate-theme: Theme.qml is in sync")
-        return 0
+        stale = [p for p, text in outputs.items() if not p.exists() or p.read_text() != text]
+        for path in stale:
+            print(f"generate-theme: {path.relative_to(REPO_ROOT)} is out of sync", file=sys.stderr)
+        if not stale:
+            print("generate-theme: generated files are in sync")
+        return 1 if stale else 0
 
-    THEME_PATH.write_text(output)
-    print(f"generate-theme: wrote {THEME_PATH.relative_to(REPO_ROOT)} ({len(output)} bytes)")
+    UI_DIR.mkdir(exist_ok=True)
+    for path, text in outputs.items():
+        path.write_text(text)
+        print(f"generate-theme: wrote {path.relative_to(REPO_ROOT)}")
     return 0
 
 

@@ -1,6 +1,7 @@
 # Triton component system
 
-Status: proposal, written 2026-11-27. Nothing in `shell/` has been changed.
+Status: written 2026-11-27 as a proposal; building started the same day.
+Section 0a says what was actually built and wins over the rest.
 Per-surface trees live in `docs/design/surfaces/*.md` (index in section 6).
 
 Goal: rebuild the Callisto desktop shell the way a website is built on
@@ -22,6 +23,28 @@ ComponentIndex, Materials, Type and Color; section 2 below covers those from
 the boards. Where this document disagrees with the map, the board wins.
 
 ---
+
+## 0a. As built
+
+Components are added when a surface needs them. The catalog in section 4 is a
+menu, not a work list.
+
+- Layout: `shell/triton/{tokens,foundations,primitives,patterns,surfaces}`,
+  imported as `qs.<folder>`.
+- Tokens: `Colors` (with the `Scheme` type), `Metrics`, `Typography`, `Motion`,
+  generated from `design/tokens.json` (`ui` section). `Metrics` also holds
+  radii and the wave path. Shadows are not built yet.
+- Names changed to avoid clashes: `Palette` -> `Scheme`, `Type` ->
+  `Typography`, `Scope` -> `Theming`. Color roles for content are lowercase
+  (`onsurface`), as `Theme` already did.
+- Motion: spatial values go through a `Spring` object (`width: s.value`), not
+  a `Behavior` subtype, which QML cannot express. Opacity and color use
+  `Fade` / `ColorFade`.
+- A surface is a pure view (`Bar`, `OsdPill`) plus a `...Host` that owns the
+  window and services. The gallery renders the views with sample data.
+- Hyprland dispatch from the shell uses the Lua form,
+  `hl.dsp.focus({ workspace = 2 })`.
+- Legacy surfaces still use `Theme` and `components/` until rebuilt.
 
 ## 0. Findings that shape the design
 

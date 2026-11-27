@@ -1,5 +1,11 @@
 # Triton shell QML conventions
 
+> **New code** (`tokens/`, `foundations/`, `primitives/`, `patterns/`,
+> `surfaces/`) follows `design/component-system.md` §0a: values come from the
+> generated tokens, motion from `Spring`/`Fade`/`Presence`, and
+> `scripts/lint-literals.py` must pass. The rules below describe the surfaces
+> not yet rebuilt.
+
 Rules every component in `shell/triton/` must follow. Read this before writing
 any QML. Violations of these rules are bugs.
 

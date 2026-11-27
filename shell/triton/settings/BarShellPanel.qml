@@ -34,7 +34,7 @@ Item {
             delegate: Rectangle {
                 id: cardDelegate
                 required property var modelData
-                property bool active: SettingsService.get("shell", "barMode", "pinned") === modelData.id
+                property bool active: SettingsService.get("shell", "barMode", "edge") === modelData.id
                 width: (parent.width - 20) / 3
                 height: 158
                 radius: 22
@@ -113,12 +113,12 @@ Item {
         }
         SettingRow {
             title: "Reveal delay"
-            supporting: SettingsService.get("shell", "revealDelay", 300) + " ms at the edge before the bar appears"
+            supporting: SettingsService.get("shell", "revealDelay", 120) + " ms at the edge before the bar appears"
             TritonSlider {
                 width: 250
                 // 0–1000 ms mapped onto 0..1
-                value: SettingsService.get("shell", "revealDelay", 300) / 1000
-                onMoved: v => SettingsService.set("shell", "revealDelay", Math.round(v * 10) * 100)
+                value: SettingsService.get("shell", "revealDelay", 120) / 1000
+                onMoved: v => SettingsService.set("shell", "revealDelay", Math.round(v * 100) * 10)
             }
         }
         SettingRow {

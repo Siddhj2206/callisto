@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Wayland
 import QtQuick
+import qs.tokens
 import ".."
 import "../components"
 import "../services"
@@ -17,7 +18,7 @@ PanelWindow {
 
     anchors { top: true; right: true }
     implicitWidth: 400 + 24
-    implicitHeight: toastCol.implicitHeight + 84 // bar zone + margin
+    implicitHeight: toastCol.implicitHeight + Metrics.barHeight + Metrics.barTop * 2 + 12
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
@@ -30,7 +31,7 @@ PanelWindow {
     Column {
         id: toastCol
         x: 0
-        y: 72 // bar zone clearance
+        y: Metrics.barHeight + Metrics.barTop * 2 // clear the bar
         width: 400
         spacing: 10
 

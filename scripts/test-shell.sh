@@ -63,6 +63,8 @@ if [[ "$MODE" == "nested" ]]; then
         -e WAYLAND_DISPLAY="/wl/socket" \
         -e XDG_RUNTIME_DIR=/home/triton/xdg \
         -e WLR_BACKENDS=wayland \
+        -e QS_ENTRY="$QS_ENTRY" \
+        -e CALLISTO_DENSITY="${CALLISTO_DENSITY:-compact}" \
         --tmpfs /home/triton/xdg:rw,exec,mode=0700,U \
         -v "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/wl/socket" \
         -v "$REPO_ROOT/shell/triton:/triton:ro" \
@@ -86,6 +88,7 @@ podman run -d --rm \
     -e XDG_RUNTIME_DIR=/home/triton/xdg \
     -e QS_ENTRY="$QS_ENTRY" \
     -e COMPOSITOR="${COMPOSITOR:-sway}" \
+    -e CALLISTO_DENSITY="${CALLISTO_DENSITY:-compact}" \
     --tmpfs /home/triton/xdg:rw,exec,mode=0700,U \
     -v "$REPO_ROOT/shell/triton:/triton:ro" \
     -v "$REPO_ROOT/scripts/intertest:/triton-intertest:ro" \

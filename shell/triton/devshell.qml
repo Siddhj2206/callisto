@@ -1,7 +1,6 @@
 import Quickshell
 import QtQuick
 import "launcher"
-import "osd"
 import "components"
 
 // Dev harness: renders the launcher in its board states with mock data, so
@@ -36,63 +35,6 @@ ShellRoot {
         Rectangle {
             anchors.fill: parent
             color: "#4D000000" // rgb(0 0 0 / .3)
-        }
-
-        // OSD variants, positioned bottom-center as they appear in use.
-        Osd {
-            variant: Osd.Variant.Volume
-            value: 0.62
-            x: 84
-            y: 1004
-        }
-
-        Osd {
-            variant: Osd.Variant.Muted
-            icon: Icons.volumeOff
-            x: 84
-            y: 886
-        }
-
-        Osd {
-            variant: Osd.Variant.Brightness
-            icon: Icons.brightness6
-            value: 0.7
-            x: 474
-            y: 886
-        }
-
-        Osd {
-            variant: Osd.Variant.MicOff
-            icon: Icons.micOff
-            x: 1254
-            y: 886
-        }
-
-        Osd {
-            variant: Osd.Variant.Keyboard
-            icon: Icons.keyboard
-            fillIcon: false
-            text: "DE"
-            subtext: "Deutsch"
-            x: 134
-            y: 960
-        }
-
-        Osd {
-            variant: Osd.Variant.Track
-            trackTitle: "Lofi Windows"
-            trackArtist: "Tomppabeats"
-            x: 856
-            y: 960
-        }
-
-        Osd {
-            variant: Osd.Variant.BatteryLow
-            icon: Icons.batteryAlert
-            batteryPercentText: "Battery 15%"
-            batteryTimeText: "About 40 minutes left"
-            x: 1246
-            y: 960
         }
 
         // Main state: typing "con" — matches the board exactly.

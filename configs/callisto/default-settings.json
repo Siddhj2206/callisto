@@ -9,6 +9,8 @@
   },
   "shell": {
     "barPosition": "top",
+    "barMode": "edge",
+    "revealDelay": 120,
     "clockFormat": "24h",
     "reduceMotion": false
   },

@@ -60,8 +60,8 @@ QtObject {
     readonly property real micaBlur: 48
     readonly property color thickGlassBg: "#E0282A2F"
     readonly property real thickGlassBlur: 40
-    readonly property color veil: "#14FFFFFF"
-    readonly property color veilBright: "#1AFFFFFF"
+    readonly property color veil: "#1AFFFFFF"
+    readonly property color veilBright: "#29FFFFFF"
 
     // ---- State layers ----
     readonly property real stateHover: 0.08

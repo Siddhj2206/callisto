@@ -60,15 +60,21 @@ Branch `fix/broken-basics`. Tested on a booted ISO in QEMU on 2026-11-27.
 - [ ] Test Bluetooth and keyring storage on real hardware
 - [ ] Boot menu: Callisto branding and a timeout (it says Debian and waits for Enter)
 
-## 3. Board comparison and design system
+## 3. Component system
 
-- [ ] Render each surface state headless and diff it against the board (`compare-board.sh`)
-- [ ] Fix the veil values in `generate-theme.py`; generate type ramp, materials and light palette
-- [ ] Literal lint: warn on old directories, fail on new ones
-- [ ] Component gallery (dark, light, reduce motion)
-- [ ] Compact desktop size scale (bar height, controls, rows, padding), mocked up and approved before building
-- [ ] Foundations, including spring motion and `Presence`
-- [ ] Primitives (set A)
+Built as surfaces need it: a component is added when a surface uses it, not
+before. The old shell code is a reference only. Rules and file layout are in
+[`design/component-system.md`](design/component-system.md) §0a.
+
+- [x] Generated tokens with a desktop size scale; board sizes kept for comparison (`CALLISTO_DENSITY=board`)
+- [x] Veil values in `generate-theme.py` fixed; dark and light schemes generated
+- [x] Motion: `Spring`, `Fade`, `Presence`. Spring checked on Quickshell 0.3.0: 9.45% overshoot (9.5% expected)
+- [x] Foundations and the primitives the bar and OSD use
+- [x] Component gallery, dark and light (`shell/triton/gallery.qml`)
+- [x] Literal lint for `primitives/`, `patterns/`, `surfaces/` (`scripts/lint-literals.py`; run by hand until CI exists)
+- [ ] **Approve the desktop sizes** (gallery)
+- [ ] Floating shadows (needs `qml6-module-qtquick-effects` and a higher `ignore_alpha`)
+- [ ] Screenshot-versus-board diff script (so far compared by eye)
 
 ## 4. Platform architecture
 
@@ -88,8 +94,12 @@ Branch `fix/broken-basics`. Tested on a booted ISO in QEMU on 2026-11-27.
 One at a time, each checked against its board and recorded for motion. The
 definition of done is in `component-system.md` §7.
 
-- [ ] OSD
-- [ ] Bar (#13), with the new defaults: hidden with edge reveal, 120 ms
+- [x] OSD: volume, mute, brightness, microphone. Volume and mute checked on a booted ISO in QEMU
+  - [ ] Layout, workspace, track and low-battery variants (no producers yet)
+- [x] Bar (#13): edge reveal by default, pinned, window title. Checked in QEMU, which also showed that clicking a workspace had never worked on Hyprland 0.55
+  - [ ] Media pill, recording and mic chips, workspace preview, tray
+  - [ ] Fade a long window title instead of cutting it; suppress reveal over fullscreen
+  - [ ] Window title appears only after the first focus change if the shell restarts
 - [ ] Launcher (#12)
 - [ ] Quick Settings
 - [ ] Notifications
