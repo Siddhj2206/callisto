@@ -180,7 +180,6 @@ the live session.
 - [ ] Keyboard options (`XKBOPTIONS`) carry over from the installer. Settings daemon test and a VM live session; an install ran, but with a layout that sets no options
 - [ ] Manual layout with a second encrypted partition and no key file: `install-bootloader` drops `keyscript`. Checked on sample lines only
 - [ ] A user's avatar color differs between the greeter and the lock screen
-- [ ] `scripts/render-board.sh` needs a container image nothing here builds
 - [ ] Try the ISO on a spare machine: the biggest unknown
 - [ ] Install checks not run yet: unencrypted, manual partitioning, dual boot
 - [ ] After a session is force-killed the greeter can fall back to tuigreet (the graphics device is still busy)
