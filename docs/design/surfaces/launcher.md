@@ -22,7 +22,7 @@ LauncherHost                  SurfaceWindow(layer overlay, keyboard exclusive, M
     KeyHintBar{tone onSurface: up/down move, Enter open, Tab actions, Alt+Enter reveal, Esc close}
 ```
 
-## Layout rules (fixes the overflow in the current code)
+## Layout rules
 - Panel width `panel.launcher` pref 900, min 560, max 1000, clamped to screen minus margin; calc/commands 572 / min 440.
 - Top-hit card: width `Size.launcher.topHit` pref 310, min 240, max 340; the name
   is `AppText headlineL` with `fit: true` (shrinks to `titleXl` before eliding)

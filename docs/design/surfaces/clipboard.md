@@ -55,7 +55,7 @@ dialog, links paste the URL.
 
 ## Salvage
 Keep: `ClipboardState` (entries, `paste`, `pin`, persistence), `callisto-clipwatch`
-(note `docs/audit.md` defect 9: sensitive items stored in plaintext - needs the
+(note `docs/research/audit.md` defect 9: sensitive items stored in plaintext - needs the
 sensitive-content hint before the masked state can be real). Visual: replace.
 
 ## As built

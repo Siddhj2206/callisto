@@ -1,5 +1,8 @@
 # Callisto audit — 2026-11-27
 
+> A snapshot of the code before the rebuild. The paths and defects below are
+> from that day; [`../roadmap.md`](../roadmap.md) tracks what has been fixed.
+
 Scope: the Triton shell (`shell/triton/`), the settings engine
 (`scripts/engine/`), the Hyprland config, the ISO build, and repo hygiene.
 

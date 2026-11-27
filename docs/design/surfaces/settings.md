@@ -6,7 +6,7 @@ Replaces: all 21 files in `settings/` (`SettingsWindow`, `SettingsSidebar`, `Pan
 ## Window tree
 
 ```
-SettingsApp                   FloatingWindow (class callisto-settings so the float rule matches: docs/audit.md defect 2), pref 1100 x 760, min 720 x 520, fills when tiled
+SettingsApp                   FloatingWindow (class callisto-settings so the float rule matches: docs/research/audit.md defect 2), pref 1100 x 760, min 720 x 520, fills when tiled
   WindowFrame                 radius 28, windowOutline, floatingLarge (Q13)
     RowLayout
       SidebarNav (mica, w 280)  SearchField{m} + groups:
@@ -81,7 +81,7 @@ Keep: `SettingsService` (with the atomic-write and dropped-apply defects, audit
 `power.{profile,dimIdle,suspendIdle}`, `notifications.{dnd,lockscreenNotifications}`,
 `windows.focusFollowsMouse`. Each panel's service calls (Network, Bluetooth,
 Pipewire, display) are the salvageable half; layouts are not. Note
-`docs/audit.md` defect 11: the accent seeds in `AppearancePanel.qml` contradict
+`docs/research/audit.md` defect 11: the accent seeds in `AppearancePanel.qml` contradict
 the boards (Hull pale, Rock orange): take seeds from the board
 (`#2458C8 #D8DEE8 #C0552A #1B2A4A #4FA3A5`).
 

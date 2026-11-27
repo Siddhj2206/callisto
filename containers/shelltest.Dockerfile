@@ -49,6 +49,7 @@ RUN useradd -m -u 1000 -s /bin/bash triton
 # must run the real theme pipeline, not a degraded copy of it.
 RUN curl -fsSL --max-time 120 -o /tmp/matugen.tar.gz \
         "https://github.com/InioX/matugen/releases/download/v4.2.0/matugen-4.2.0-x86_64.tar.gz" \
+    && echo "a2e3b50e49ed6439999ba3c252ed04fabd98ee4e9d12e5e5dff2e66370569751  /tmp/matugen.tar.gz" | sha256sum -c - \
     && tar -xzf /tmp/matugen.tar.gz -C /usr/local/bin \
     && chmod 0755 /usr/local/bin/matugen \
     && rm -f /tmp/matugen.tar.gz

@@ -3,7 +3,7 @@
 The tracker for what's left. Tick items when they're done, and say how they
 were checked.
 
-- Why: [`audit.md`](audit.md) (defect numbers below refer to it)
+- Why: [`research/audit.md`](research/audit.md) (defect numbers below refer to it)
 - Platform detail: [`research/platform-stack.md`](research/platform-stack.md) (`M1`–`M20` are its migration list)
 - Shell spec: [`design/component-system.md`](design/component-system.md) and [`design/surfaces/`](design/surfaces/)
 - Design spec: [`../references/`](../references/)
@@ -66,7 +66,7 @@ Branch `fix/broken-basics`. Tested on a booted ISO in QEMU on 2026-11-27.
 
 Built as surfaces need it: a component is added when a surface uses it, not
 before. The old shell code is a reference only. Rules and file layout are in
-[`design/component-system.md`](design/component-system.md) §0a.
+[`design/component-system.md`](design/component-system.md) §0.
 
 - [x] Generated tokens with a desktop size scale; board sizes kept for comparison (`CALLISTO_DENSITY=board`)
 - [x] Veil values in `generate-theme.py` fixed; dark and light schemes generated

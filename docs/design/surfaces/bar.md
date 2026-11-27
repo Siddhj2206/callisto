@@ -11,8 +11,8 @@ Replaces: `bar/Bar.qml`, `Island.qml`, `Clock.qml`, `StatusGroup.qml`, `WaveButt
 | floating (revealed) | 2 | layer top, margin `Space.screenMargin` top/sides | `glass` islands | no |
 | pinned | 3 | layer top, full width | `mica` strip, square, edge to edge | yes (`exclusive`, height `Size.bar`) |
 
-Current code draws floating islands with `exclusiveZone: 0` in pinned mode
-(`docs/audit.md` defect 1). The new `BarStrip` is a real full-width Mica strip
+The first version drew floating islands with `exclusiveZone: 0` in pinned mode
+(`docs/research/audit.md` defect 1). `BarStrip` is a real full-width Mica strip
 with `SurfaceWindow.exclusive: true`.
 
 ## Component tree

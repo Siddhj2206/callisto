@@ -53,7 +53,7 @@ Motion: lock appears instantly (security; no animation on lock), unlock plays
 Behaviour: typing starts input anywhere; Enter submits; Esc clears field;
 Ctrl+U clears; eye reveals 5 s (`passwordReveal`); caps-lock chip is a
 passive hint. Fingerprint row shown only when fprintd is present (current code
-always shows it: `docs/audit.md` defect 8). Battery/status hidden in VMs.
+always shows it: `docs/research/audit.md` defect 8). Battery/status hidden in VMs.
 
 ## Lock as built
 
@@ -114,4 +114,4 @@ Keep: `LockState` (PAM flow, `fieldState`, `errorText`, `lock()/unlock()/submit(
 `pendingPassword`), the "lock exists for the shell's lifetime" rule in
 `LockWindow`. Replace: all visual code. Needs `UserService` (greeter users, avatar
 initials, last-used session, accounts via AccountsService/greetd). Dedicated PAM
-stack (`docs/audit.md` defect 8) is a backend task, not a visual one.
+stack (`docs/research/audit.md` defect 8) is a backend task, not a visual one.

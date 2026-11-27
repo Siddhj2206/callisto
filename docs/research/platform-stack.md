@@ -1,7 +1,7 @@
 # Callisto platform stack — decisions for Hyprland + systemd + Flatpak
 
 **Date:** 2026-11-27 · **Scope:** session, keybinds, settings engine, Flatpak, base services, installer, performance.
-**Builds on:** `research/modern-stack.md`, `docs/research/desktop-os-essentials.md`, `docs/research/distro-engineering.md`, `docs/research/live-build.md`, `docs/research/quickshell-optimization.md`, `docs/design/settings-architecture.md`, `MORNING-STATUS.md`. Those documents remain valid unless a section below corrects them.
+**Builds on:** `docs/research/desktop-os-essentials.md`, `docs/research/distro-engineering.md`, `docs/research/live-build.md`, `docs/research/quickshell-optimization.md`, `docs/design/settings-architecture.md`. Those documents remain valid unless a section below corrects them.
 
 ## How this was verified
 

@@ -1,30 +1,24 @@
 # Triton component system
 
-Status: written 2026-11-27 as a proposal; building started the same day.
-Section 0a says what was actually built and wins over the rest.
-Per-surface trees live in `docs/design/surfaces/*.md` (index in section 6).
+The shell is built the way a website is built on shadcn/ui. Everything is a
+component, built from a small set of primitives. Tokens are centralised and
+generated, motion is centralised, and a surface file contains composition only:
+no raw sizes, colors, radii, font sizes or animation durations.
 
-Goal: rebuild the Callisto desktop shell the way a website is built on
-shadcn/ui. Everything is a component. Components are built from a small set of
-primitives. Tokens are centralised and generated. Motion is centralised. A
-surface file contains composition only: no raw sizes, colors, radii, font
-sizes, or animation durations.
+Section 0 describes what is built and wins over the rest. Sections 1 to 5 are
+the specification it was built from; the catalog in section 4 is a menu, so a
+component exists once a surface needs it. Section 8 records where the design
+boards disagree and what was decided. Per-surface trees are in
+[`surfaces/`](surfaces/).
 
-Sources read for this document: all 30 boards in `references/*.dc.html` (CSS,
-markup, caption text), `references/triton/{tokens.json,tokens.css,components.css,README.md}`,
-`references/canvas.json`, the rendered boards in `/tmp/boardout/*.png`,
-`docs/shell-conventions.md`, `docs/research/design-board-map.md`,
-`docs/audit.md`, `docs/design/settings-architecture.md`, `shell/triton/**`,
-`scripts/generate-theme.py`, `configs/hypr/hyprland.lua`.
-
-`docs/research/design-board-map.md` is mostly right. It is thin or silent on
-Settings, SettingsStates, Wallpaper, WallpaperStates, Controls, Containers,
-ComponentIndex, Materials, Type and Color; section 2 below covers those from
-the boards. Where this document disagrees with the map, the board wins.
+The specification was written on 2026-11-27 from the boards in
+`references/*.dc.html`, `references/triton/` and the design board map in
+[`../research/design-board-map.md`](../research/design-board-map.md). Where it
+disagrees with the map, the boards win.
 
 ---
 
-## 0a. As built
+## 0. As built
 
 Components are added when a surface needs them. The catalog in section 4 is a
 menu, not a work list.
@@ -36,7 +30,7 @@ menu, not a work list.
   radii and the wave path. Shadows are not built yet.
 - Names changed to avoid clashes: `Palette` -> `Scheme`, `Type` ->
   `Typography`, `Scope` -> `Theming`. Color roles for content are lowercase
-  (`onsurface`), as `Theme` already did.
+  (`onsurface`).
 - Motion: spatial values go through a `Spring` object (`width: s.value`), not
   a `Behavior` subtype, which QML cannot express. Opacity and color use
   `Fade` / `ColorFade`.
@@ -48,48 +42,8 @@ menu, not a work list.
 - Icons use native text rendering; Qt's distance fields distort the filled font.
 - Hyprland dispatch from the shell uses the Lua form,
   `hl.dsp.focus({ workspace = 2 })`.
-- Legacy surfaces still use `Theme` and `components/` until rebuilt.
 
-## 0. Findings that shape the design
-
-1. **The compositor is Hyprland, the boards were written for niri.** Boards and
-   `tokens.json` talk about `background-effect { blur true; xray ... }`.
-   `configs/hypr/hyprland.lua:117-121` gives every `quickshell` layer one blur
-   rule (`blur = true, ignore_alpha = 0.05`) and `no_anim = true`. So:
-   - The shell owns all motion (good: matches the goal).
-   - Per-material blur radius, saturation and brightness from the boards cannot
-     be reproduced by layer rules. Only the fill alpha and the layer namespace
-     are ours to choose (open question Q3).
-2. **`scripts/generate-theme.py` mis-generates the veil.** Lines 131-136 use
-   `state_layer.hover` (0.08) and `state_layer.focus` (0.10) for `Theme.veil`
-   and `Theme.veilBright`. The token (`material.veil`) says 0.10 and 0.16. The
-   generator also ignores `material.light.*`, `material.mica_adaptive`,
-   `elevation`, `type.scale`, `size`, and `shape.list_*`/`connected_*`.
-3. **`Theme.applyUserTokens` only recolours.** In light mode it updates the 28
-   colour roles and `glassBg` (with the dark alpha 0xB2, not 0.82) but not
-   `micaBg`, `thickGlassBg`, `veil*`, or anything else. Light mode is broken
-   at the token layer before any surface code is involved.
-4. **Light is never drawn on any board.** `Color.dc.html` shows light swatches;
-   `Materials`/`tokens.json` give light fills; no surface is shown in light.
-   Light state-layer ink, highlight, shadow and full-screen scrim behaviour are
-   unspecified (Q2).
-5. **There is no MediaBar in the shell.** `grep Mpris shell/triton` is empty.
-   `MediaBar.dc.html` is a whole new surface plus a new service.
-6. **Screenshot, window switcher and greeter exist but are not wired**
-   (`docs/audit.md` defect 10). They are rebuilt like the others and wired in
-   at the same time.
-7. **The bar's "pinned" mode must be a full-width Mica strip with an exclusive
-   zone** (`BarStates` board 3, `docs/audit.md` defect 1). Three bar modes
-   (hidden / floating / pinned) are three layouts of one component tree, not
-   three components.
-8. **Several boards disagree with each other** on chip shape, panel radius,
-   QS tile on-state, scrim values, hover tint, section-header style, and more.
-   Section 9 lists them. The component API makes each one a single variant or
-   token so the answer can be changed in one place.
-
----
-
-## 1. Rules (replace `docs/shell-conventions.md` rules 2 and 9 when adopted)
+## 1. Rules
 
 R1. **Numeric literals are allowed only in `tokens/` (generated) and in
 `foundations/` implementation math.** Primitives, patterns and surfaces may use
@@ -138,7 +92,7 @@ component reads `Theme.reduceMotion`.
 
 ---
 
-## 2. Board inventory (task 1)
+## 2. Board inventory
 
 Columns: what the board specifies as visual elements, then states. `*` marks
 something not in `docs/research/design-board-map.md`.
@@ -183,7 +137,7 @@ something not in `docs/research/design-board-map.md`.
 | Settings* | floating window 1100x760: Mica sidebar 280 (search, nav groups Connect/Devices/Triton/System), solid content (page title, hero preview, 3-way seg, accent list, contrast stops slider, 3 material cards, switches, expressiveness stops slider), "Applying Planet" glass checklist toast | narrow (<860 px): sidebar becomes full-width list, pages slide in |
 | SettingsStates* | Displays (monitor arranger, scale stops slider, chip row for refresh rate, switches), Bar & Shell (3 option cards with thumbs, Top/Bottom seg, reveal-delay slider with mono value, switches), Windows (layout preview, gap/radius sliders, preset width chips, focus switches), Keyboard (search, shortcut rows with keycaps and conflict note), search state (results list) | "Settings apply live. No Apply button." |
 
-### 2.3 Concept to component map (what was re-implemented per surface)
+### 2.3 Concept to component map
 
 | Concept | Where it appears | Library component |
 |---|---|---|
@@ -205,12 +159,12 @@ something not in `docs/research/design-board-map.md`.
 | Countdown ring | clipboard sensitive, power, capture | `ProgressRing` (wavy) |
 
 ---
-## 3. Token layer (task 2)
+## 3. Token layer
 
 All of this is emitted by `scripts/generate-theme.py` from an extended
 `design/tokens.json` (schema delta in 3.11). Generated singletons replace the
 single `Theme.qml`. Values marked **(proposed)** are not on any board; they
-are placeholders that need a designer decision (see section 9).
+are placeholders that need a designer decision (see section 8).
 
 ### 3.1 Singletons produced
 
@@ -260,7 +214,7 @@ other file may build one.
 **Media scheme.** Lock, Greeter, Power, Overview, Screenshot and the Login
 card sit on a dimmed/blurred wallpaper. These surfaces wrap their content in
 `ThemeScope { scheme: "dark" }` so they always read `Theme.paletteDark`
-(section 9, Decided). Everything else, including the Wallpaper dock, follows
+(section 8, Decided). Everything else, including the Wallpaper dock, follows
 `Theme.mode`.
 
 **Fixed (scheme-independent) colours:** wave swatch hues (Planet/Hull/Rock/
@@ -639,7 +593,7 @@ with their snap targets.)
 - Alphas: .04-.06 faint, .08-.12 veil, .14-.18 strong, .22, .26, .28 (scrollbar thumb `rgb(255 255 255 / .28)` in Settings), .3, .35, .5; text opacities .6 .65 .7 .75 .8 .85.
 - Shadows: 0 2 6 .5; 0 6 16 .45; 0 6 18 .4; 0 10 30 .4/.45; 0 14 40 .45/.5; 0 16 40 .45; 0 30 80 .55; 0 32 80 .6 (Settings window); inset 0 1 0 white .12/.14/.2.
 - Colours: `#8CD6A0`/`#00391B` (success), `#2458C8`, `#D8DEE8`, `#C0552A`, `#1B2A4A`, `#4FA3A5` (accent swatch seeds, Settings/Wallpaper boards), `rgba(124 49 20 / .8)` (greeter power button = tertiaryContainer @ .8), `rgb(147 0 10 / .72)` and `/.78` (error container @ .72 field, .78 critical card), `#3a3c41`/`#2a2c31` (bell dot ring = effective surface), `rgb(0 10 30 / .2)` .. `/ .25` (lock/greeter/power wallpaper tint), `rgb(0 45 110 / .15)` (disc on selected clipboard row = onPrimary @ .15).
-- Backdrop treatments for full-screen media surfaces: `blur(10) brightness(.72) saturate(1.1)` (lock), `blur(12) brightness(.62)` (greeter), `blur(14) brightness(.5)` (overview), `blur(18) brightness(.5)` (power). Proposed token `Material.backdrop.{lock,greeter,overview,power}` = `{blur, brightness, saturate, tint}`; implemented in QML (MultiEffect) because the compositor cannot do it for a Background layer (`docs/audit.md` defect 14).
+- Backdrop treatments for full-screen media surfaces: `blur(10) brightness(.72) saturate(1.1)` (lock), `blur(12) brightness(.62)` (greeter), `blur(14) brightness(.5)` (overview), `blur(18) brightness(.5)` (power). Proposed token `Material.backdrop.{lock,greeter,overview,power}` = `{blur, brightness, saturate, tint}`; implemented in QML (MultiEffect) because the compositor cannot do it for a Background layer (`docs/research/audit.md` defect 14).
 
 ### 3.11 `tokens.json` v0.2 additions (schema)
 
@@ -680,7 +634,7 @@ The generator must fail when a role in a component refers to a missing token
 outputs.
 
 ---
-## 4. Component library (task 3)
+## 4. Component library
 
 Notation. Props are QML property names with types. `tone` is a palette role
 name. `size` is `"s" | "m" | "l" | "xl"` unless stated (`Button` adds `"compact"`). "Boards" lists the
@@ -737,13 +691,11 @@ conventions: names, not weight matching). Uppercase and tracking applied here.
 Sizing: `implicitWidth` from content, `Layout.fillWidth` friendly, elides by
 default, `wrap` uses `Text.WordWrap` with `maxLines`; display roles accept
 `fit: true` which shrinks via `fontSizeMode` to a `minimumRole`.
-Replaces `TritonText` (keep its enum idea of family; drop `boxHeight` - the
-role's line height centres glyphs).
+
 
 **Icon** - Purpose: Triton Symbols glyph. Props: `glyph: string` (from `Icons`),
 `size: string = "lg"` (`Size.icon.*`), `fill: bool`, `tone`, `emphasis`. Box
-is square `Size.icon[size]`; glyph centred. Replaces `TritonIcon`
-(`size: real = 22` -> token). Filled variant uses the filled font. Boards:
+is square `Size.icon[size]`; glyph centred. Filled variant uses the filled font. Boards:
 `.t-ms`, `.t-ms.f`.
 
 **Material** - Purpose: paints a surface material. Props:
@@ -790,7 +742,7 @@ fill, optional stroke, optional glyph/text centred, and `morph: real` (0 wave,
 1 squircle, 2 disc) plus `spin: bool`. Props: `size` (disc ramp), `fill` tone,
 `stroke`, `strokeTone`, `glyph`, `glyphTone`, `text`, `morph`. Boards: launcher
 wave, album art, avatars, swatches, OSD off-disc, capture button, greeter users,
-loading. Replaces `WaveShape`.
+loading.
 
 ### 4.2 Primitives (34)
 
@@ -856,7 +808,7 @@ Layout-less leaf components: no service imports.
 
 **P15 ProgressBar** - Props: `value` (0..1) or `indeterminate`, `variant: "wavy"|"flat"`, `tone`, `running: bool`. wavy: amplitude 3, wavelength 24, stroke 4 round, played part wavy, remainder flat `secondaryContainer` (or `veilStrong` on glass); flat: 8 high r4; waiting: two segments (30 % and 14 %) sliding. Motion: `loop.wavyPhase`. Boards: Controls, MediaBar popover progress (396 wide), Notifications progress, downloads.
 
-**P16 ProgressRing** - Props: `value` or `indeterminate`, `size`, `thickness`, `tone`, `trackTone`, `variant: "wavy"|"round"`, `text` (centre, mono or Jost). 9-lobe wavy ring (amplitude ~1.1 at 34); countdown variant drains over `duration` (time-based). Boards: Clipboard sensitive ring 34 (mono 11), power countdown 132 (Jost 64), battery as wavy ring (Settings "Battery as wavy ring"). Replaces `WavyRing`.
+**P16 ProgressRing** - Props: `value` or `indeterminate`, `size`, `thickness`, `tone`, `trackTone`, `variant: "wavy"|"round"`, `text` (centre, mono or Jost). 9-lobe wavy ring (amplitude ~1.1 at 34); countdown variant drains over `duration` (time-based). Boards: Clipboard sensitive ring 34 (mono 11), power countdown 132 (Jost 64), battery as wavy ring (Settings "Battery as wavy ring").
 
 **P17 LoadingWave** - `WaveShape` with `spin`, `morph` loop. Sizes 40 (controls), 96 (unlocking, proposed). Boards: Controls, LoginStates "Unlocking".
 
@@ -870,7 +822,7 @@ Layout-less leaf components: no service imports.
 
 **P22 Swatch** - `WaveShape` filled with an accent; `checked` overlays a `check` 28 white (Planet). 64 px in Settings (label below `labelM`), 40-ish in Wallpaper colours card (label `micro`). "Custom" = dashed/ring variant (`outline` 2 px circle + add icon). Boards: Settings `.accent`, Wallpaper "Colors from Orbit" card.
 
-**P23 IconDisc** (`t-ic`) - Props: `icon`, `size: "m"|"l"|"xl"` (40/48/56), `tone: "secondary"|"primary"|"tertiary"|"error"|"surfaceHighest"|"veil"`, `fillIcon`. Circle, icon `ml` at m. Replaces `ContentRow` + ad-hoc discs. Boards: `.t-ic`, launcher result icons (40 with tint variants), notification app icon (48), QS network (disc 40).
+**P23 IconDisc** (`t-ic`) - Props: `icon`, `size: "m"|"l"|"xl"` (40/48/56), `tone: "secondary"|"primary"|"tertiary"|"error"|"surfaceHighest"|"veil"`, `fillIcon`. Circle, icon `ml` at m. Boards: `.t-ic`, launcher result icons (40 with tint variants), notification app icon (48), QS network (disc 40).
 
 **P24 ListRow**
 - Props: `title`, `subtitle`, `leading` (Component or `icon`), `trailing` (Component), `selected`, `interactive`, `position: auto|first|middle|last|only` (set by `ListGroup`), `density: "regular"|"compact"|"dense"`, `tone: "container"|"onCard"|"veil"`.
@@ -881,7 +833,7 @@ Layout-less leaf components: no service imports.
 - Sizing: fills width; title elides (`maxLines 1`), subtitle `maxLines 2` in settings, 1 in lists; trailing keeps its natural width; the text block is `Layout.fillWidth` with `minimumWidth 0`.
 - Boards: `.t-li`, Containers lists, Settings rows, QS Wi-Fi rows (h 60, r `22/6`), Clipboard rows (h 60, r14, selected r28 - becomes `density: compact` + `shape: "soft"`), Launcher rows, Notification centre items (`.pn` r `20 20 20 8` - handled by `NotificationCard`).
 
-**P25 ListGroup** - Column with `Space.hair` gap, assigns `position` to children (first/middle/last/only), clips radius. Props: `title` (SectionHeader), `model`/children. Replaces the per-panel list code (SettingRow lists). Outer radius 24 (card) or 22 (QS list).
+**P25 ListGroup** - Column with `Space.hair` gap, assigns `position` to children (first/middle/last/only), clips radius. Props: `title` (SectionHeader), `model`/children. Outer radius 24 (card) or 22 (QS list).
 
 **P26 Card** - Props: `variant: "filled"|"tonal"|"outlined"|"glass"`, `padding: "card"|"compact"|"none"`, `selected`, `interactive`. filled `surfaceContainerLow` r24 pad `22 / 20`; tonal `secondaryContainer`; outlined 1 px `outlineVariant`; glass = `Material glass`. Sets `ThemeScope` context so `ListRow` steps up a tier. Selected (settings material cards, option cards): `secondaryContainer` + ring `outlineVariant` off. Boards: `.t-card`, Containers `.card`, Settings material/option cards, Bar & Shell option cards.
 
@@ -891,7 +843,7 @@ Layout-less leaf components: no service imports.
 
 **P29 Tooltip** - Props: `text`, `target` (item), `delay` (**proposed** 600 ms). h 32 r12 pad `0 12` `labelM` 500, material glass @ .85 + highlight + `tooltipShadow`. Motion: `popoverOpen` (compact). Boards: Controls tooltip.
 
-**P30 ScrollArea** - Props: `contentWidth`, `contentHeight`, `fadeEdges: bool`, `autoHide`. Scrollbar: 4 px thumb (r2, `onSurface` @ .5) at rest, 10 px (r5, .75) on hover/drag, auto-hide, 6 px in Settings (thumb `ink` @ .28). Edge fade `linear-gradient(transparent, surface)` 60 px (Settings content). Boards: Containers scrollbar, Settings, switcher overflow, Clipboard list. Replaces raw `Flickable`/`ListView` scroll plumbing in surfaces.
+**P30 ScrollArea** - Props: `contentWidth`, `contentHeight`, `fadeEdges: bool`, `autoHide`. Scrollbar: 4 px thumb (r2, `onSurface` @ .5) at rest, 10 px (r5, .75) on hover/drag, auto-hide, 6 px in Settings (thumb `ink` @ .28). Edge fade `linear-gradient(transparent, surface)` 60 px (Settings content). Boards: Containers scrollbar, Settings, switcher overflow, Clipboard list.
 
 **P31 Tabs** - Props: `model`, `currentId`. Underline tabs h 44 pad `0 18` `labelL`; active `primary` + 3 px indicator (r `3 3 0 0`, inset 12). **P32 NavItem** - Props: `text`, `icon`, `selected`, `variant: "sidebar"|"rail"`. sidebar: h 48 r24 pad `0 16` gap 16 `bodyM` 500; selected `primaryContainer/onPrimaryContainer` weight 600 icon `onPrimaryContainer`; rail: 72 wide, 56 x 32 `secondaryContainer` pill + label `labelS`-ish 12 600. Boards: `.t-nav`, Controls `.tab .rail`, Settings sidebar, Files sidebar (`.nav.on` secondaryContainer: variant `tone: "secondary"`), QS handoff sidebar.
 
@@ -912,9 +864,6 @@ content `Material` kind: `triton-glass` etc.), `screen`, `follow: "focused"|"all
 Automatically: sizes the window to content + shadow margin + overshoot
 margin, sets `mask: Region { item: content }`, binds `visible: presence.mapped`,
 handles Esc and click-outside (`dismissOnOutside`) and focus grabbing.
-Replaces the repeated `PanelWindow` boilerplate in `QsWindow`, `CenterWindow`,
-`ClipboardWindow`, `PowerWindow`, `OverviewWindow`, `WallpaperWindow`,
-`OsdWindow`.
 
 **T2 Panel** - Material container with a radius tier and padding scale.
 Props: `material: "glass"|"thick"|"solid"|"mica"`, `radiusTier: "s"|"m"|"l"`,
@@ -976,41 +925,38 @@ PowerStates unsaved-work (w 520).
 **T26 OverviewRibbon** - Workspace row: label column (wave badge 56 `numeralM`/`numeralL`, name `titleDisplay` 22, count `caption`) + strip of `PreviewTile`s + active plate (`veil` @ .08 r32, bleed right). Boards: Overview.
 
 ---
-## 5. Surfaces (task 4, summary)
+## 5. Surfaces
 
 Each surface has a full tree in `docs/design/surfaces/<name>.md`. This table
 is the index. "Role" is the motion role pair from 3.9.
 
-| Surface | Host | Material | Role in / out | Replaces (`shell/triton/`) | Detail |
-|---|---|---|---|---|---|
-| Bar (+ indicators, workspace/tray popovers) | layer top, exclusive when pinned | glass islands / mica strip | `islandReveal` / `islandHide` | `bar/*` (7 files) | `surfaces/bar.md` |
-| MediaBar (pill + popover) | inside Bar | glass | `pillMorph`, `popoverOpen` | none (new) | `surfaces/media.md` |
-| Launcher | layer overlay, focus | thick | `launcherOpen` / `surfaceExit` | `launcher/*` | `surfaces/launcher.md` |
-| QuickSettings | layer top-right | glass | `surfaceEnter` / `surfaceExit`, `drill` | `quicksettings/*` | `surfaces/quick-settings.md` |
-| Notifications (toasts + centre) | layer top-right | glass | `toastEnter/Exit`, `surfaceEnter` | `notifications/*` | `surfaces/notifications.md` |
-| OSD | layer bottom, click-through | glass | `osdEnter` / `osdExit`, `osdMorph` | `osd/*` | `surfaces/osd.md` |
-| Lock | session-lock | blurred wallpaper + glass | `surfaceEnterSlow` | `lock/*` | `surfaces/session.md` |
-| Greeter | separate greetd instance | same | `surfaceEnterSlow` | `greeter/Greeter.qml` | `surfaces/session.md` |
-| Power | layer overlay, focus | scrim + glass pill group | `surfaceEnterSlow`, `pillMorph` | `power/*` | `surfaces/power.md` |
-| Overview | layer overlay | backdrop + ribbons | `surfaceEnterSlow` | `overview/*` | `surfaces/overview.md` |
-| WindowSwitcher | layer overlay, focus | thick | `surfaceEnter`, `selection` | `windowswitcher/WindowSwitcher.qml` | `surfaces/window-switcher.md` |
-| Clipboard | layer overlay, focus | thick | `surfaceEnter`, `listReflow` | `clipboard/*` | `surfaces/clipboard.md` |
-| Wallpaper picker | layer bottom dock + top card | thick + glass | `surfaceEnter`, `crossfade` | `wallpaper/*` | `surfaces/wallpaper.md` |
-| Screenshot (capture, states, markup) | layer overlay per output | glass chrome | `surfaceEnter`, `selection` | `screenshot/ScreenshotUI.qml` | `surfaces/screenshot.md` |
-| Settings app + 14 pages | `FloatingWindow` | mica sidebar + solid | `surfaceEnter`, `drill` | `settings/*` (21 files) | `surfaces/settings.md` |
-| Desktop (wallpaper layer) | layer background | none | `crossfade` | `Desktop.qml`, `wallpaper/WallpaperScene.qml` | in `surfaces/wallpaper.md` |
+| Surface | Host | Material | Role in / out | Detail |
+|---|---|---|---|---|
+| Bar (+ indicators, workspace/tray popovers) | layer top, exclusive when pinned | glass islands / mica strip | `islandReveal` / `islandHide` | `surfaces/bar.md` |
+| MediaBar (pill + popover) | inside Bar | glass | `pillMorph`, `popoverOpen` | `surfaces/media.md` |
+| Launcher | layer overlay, focus | thick | `launcherOpen` / `surfaceExit` | `surfaces/launcher.md` |
+| QuickSettings | layer top-right | glass | `surfaceEnter` / `surfaceExit`, `drill` | `surfaces/quick-settings.md` |
+| Notifications (toasts + centre) | layer top-right | glass | `toastEnter/Exit`, `surfaceEnter` | `surfaces/notifications.md` |
+| OSD | layer bottom, click-through | glass | `osdEnter` / `osdExit`, `osdMorph` | `surfaces/osd.md` |
+| Lock | session-lock | blurred wallpaper + glass | `surfaceEnterSlow` | `surfaces/session.md` |
+| Greeter | separate greetd instance | same | `surfaceEnterSlow` | `surfaces/session.md` |
+| Power | layer overlay, focus | scrim + glass pill group | `surfaceEnterSlow`, `pillMorph` | `surfaces/power.md` |
+| Overview | layer overlay | backdrop + ribbons | `surfaceEnterSlow` | `surfaces/overview.md` |
+| WindowSwitcher | layer overlay, focus | thick | `surfaceEnter`, `selection` | `surfaces/window-switcher.md` |
+| Clipboard | layer overlay, focus | thick | `surfaceEnter`, `listReflow` | `surfaces/clipboard.md` |
+| Wallpaper picker | layer bottom dock + top card | thick + glass | `surfaceEnter`, `crossfade` | `surfaces/wallpaper.md` |
+| Screenshot (capture, states, markup) | layer overlay per output | glass chrome | `surfaceEnter`, `selection` | `surfaces/screenshot.md` |
+| Settings app + 14 pages | `FloatingWindow` | mica sidebar + solid | `surfaceEnter`, `drill` | `surfaces/settings.md` |
+| Desktop (wallpaper layer) | layer background | none | `crossfade` | in `surfaces/wallpaper.md` |
 
 ### Surface contract
 
 A surface directory `surfaces/<name>/` contains:
-- `<Name>.qml`: the composition (components only, no literals).
-- `<Name>Host.qml`: the `SurfaceWindow` + bindings to state/service singletons
-  (the only file in the directory that imports `services/`).
-- `parts/*.qml` (optional): surface-local components (e.g. the bar's
-  `WorkspacePill`). Same rules as everything else: composed from primitives and
-  patterns only, no literals, no service imports. If a second surface needs one,
-  promote it to `primitives/` or `patterns/`.
-- `states/*.qml`: named states for the visual-diff harness (each board state).
+- `<Name>.qml` and friends: the view (components only, no literals).
+- `<Name>Host.qml`: the window and the bindings to services, the only files in
+  the directory that import them.
+- A surface-local component stays in the directory. If a second surface needs
+  it, it moves to `primitives/` or `patterns/`.
 
 State singletons (`LauncherState`, `QuickSettingsState`, ...) stay: they are
 `open`, `toggle()`, `dismiss()` and are used by IPC. `Presence` is created in
@@ -1020,170 +966,28 @@ the Host from `State.open`.
 
 ## 6. Directory layout
 
-```
-shell/triton/
-  shell.qml                 entry: fonts, per-screen Variants of Host files only
-  qmldir                    (kept)
-  tokens/                   GENERATED, never edited
-    Theme.qml Palette.qml Type.qml Space.qml Size.qml Shape.qml
-    Elevation.qml Motion.qml Icons.qml qmldir
-  foundations/              ThemeScope AppText Icon Material StateLayer FocusRing
-                            Presence PresenceTransform SpringValue SpringBehavior
-                            CornerShape Shadow WaveShape qmldir
-  primitives/               Button SplitButton IconButton Fab SegmentedButton Chip
-                            ChipGroup Pill Tag Badge Keycap Switch Checkbox Radio
-                            Slider ProgressBar ProgressRing LoadingWave TextField
-                            SearchField PasswordField Avatar Swatch IconDisc
-                            ListRow ListGroup Card SectionHeader Divider Tooltip
-                            ScrollArea Tabs NavItem PreviewTile LevelMeter qmldir
-  patterns/                 SurfaceWindow Panel Popover Modal Dialog Menu MenuItem
-                            MenuSeparator Island StatusPill Toast ChecklistToast
-                            NotificationCard NotificationGroup Dock SidebarNav
-                            TileGrid Tile EmptyState KeyHintBar SettingRow
-                            SettingsPage PlayerCard MediaPill OsdPill LoginCard
-                            Toolbar CarouselRow WindowFrame OverviewRibbon qmldir
-  surfaces/
-    bar/ media/ launcher/ quicksettings/ notifications/ osd/ lock/ greeter/
-    power/ overview/ windowswitcher/ clipboard/ wallpaper/ screenshot/
-    settings/ (SettingsApp.qml, pages/*.qml) desktop/
-  services/                 kept; additions: MediaService (Mpris), AudioService,
-                            BrightnessService, WindowSwitcherState,
-                            ScreenshotState, UserService, OsdProducers
-  fonts/
-  dev/
-    gallery/                component gallery (every primitive x state x mode)
-    states/                 one QML per surface state, named like the board
-design/
-  tokens.json               extended (3.11)
-  boards/                   committed board PNGs (today they live in /tmp/boardout)
-scripts/
-  generate-theme.py         extended: all tokens/ singletons, --check
-  lint-literals.py          R1 enforcement
-  compare-board.sh          render state -> PNG -> pixel diff vs design/boards
-docs/design/
-  component-system.md  surfaces/*.md
-```
-
-Layering rule (enforced by lint, imports): `tokens` <- `foundations` <-
-`primitives` <- `patterns` <- `surfaces`; `services` is imported only by
-`surfaces/*Host.qml` and `shell.qml`. No upward or sideways imports.
-
-Existing files that survive unchanged or nearly: `services/*` (all),
-`Icons.qml` (generated), `fonts/`, `shell.qml` structure, `Desktop.qml` window
-setup, `LockWindow` lifetime rule (the lock exists for the shell's lifetime).
-Everything under `components/` is replaced (see per-component notes: `TritonX`
--> primitive of the same concept). `devshell-*.qml` and `intertest.qml(.bak)`
-move to `dev/` or are deleted.
+See [`../architecture.md`](../architecture.md#the-shell). Imports go one way:
+`tokens` ← `foundations` ← `primitives` ← `patterns` ← `surfaces`, and only
+hosts import `services`.
 
 ---
 
-## 7. Build order
+## 7. Definition of done
 
-The graph: tokens -> foundations -> primitives -> patterns -> surface. The
-list below is the order that unblocks the most surfaces first and keeps
-every step shippable behind a flag.
+A surface is done when, for each state its document names:
 
-**Step 0. Generator, lint, gallery (unblocks everything).**
-- Fix `generate-theme.py` veil bug; emit all singletons and per-scheme
-  `Palette`s; `--check`.
-- `lint-literals.py` (start warn-only on legacy dirs, hard-fail on new dirs).
-- `dev/gallery/` page that renders each component in a grid of states, in
-  dark, light and reduce-motion, plus `Materials` and `Type` board
-  re-creations. Commit `design/boards/*.png`.
-- Gate: gallery of tokens (type ramp, colour pairs, materials, shadows, shapes)
-  matches `Type`, `Color`, `Materials` boards pixel for pixel in dark; in light
-  it is reviewed by eye.
-
-**Step 1. Foundations.** `ThemeScope`, `AppText`, `Icon`, `CornerShape`,
-`Shadow`, `Material`, `StateLayer`, `FocusRing`, `SpringValue/Behavior`,
-`Presence`, `WaveShape`, `SurfaceWindow`.
-- Gate: motion page overlays each spring's step response on the curves from
-  `Type.dc.html`; `SurfaceWindow` demo opens/closes with enter/exit and
-  click-through mask.
-
-**Step 2. Primitive set A.** `Button, IconButton, Chip, Pill, Tag, Badge,
-Keycap, Divider, IconDisc, Avatar, Slider, ProgressBar, ProgressRing, Switch,
-ListRow, ListGroup, Card, SectionHeader, ScrollArea, Tooltip, LevelMeter`.
-- Gate: Controls + Containers + ComponentIndex boards re-created in the
-  gallery.
-
-**Step 3. First surfaces: OSD, then Bar.**
-- OSD is the smallest surface and exercises `Presence`, `Slider(osd)`,
-  `WaveShape`, `OsdPill`, `SurfaceWindow`, `osdMorph`.
-- Bar exercises `Island`, `StatusPill`, `IconButton slot`, workspace pill morph,
-  the three modes + exclusive zone, popovers (needs `Popover`, `PreviewTile`).
-  MediaPill follows once `MediaService` exists.
-
-**Step 4. Primitive set B + panel patterns.** `SegmentedButton, SearchField,
-TextField, PasswordField, Checkbox, Radio, Tabs, NavItem, PreviewTile,
-LoadingWave, SplitButton`, patterns `Panel, Popover, Modal, Dialog, Menu,
-Toast, KeyHintBar, EmptyState, TileGrid/Tile, CarouselRow, NotificationCard/
-Group, LoginCard, Toolbar, Dock`.
-
-**Step 5. Panel surfaces, in this order:** Launcher (SearchField, Chip,
-ListRow, KeyHintBar, top-hit Card), QuickSettings (TileGrid, Slider, `drill`),
-Notifications (cards, groups, toasts), Power (SegmentedButton power variant,
-Dialog, ProgressRing), Clipboard (Panel, ListRow selected, EmptyState,
-ProgressRing, Dialog), WindowSwitcher + Overview (PreviewTile, CarouselRow,
-OverviewRibbon), Wallpaper (Dock, Swatch, PreviewTile), Lock + Greeter
-(LoginCard, WaveAvatar, blurred backdrop), Screenshot (Toolbar, SegmentedButton,
-Pill, KeyHintBar, markup editor).
-
-**Step 6. Settings app.** `WindowFrame, SidebarNav, SettingsPage, SettingRow,
-Swatch`, then pages in the order Appearance (largest, exercises accent,
-material cards, stops slider), Bar & Shell, Windows, Displays, Keyboard,
-Network, Bluetooth, Sound, Mouse, Power, Notifications, Apps, Users, About.
-Narrow mode and search state last.
-
-**Parallelism.** After Step 1, primitive groups and surfaces that do not share
-a primitive can proceed independently (e.g. Bar + OSD vs Settings pages).
-Foundations and tokens are the only serial dependency.
-
-### Surface definition of done (screenshot comparison against the board)
-
-For each surface state named in its doc:
-1. Render `dev/states/<surface>/<state>.qml` headless (Quickshell inside
-   `containers/shelltest.Dockerfile`, or the harness `scripts/test-shell.sh`) at the
-   board logical size (1646 x 1029, scale 1.75 => 2880 x 1800 device).
-2. Diff against `design/boards/<board>.png` cropped to the state's element
-   (`scripts/compare-board.sh` produces side-by-side + overlay + a numeric
-   score). Layout must match within 2 px for fixed-size parts; text may differ
-   in rasterisation.
-3. Render again at 1366 x 768, 1920 x 1080, 2560 x 1440 and in light mode and
-   with reduce motion. These have no board; the check is "no overflow, no
-   overlap, no clipped text, contrast >= 4.5:1 for body text".
-4. `lint-literals.py` reports zero in the surface directory.
-5. Enter/exit recorded as a 12-frame strip to confirm the role (not pop).
-
----
-## 8. What happens to the existing code
-
-| Existing | Fate |
-|---|---|
-| `Theme.qml`, `Icons.qml` | Replaced by generated `tokens/`. `Icons` generation unchanged. Keep `applyUserTokens()` behaviour but make it rebuild the whole `Palette` (materials, veils, shadows) |
-| `components/TritonText` | -> `AppText` (family/weight enums become role names) |
-| `components/TritonIcon` | -> `Icon` (size token instead of `size: real = 22`) |
-| `components/IconButton` | -> `IconButton` (add variants, toggle morph, state layer) |
-| `components/TritonButton` | -> `Button` (variants now include veil/glass/danger; press morph) |
-| `components/TritonChip` | -> `Chip` |
-| `components/TritonSwitch`, `TritonSlider` | -> `Switch`, `Slider` (stops, variants, keyboard) |
-| `components/WaveShape`, `WavyRing` | -> `WaveShape`, `ProgressRing`, `LoadingWave` |
-| `components/RoundedRect` | -> `CornerShape` |
-| `components/ContentRow` | dropped; `RowLayout` with centred alignment in patterns |
-| `components/DevTestWindow` | -> `dev/` |
-| `services/*` | Kept as is. Additions: `MediaService` (Quickshell.Services.Mpris), `AudioService` and `BrightnessService` (extracted from `QsWindow`'s inline Pipewire/brightnessctl code and `shell.qml`'s OSD producer `Connections`), `WindowSwitcherState`, `ScreenshotState`, `UserService` (greeter/lock user list). OSD producers move out of `shell.qml` into `services/OsdProducers.qml` |
-| Visual files in `bar/ launcher/ quicksettings/ notifications/ osd/ lock/ greeter/ power/ overview/ windowswitcher/ clipboard/ wallpaper/ screenshot/ settings/` | Replaced by surface compositions. Logic worth lifting is listed per surface in `surfaces/*.md` (key handling, filtering, scoring, grouping, countdown timers, PAM flow) |
-| `shell.qml` | Stays thin; each surface becomes one `Variants`/singleton line on its Host |
-| `Desktop.qml` | Stays; wallpaper `Image` gets `crossfade` between two images |
-| `settings/SettingsWindow.qml` hosted in `FloatingWindow` 1100 x 760 with `minimumSize` 900 x 620 | Window stays, but contents fill and use the narrow layout below 860; initial size is a token (`Size.panel.settings.pref`) |
-
-Counts: Foundations 20 (+ `SurfaceWindow` in patterns), Primitives 34,
-Patterns 26, Surfaces 16 including the desktop layer (+ 14 Settings pages), Motion roles 25 + 5 loops +
-15 timers.
+1. It renders in a gallery page (`scripts/test-shell.sh --gallery <page>`),
+   dark and light, and compares well by eye with the board.
+2. Nothing overflows, overlaps or clips at other screen sizes.
+3. `make check` passes: no literals outside the tokens
+   (`scripts/lint-literals.py`) and text contrast of at least 4.5:1
+   (`scripts/check-contrast.py`).
+4. It enters and leaves with its motion role, and respects reduce motion.
+5. It has been used on a booted image.
 
 ---
 
-## 9. Contradictions and open questions (task 6)
+## 8. Contradictions and open questions
 
 Q numbers are referenced earlier in this document.
 
@@ -1230,7 +1034,7 @@ Saturate 1.4-1.5 and brightness .8-.85 cannot be per-material. Options: accept
 the difference; bake brightness into fill; use a per-namespace `xray` rule;
 implement real blur in QML (`MultiEffect` + `ShaderEffectSource`) for the few
 full-screen surfaces (Lock 10 px, Greeter 12, Overview 14, Power 18), as
-`docs/audit.md` defect 14 already suggests. Decision needed on Mica `xray`
+`docs/research/audit.md` defect 14 already suggests. Decision needed on Mica `xray`
 (Hyprland xray per layer rule) and per-class namespaces.
 
 **Q4. Radius and chip shape.** Panel radii: 28 (menus, toast, dialog,
@@ -1245,7 +1049,7 @@ two shapes `square 10` / `round`; connected values from `components.css`.
 **Q5. Bar timing and defaults.** Reveal dwell is 120 ms (BarStates), "Reveal
 delay 150 ms" default (Settings board slider), and 300 ms in code
 (`shell`/`revealDelay` default). Settings board shows Autohide as default
-("Autohide, default"), but the code default and `docs/audit.md` call "pinned"
+("Autohide, default"), but the code default and `docs/research/audit.md` call "pinned"
 the default. Pinned card says "Takes 32 px" while BarStates pinned strip and
 `Size.bar` are 56 px. Reveal slider scale (150 ms at 25 % position?) is
 unspecified.
@@ -1296,7 +1100,7 @@ the `SpringValue` implementation or fitted easing (3.9).
 outline and shadow, done by the compositor (niri rule `floating_window 28`).
 Hyprland `rounding` applies per window rules; the Settings `FloatingWindow`
 needs either a Hyprland rule (`rounding = 28` for class
-`callisto-settings`, which `docs/audit.md` says is currently not matched) or
+`callisto-settings`, which `docs/research/audit.md` says is currently not matched) or
 a transparent QML window with a clipped rounded content and QML shadow.
 
 **Q14. Settings pages without boards.** The sidebar lists 14 pages; boards
