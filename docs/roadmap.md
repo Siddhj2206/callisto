@@ -128,6 +128,24 @@ definition of done is in `component-system.md` §7.
 ISO rebuilt at `461bc8f` and booted in QEMU with nothing patched in: no failed
 units; launcher, clipboard, screenshot, overview, lock, greeter and login work.
 
+## 5b. Board review (2026-11-27)
+
+All 30 boards read against the code. Not tracked in section 5 before:
+
+Broken
+- [ ] No low-battery warning at all; the bar that would turn red is hidden by default
+- [ ] Super+B is not bound (only the `bar toggle` IPC exists)
+- [ ] Terminal ANSI colors are fixed pastels, unreadable on the light scheme
+
+Missing
+- [ ] Media: no MPRIS anywhere. Bar pill, popover with player list, lock pill, quick settings card, track OSD (`design/surfaces/media.md`)
+- [ ] Background apps (tray) behind the bar's overflow button
+- [ ] Privacy chips: microphone in use, screen shared or recorded
+- [ ] Urgent workspace pulses and reveals the bar
+- [ ] GTK apps get colors only: no translucent header bar and sidebar, no 20 px buttons (`Adwaita` board); the terminal has no Mica background
+- [ ] Greeter: network and accessibility buttons; disk unlock screen (with Plymouth)
+- [ ] Lock: next calendar event, keyboard layout in the status pill
+
 ## 6. Release
 
 - [ ] Flatpak accent portal and color override (M16)
