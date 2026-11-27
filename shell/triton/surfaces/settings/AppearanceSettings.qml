@@ -121,6 +121,21 @@ Page {
     }
 
     SettingGroup {
+        title: "Apps"
+
+        SettingRow {
+            glyph: Icons.palette
+            title: "Match app colors"
+            subtitle: "Apps use this palette the next time they open"
+            Switch {
+                label: "Match app colors"
+                checked: SettingsService.get("appearance", "themeApps", true)
+                onToggled: on => SettingsService.set("appearance", "themeApps", on)
+            }
+        }
+    }
+
+    SettingGroup {
         title: "Materials"
 
         SettingRow {

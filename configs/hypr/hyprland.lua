@@ -59,6 +59,9 @@ hl.config({
             noise = 0.0117,
             xray = false,
             new_optimizations = true,
+            -- Apps' popovers are Glass too (the GTK skin).
+            popups = true,
+            popups_ignorealpha = 0.5,
         },
         shadow = {
             enabled = true,

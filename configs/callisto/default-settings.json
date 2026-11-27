@@ -5,6 +5,7 @@
     "accent": "wallpaper",
     "contrast": 0.0,
     "material": "mica",
+    "themeApps": true,
     "wallpaper": "/usr/share/backgrounds/callisto/wallpaper.jpg"
   },
   "shell": {

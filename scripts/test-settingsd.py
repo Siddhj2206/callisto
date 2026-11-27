@@ -28,7 +28,7 @@ with tempfile.TemporaryDirectory() as tmp:
     for path in (home, bin_dir, runtime):
         path.mkdir()
     calls = tmp / "calls"
-    for name in ("hyprctl", "gsettings", "systemctl"):
+    for name in ("hyprctl", "gsettings", "systemctl", "flatpak"):
         stub = bin_dir / name
         # hyprctl is slow, so that changes can arrive during an apply.
         stub.write_text(f'#!/bin/sh\necho "{name} $*" >> {calls}\n' + ("sleep 0.2\n" if name == "hyprctl" else ""))
@@ -84,6 +84,10 @@ with tempfile.TemporaryDirectory() as tmp:
         ran = new_calls()
         check("an input key pushes input", "repeat_rate = 40" in ran)
         check("and touches nothing else", "gsettings" not in ran and "hyprsunset" not in ran)
+
+        check("apps may read the colors by default", "--filesystem=xdg-config/gtk-4.0:ro" in first)
+        put("appearance.themeApps", False)
+        check("and not once turned off", "--nofilesystem=xdg-config/gtk-4.0" in new_calls())
 
         for scale in (1.5, 1.0):
             put("display.scale", scale)

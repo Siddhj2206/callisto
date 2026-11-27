@@ -52,6 +52,7 @@ Singleton {
         ["power", "Screen off and suspend", "idle sleep dim"],
         ["appearance", "Dark and light mode", "theme auto"],
         ["appearance", "Accent color", "palette wallpaper"],
+        ["appearance", "Match app colors", "gtk flatpak theme apps"],
         ["appearance", "Wallpaper", "background"],
         ["appearance", "Contrast", "accessibility"],
         ["appearance", "Materials", "blur glass mica transparency"],
