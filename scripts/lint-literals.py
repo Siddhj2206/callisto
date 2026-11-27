@@ -3,6 +3,9 @@
 
 Everything visual comes from the tokens (scripts/generate-theme.py). Only
 tokens/ and foundations/ may hold numbers. 0, 1, 2 and 0.5 are allowed (centring, halving); anything else needs a token.
+
+Also fails when two component folders define the same type name: a file that
+imports both silently gets one of them.
 """
 
 import re
@@ -35,6 +38,13 @@ def main() -> int:
                     found = found or any(n not in ALLOWED for n in NUMBER.findall(value))
                 if found:
                     problems.append(f"{path.relative_to(SHELL.parent.parent)}:{number}: {line.strip()}")
+    seen = {}
+    for folder in CHECKED + ["foundations", "tokens"]:
+        for path in sorted((SHELL / folder).rglob("*.qml")):
+            other = seen.setdefault(path.stem, path)
+            if other != path:
+                problems.append(f"type name {path.stem} is defined twice: "
+                                f"{other.relative_to(SHELL)} and {path.relative_to(SHELL)}")
     print("\n".join(problems) or "lint-literals: clean")
     return 1 if problems else 0
 

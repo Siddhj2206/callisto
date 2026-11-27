@@ -176,7 +176,7 @@ Item {
         }
     }
 
-    StatusPill {
+    MachineStatus {
         anchors.left: parent.left
         anchors.leftMargin: Metrics.lockSide
         anchors.bottom: parent.bottom
