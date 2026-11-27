@@ -19,6 +19,7 @@ PanelWindow {
     }
     implicitWidth: Metrics.panelWidth + Metrics.barSide * 2
     color: "transparent"
+    WlrLayershell.namespace: "triton-glass"
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
     // Hyprland focuses a new layer that accepts the keyboard, so a toast would

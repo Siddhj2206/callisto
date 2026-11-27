@@ -28,6 +28,7 @@ PanelWindow {
         right: true
     }
     color: "transparent"
+    WlrLayershell.namespace: "triton-glass"
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None

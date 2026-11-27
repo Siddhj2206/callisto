@@ -113,14 +113,17 @@ hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
 hl.window_rule({ match = { float = true }, rounding = 20 })
 
 -- Shell dialogs and settings windows float by design.
-hl.window_rule({ match = { class = "^(org\\.callisto\\.Settings)$" }, float = true, center = true, rounding = 20 })
+hl.window_rule({ match = { class = "^(org\\.callisto\\.Settings)$" }, float = true, center = true, rounding = 20, xray = true })
 
 -- --- Layer rules: shell materials -------------------------------------------------
 -- Quickshell layer surfaces get compositor blur for Glass and Thick Glass.
 -- ignore_alpha keeps fully-transparent regions (everything outside the
 -- bar islands) from catching the effect.
-hl.layer_rule({ match = { namespace = "quickshell" }, blur = true, ignore_alpha = 0.05 })
-hl.layer_rule({ match = { namespace = "^(quickshell)$" }, no_anim = true })
+-- "triton-glass" is the bar, quick settings, center, toasts and OSD: their
+-- blur samples the wallpaper only (xray). The rest of the shell's layers
+-- (launcher, clipboard, switcher, dialogs) blur the windows below.
+hl.layer_rule({ match = { namespace = "^(quickshell|triton-glass)$" }, blur = true, ignore_alpha = 0.05, no_anim = true })
+hl.layer_rule({ match = { namespace = "^(triton-glass)$" }, xray = true })
 
 -- --- Session autostart --------------------------------------------------------------
 -- The shell IS the wallpaper renderer (Desktop.qml layer surface) — no swaybg

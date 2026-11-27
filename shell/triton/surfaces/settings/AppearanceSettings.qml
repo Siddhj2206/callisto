@@ -133,8 +133,7 @@ Page {
                     id: choices
                     model: [
                         { value: "solid", title: "Solid", caption: "No blur or shadows. Lightest on the graphics" },
-                        { value: "mica", title: "Mica", caption: "Tinted by the wallpaper behind" },
-                        { value: "glass", title: "Glass", caption: "Clearer, shows more through" },
+                        { value: "mica", title: "Translucent", caption: "Panels are tinted by what is behind them" },
                     ]
 
                     OptionCard {
@@ -143,7 +142,8 @@ Page {
                         width: (parent.width - parent.spacing * (choices.count - 1)) / choices.count
                         title: modelData.title
                         caption: modelData.caption
-                        selected: SettingsService.get("appearance", "material", "mica") === modelData.value
+                        // Stores from before may say "glass": anything not solid is translucent.
+                        selected: (SettingsService.get("appearance", "material", "mica") === "solid") === (modelData.value === "solid")
                         onClicked: SettingsService.set("appearance", "material", modelData.value)
 
                         Rectangle {
@@ -155,8 +155,7 @@ Page {
                                 anchors.fill: parent
                                 anchors.margins: Metrics.rowGap
                                 radius: Metrics.listInner
-                                color: card.modelData.value === "solid" ? root.scheme.surfaceContainerHigh
-                                    : card.modelData.value === "mica" ? root.scheme.mica : root.scheme.veilHi
+                                color: card.modelData.value === "solid" ? root.scheme.surfaceContainerHigh : root.scheme.mica
                             }
                         }
                     }

@@ -424,6 +424,20 @@ The generator needs the 3-shape paths; only the wave path exists today.
 
 ### 3.6 Materials per mode
 
+**As built (overrides the proposals below).**
+
+- Two compositor classes. Layers named `triton-glass` (bar, quick settings,
+  center, toasts, OSD) and the Settings window blur the wallpaper only (`xray`).
+  Other shell layers (Thick Glass) blur the windows below.
+- Mica and Glass start at the alpha in the table. `Scheme.legible` raises it
+  until `onSurfaceVariant` on a veil reaches 4.5:1 over the wallpaper's
+  brightest color (dark) or darkest (light), which `ThemeSync` samples. This
+  replaces the fixed "adaptive Mica" step.
+- Thick is fixed: .90 in both modes, which holds over anything.
+- The Solid setting makes all three opaque. There is no separate Glass setting.
+- `scripts/check-contrast.py` checks the pairs; give it a compiled
+  `tokens.json` to check one wallpaper's palette.
+
 `Material` (foundation) resolves a `kind` against the palette. Fill alpha is
 applied to the container tier of the palette; blur parameters are hints for
 the compositor/namespace.

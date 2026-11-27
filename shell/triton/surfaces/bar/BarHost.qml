@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import Quickshell
+import Quickshell.Wayland
 import Quickshell.Hyprland
 import Quickshell.Services.UPower
 import QtQuick
@@ -55,6 +56,7 @@ Scope {
         implicitHeight: host.pinned ? Metrics.barHeight : Metrics.barHeight + Metrics.barTop * 2
         exclusiveZone: host.pinned ? Metrics.barHeight : 0
         color: "transparent"
+        WlrLayershell.namespace: "triton-glass"
         visible: presence.mapped
 
         // Floating, only the islands take input; the gap stays clickable.
@@ -145,6 +147,7 @@ Scope {
         visible: host.mode === "edge"
         exclusionMode: ExclusionMode.Ignore
         color: "transparent"
+        WlrLayershell.namespace: "triton-glass"
 
         HoverHandler {
             onHoveredChanged: BarState.edgeHovered = hovered

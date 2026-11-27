@@ -19,6 +19,7 @@ PanelWindow {
     }
     implicitHeight: Metrics.osdHeight + Metrics.osdBottom + Metrics.osdRise
     color: "transparent"
+    WlrLayershell.namespace: "triton-glass"
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None

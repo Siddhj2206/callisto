@@ -40,13 +40,14 @@ QtObject {
         signalInfo: "#6FE0F5"
         micaAlpha: 0.72
         glassAlpha: 0.7
-        thickAlpha: 0.88
+        thickAlpha: 0.9
         veilAlpha: 0.1
         veilHiAlpha: 0.16
         highlightAlpha: 0.14
         hairlineAlpha: 0.12
         backdropAlpha: 0.6
         ink: "#FFFFFF"
+        behind: "#000000"
     }
     readonly property Scheme light: Scheme {
         primary: "#2F5AC0"
@@ -86,6 +87,7 @@ QtObject {
         hairlineAlpha: 0.12
         backdropAlpha: 0.6
         ink: "#191C20"
+        behind: "#FFFFFF"
     }
 
     readonly property Scheme current: Theme.activeMode === "light" ? light : dark
