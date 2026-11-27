@@ -174,10 +174,10 @@ fc-cache -f >/dev/null 2>&1 || true
 # The theme engine's color brain. Not packaged in Debian; the upstream release
 # binary (a static musl build) is fetched at build time and checked against a
 # pinned hash. A build that cannot get exactly it fails.
-MATUGEN_VERSION=4.2.0
-MATUGEN_SHA256=a2e3b50e49ed6439999ba3c252ed04fabd98ee4e9d12e5e5dff2e66370569751
+# shellcheck source=/dev/null
+. /usr/share/callisto/matugen.env
 curl -fsSL --retry 3 --max-time 120 -o /tmp/matugen.tar.gz \
-    "https://github.com/InioX/matugen/releases/download/v$MATUGEN_VERSION/matugen-$MATUGEN_VERSION-x86_64.tar.gz"
+    "https://github.com/InioX/matugen/releases/download/$MATUGEN_VERSION/matugen-${MATUGEN_VERSION#v}-x86_64.tar.gz"
 echo "$MATUGEN_SHA256  /tmp/matugen.tar.gz" | sha256sum -c -
 tar -xzf /tmp/matugen.tar.gz -C /tmp matugen
 install -m 0755 /tmp/matugen /usr/local/bin/matugen

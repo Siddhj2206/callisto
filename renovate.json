@@ -1,0 +1,36 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests",
+    "docker:pinDigests",
+    ":semanticCommitTypeAll(chore)",
+    "schedule:weekly"
+  ],
+  "minimumReleaseAge": "3 days",
+  "customManagers": [
+    {
+      "description": "matugen: the version and the checksum of its release asset",
+      "customType": "regex",
+      "managerFilePatterns": ["/^configs/matugen\\.env$/"],
+      "matchStrings": [
+        "MATUGEN_VERSION=(?<currentValue>\\S+)\\s+MATUGEN_SHA256=(?<currentDigest>[a-f0-9]{64})"
+      ],
+      "depNameTemplate": "InioX/matugen",
+      "datasourceTemplate": "github-release-attachments"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Moving to a new Debian release is a decision, not a bump",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["debian"],
+      "matchUpdateTypes": ["major", "minor"],
+      "enabled": false
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions"
+    }
+  ]
+}

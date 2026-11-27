@@ -10,6 +10,7 @@ with KVM. Nothing is built with the host's packages.
 ```sh
 make            # list the commands
 make check      # run before every commit
+make shell-test # before a pull request that touches the shell
 make iso        # build the ISO
 make run        # boot it
 ```
@@ -43,8 +44,8 @@ The rules, in full in
 - A package goes in `live-build/config/package-lists/` with a comment saying why.
 - A file that must not survive installation goes in
   `configs/installer/live/live-only`.
-- A downloaded binary is pinned by version and checksum, and listed in
-  [`THIRD_PARTY.md`](THIRD_PARTY.md).
+- A downloaded binary is pinned by version and checksum (see
+  `configs/matugen.env`), and listed in [`THIRD_PARTY.md`](THIRD_PARTY.md).
 
 ## Licence
 

@@ -24,5 +24,5 @@ see `/usr/share/doc/*/copyright`.
 
 | What | Why | Licence |
 |---|---|---|
-| [matugen](https://github.com/InioX/matugen) 4.2.0, upstream release binary, pinned by checksum | Colors from the wallpaper | GPL 2.0; source at the same tag |
+| [matugen](https://github.com/InioX/matugen) upstream release binary, version and checksum in `configs/matugen.env` | Colors from the wallpaper | GPL 2.0; source at the same tag |
 | Flatpaks listed in `live-build/config/package-lists/callisto.flatpaks.txt` | Apps | Each app's own |
