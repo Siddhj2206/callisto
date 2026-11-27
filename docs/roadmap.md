@@ -59,7 +59,8 @@ Branch `fix/broken-basics`. Tested on a booted ISO in QEMU on 2026-11-27.
 - [x] Don't drop a change made while the engine is running (#3), or while the daemon is down. Checked by `scripts/test-settingsd.py` and in QEMU
 - [x] Display scale can return to 1.0 (#6). In QEMU: 1.25 and back
 - [ ] Test Bluetooth and keyring storage on real hardware
-- [ ] Boot menu: Callisto branding and a timeout (it says Debian and waits for Enter)
+- [x] Boot menu: Callisto names and a 5 s timeout. Checked on a built ISO
+- [x] OS identity: `os-release` in `/usr/lib` (Debian's copy diverted, so upgrades keep ours), the logo as `callisto-logo`, `lsb-release`, a `fastfetch` logo. Checked in the live session
 
 ## 3. Component system
 
@@ -165,7 +166,11 @@ Missing
 ## 6. Release
 
 - [ ] Flatpak accent portal and color override (M16)
-- [ ] Greeter on greetd and Calamares installer (M17)
+- [x] Greeter on greetd and Calamares installer (M17): offline, UEFI and BIOS bootloaders on the medium, optional LUKS, ext4 or btrfs. See the install checks below
+- [ ] Disk passphrase prompt (GRUB) always uses the US layout
+- [ ] Updates for Callisto's own files on installed systems: needs a package and an apt repository
+- [ ] Secure Boot and real hardware untested
+- [ ] Default to btrfs once there are snapshots and rollback
 - [ ] Plymouth and fwupd (M18)
 - [ ] In-shell polkit agent (M19, without fingerprint)
 - [ ] Sunrise-based auto dark mode and night light (M20)

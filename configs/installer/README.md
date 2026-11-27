@@ -10,3 +10,9 @@ Calamares, copying the live squashfs to disk.
   (`live-build/config/package-lists/installer-*.list.binary`), so installing
   needs no network.
 - `live/` is the launcher entry, the sudo rule and the first-boot hint.
+  `setxkbmap` there passes the installer's keyboard choice to Hyprland, which
+  Calamares cannot do itself; without it passwords are typed on the US layout.
+
+GRUB asks for the passphrase of an encrypted disk on a US layout, whatever was
+chosen. A passphrase typed in the installer on a layout that moves its
+characters will not be accepted there.
