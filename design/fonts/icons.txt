@@ -1,5 +1,7 @@
 # Material Symbols used by Triton, one name per line.
-# The single source for the icon fonts and the `Icon` enum: add a name, run `mise run fonts`.
+# The icons the two TritonSymbols subsets contain. symbols.codepoints maps each
+# to its glyph, and scripts/generate-theme.py turns that into Icons.qml. The
+# step that cuts the subsets is not in this repository yet.
 accessibility_new
 add
 add_photo_alternate
