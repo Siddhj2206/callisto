@@ -114,10 +114,10 @@ ShellRoot {
     FloatingWindow {
         id: settingsWindow
         visible: SettingsAppState.open
-        title: "Settings"
+        title: "Callisto Settings" // hyprland.lua floats it by this title
         color: "transparent"
         implicitWidth: 1100
-        implicitHeight: 760
+        implicitHeight: 700 // fits an 800px screen under the pinned bar
         minimumSize: Qt.size(900, 620)
         onVisibleChanged: {
             if (!visible)

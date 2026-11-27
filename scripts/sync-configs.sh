@@ -83,6 +83,9 @@ if [[ -f "$REPO_ROOT/configs/foot/foot.ini" ]]; then
 fi
 
 # --- System-level files -------------------------------------------------------
+# Portal backend selection. /etc/xdg overrides the file Hyprland ships.
+install -D -m 0644 "$REPO_ROOT/configs/portal/hyprland-portals.conf" \
+    "$INCLUDES/etc/xdg/xdg-desktop-portal/hyprland-portals.conf"
 if [[ -f "$REPO_ROOT/configs/greetd/config.toml" ]]; then
     install -m 0644 "$REPO_ROOT/configs/greetd/config.toml" "$INCLUDES/etc/greetd/config.toml"
 fi

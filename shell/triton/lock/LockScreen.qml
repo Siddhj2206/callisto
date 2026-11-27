@@ -7,7 +7,7 @@ import "../components"
 // The lock screen (Lock board): blurred wallpaper + blue tint. Top center:
 // date then the giant Jost clock. Calendar pill under it. Hidden-content
 // notification rows bottom-left. Login card centered low — wave avatar,
-// name, password field with eye + go button, fingerprint hint. Media pill
+// name, password field with eye + go button. Media pill
 // bottom-right with the status pill below it.
 //
 // Auth is out of scope here: the leaf exposes passwordSubmitted and the
@@ -311,26 +311,6 @@ Item {
                             onClicked: root.passwordSubmitted(pwInput.text)
                         }
                     }
-                }
-            }
-
-            Item { width: 1; height: 12 }
-
-            Row {
-                anchors.horizontalCenter: parent.horizontalCenter
-                spacing: 6
-
-                TritonIcon {
-                    glyph: Icons.fingerprint
-                    size: 20
-                    color: Theme.onsurfacevariant
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-                TritonText {
-                    text: "or touch the fingerprint sensor"
-                    font.pixelSize: 13
-                    color: Theme.onsurfacevariant
-                    anchors.verticalCenter: parent.verticalCenter
                 }
             }
         }

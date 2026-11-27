@@ -23,9 +23,11 @@ Rectangle {
     implicitWidth: row.implicitWidth + edgePadding * 2
     implicitHeight: Theme.barHeight
     radius: Theme.radiusFloating
-    color: Theme.glassBg
+    // Docked in the pinned strip: no fill or padding of its own.
+    property bool docked: false
+    color: docked ? "transparent" : Theme.glassBg
 
-    readonly property real edgePadding: 6 // board: .isl padding 0 6px
+    readonly property real edgePadding: docked ? 0 : 6 // board: .isl padding 0 6px
 
     ContentRow {
         id: row

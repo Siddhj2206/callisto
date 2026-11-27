@@ -37,6 +37,7 @@ playerctl
 pipewire-pulse
 wireplumber
 libspa-0.2-bluetooth
+bluez
 
 # --- Graphics & Wayland --------------------------------------------------------
 mesa-vulkan-drivers
@@ -82,6 +83,8 @@ gvfs-backends
 # today; oo7 is the intended replacement once Debian packages the daemon
 # (only the library crate is in trixie).
 gnome-keyring
+# Unlocks the keyring at password login (not on the live ISO's autologin).
+libpam-gnome-keyring
 # --- Flatpak runtime --------------------------------------------------------------
 flatpak
 

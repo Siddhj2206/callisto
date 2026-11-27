@@ -9,10 +9,9 @@ import Quickshell.Services.UPower
 import QtQuick
 import ".."
 
-// The bar in its revealed state (BarStates board, state 2): two floating
-// Glass islands on a transparent full-width strip. The window reserves
-// nothing (exclusiveZone 0) — the islands cover what is under them and the
-// gap between them leaves the window visible.
+// The bar (BarStates board). Revealed (state 2): two floating Glass islands
+// on a transparent strip that reserves nothing. Pinned (state 3): a square,
+// edge-to-edge Mica strip that windows start below.
 //
 // This component is the container: it owns the service bindings (Hyprland,
 // Pipewire, UPower). Leaf components receive state as plain properties.
@@ -110,17 +109,25 @@ PanelWindow {
 
     // Board values: islands sit 8px below the top edge and are 56px tall.
     // 8 is Theme.space[1]; the 16px screen-edge margins are Theme.space[3].
-    margins.top: Theme.space[1]
-    implicitHeight: Theme.barHeight + Theme.space[1]
+    readonly property bool pinned: barMode === "pinned"
+    margins.top: pinned ? 0 : Theme.space[1]
+    implicitHeight: pinned ? Theme.barHeight : Theme.barHeight + Theme.space[1]
 
-    exclusiveZone: 0
+    exclusiveZone: pinned ? Theme.barHeight : 0
     color: "transparent"
+
+    Rectangle {
+        visible: root.pinned
+        anchors.fill: parent
+        color: Theme.micaBg
+    }
 
     // ---- Left island: wave launcher + workspace pills ----
     Island {
         id: leftIsland
+        docked: root.pinned
         anchors.left: parent.left
-        anchors.leftMargin: Theme.space[3]
+        anchors.leftMargin: root.pinned ? 10 : Theme.space[3] // board: pinned padding-left 10
         anchors.top: parent.top
 
         WaveButton {
@@ -145,6 +152,7 @@ PanelWindow {
 
     // ---- Center island: active window title (store-gated) ----
     Island {
+        docked: root.pinned
         visible: root.showWindowTitle && root.activeWindowTitle !== ""
         anchors.centerIn: parent
         anchors.top: parent.top
@@ -165,8 +173,9 @@ PanelWindow {
     // ---- Right island: clock, status group, bell ----
     Island {
         id: rightIsland
+        docked: root.pinned
         anchors.right: parent.right
-        anchors.rightMargin: Theme.space[3]
+        anchors.rightMargin: root.pinned ? Theme.space[2] : Theme.space[3]
         anchors.top: parent.top
 
         Clock {}

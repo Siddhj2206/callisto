@@ -506,7 +506,8 @@ def apply_live(store: dict, tokens: dict) -> None:
         pass
 
     # Idle behavior: regenerate hypridle.conf from power.dimIdle/suspendIdle.
-    # hypridle re-reads its config on SIGHUP.
+    # hypridle cannot reload: it has no SIGHUP handler, so a HUP kills it for
+    # good. Restart its unit instead, and only when the config changed.
     power = store.get("power", {})
     dim_idle = power.get("dimIdle", True)
     suspend_idle = power.get("suspendIdle", True)
@@ -538,10 +539,9 @@ def apply_live(store: dict, tokens: dict) -> None:
         ]
     if atomic_write(HOME / ".config" / "hypr" / "hypridle.conf",
                     "\n".join(idle_lines) + "\n"):
-        pass
         try:
-            subprocess.run(["pkill", "-HUP", "-x", "hypridle"],
-                           capture_output=True, timeout=3)
+            subprocess.run(["systemctl", "--user", "try-restart", "hypridle.service"],
+                           capture_output=True, timeout=10)
         except Exception:
             pass
 
