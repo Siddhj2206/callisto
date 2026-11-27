@@ -50,7 +50,21 @@ podman run --rm --privileged \
         cd /work/live-build
         if [[ "$CLEAN" == "1" ]]; then lb clean; fi
         lb config
-        lb build
+        lb bootstrap
+        # Rootless containers cannot make device nodes, so the chroot has plain
+        # files there: whatever is sent to "/dev/null" piles up and gets read
+        # back (it broke the aspell setup). Lend it the real ones while
+        # packages are installed.
+        nodes="null zero full random urandom tty"
+        for node in $nodes; do
+            touch "chroot/dev/$node"
+            mount --bind "/dev/$node" "chroot/dev/$node"
+        done
+        lb chroot
+        for node in $nodes; do umount "chroot/dev/$node"; : >"chroot/dev/$node"; done
+        lb installer
+        lb binary
+        lb source
     '
 
 # --- Collect artifact -----------------------------------------------------------
