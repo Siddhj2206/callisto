@@ -115,9 +115,17 @@ the live session. See [`../configs/installer/`](../configs/installer/README.md).
 | Command | Needs | Checks |
 |---|---|---|
 | `make check` | Python, shellcheck | Scripts, generated tokens, QML literals, contrast, settings daemon |
-| `make shell-test` | podman | The shell loads in a headless compositor; screenshot in `.out/shell/` |
+| `make shell-test` | podman | Every entry point and gallery page loads; screenshots in `.out/shell-all/` |
 | `scripts/test-shell.sh --gallery <page>` | podman | One component group, to look at |
-| `make smoke` | QEMU, KVM | The built ISO boots; screenshot in `.out/iso/` |
+| `make smoke` | QEMU, KVM | The built ISO boots, no unit fails and the session is up; screenshot in `.out/iso/` |
+
+## CI
+
+`check` runs `make check` and `make shell-test` on every pull request. `iso`
+builds the image, runs `make smoke`, reports which packages changed since the
+last build of `main`, and keeps the ISO for a week; it also runs weekly, to
+catch what moves upstream. Renovate (`renovate.json`) updates actions,
+container base images and matugen.
 
 Anything involving Hyprland behaviour, login, lock or installing is checked by
 hand in a VM; the [roadmap](roadmap.md) records what was.

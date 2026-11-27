@@ -52,8 +52,8 @@ good image-based one: it is easy to use, hard to break, and easy to maintain.
 | 9 | No boot splash or themed disk passphrase prompt |
 | 10 | Boot time and memory use are not measured |
 | 12 | Our files are copied into the image, so installed systems cannot get changes |
-| 14 | Debian mirrors are not pinned by default, and builds do not report package changes |
+| 14 | Debian mirrors are not pinned by default |
 | 15 | Trying a change on a running system means rebuilding the image or copying by hand |
-| 16 | CI runs `make check` only |
+| 16 | CI boots the image but does not install it or drive the desktop |
 
 The [roadmap](roadmap.md) tracks the work.

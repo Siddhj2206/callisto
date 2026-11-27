@@ -7,6 +7,9 @@
 A fast, quiet desktop on a Debian base: Hyprland, a shell and settings app
 written for it, and apps from Flathub.
 
+[![check](https://github.com/siddhj2206/callisto/actions/workflows/check.yml/badge.svg)](https://github.com/siddhj2206/callisto/actions/workflows/check.yml)
+[![iso](https://github.com/siddhj2206/callisto/actions/workflows/iso.yml/badge.svg)](https://github.com/siddhj2206/callisto/actions/workflows/iso.yml)
+
 </div>
 
 Callisto, the moon, has one of the oldest surfaces in the Solar System. The
@@ -33,7 +36,8 @@ has and has not been checked.
 
 ## Try it
 
-You need rootless podman, and QEMU with KVM to boot the result.
+You need rootless podman, and QEMU with KVM to boot the result. Builds of
+`main` can also be downloaded from the [iso workflow](https://github.com/siddhj2206/callisto/actions/workflows/iso.yml) for a week.
 
 ```sh
 make iso      # build callisto-amd64.hybrid.iso
