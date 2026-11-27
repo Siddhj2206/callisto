@@ -9,7 +9,10 @@ import QtQuick
 Singleton {
     id: root
 
-    property string userName: "" // stays empty on the live system
+    property string displayName: "" // the full name, or the login without one
+    property bool live: false
+    // The live account is a placeholder, so it is not greeted by name.
+    readonly property string userName: live ? "" : displayName
     property string hostName: ""
     property real uptimeSeconds: 0
     // logind "block" inhibitors on shutdown: [{ who, why }]
@@ -80,11 +83,13 @@ Singleton {
 
     Process {
         running: true
-        // The full name, or the login without one. The live system's account
-        // is a placeholder, so it is not greeted by name.
-        command: ["sh", "-c", '[ -d /run/live/medium ] && exit; name=$(getent passwd "$(id -u)" | cut -d: -f5 | cut -d, -f1); echo "${name:-$(id -un)}"']
+        command: ["sh", "-c", '[ -d /run/live/medium ] && echo live || echo installed; name=$(getent passwd "$(id -u)" | cut -d: -f5 | cut -d, -f1); echo "${name:-$(id -un)}"']
         stdout: StdioCollector {
-            onStreamFinished: root.userName = text.trim()
+            onStreamFinished: {
+                const [kind, name] = text.trim().split("\n");
+                root.live = kind === "live";
+                root.displayName = name ?? "";
+            }
         }
     }
 

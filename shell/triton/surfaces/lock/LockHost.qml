@@ -43,7 +43,7 @@ WlSessionLock {
                 }
                 date: Qt.formatDate(clock.date, "dddd, d MMMM")
                 time: Qt.formatTime(clock.date, SettingsService.get("shell", "clockFormat", "24h") === "24h" ? "HH:mm" : "h:mm")
-                name: PowerService.userName || Quickshell.env("USER") || ""
+                name: PowerService.displayName
                 caption: minutes === 0 ? "Locked" : "Locked " + minutes + (minutes === 1 ? " minute ago" : " minutes ago")
                 error: LockState.error
                 busy: LockState.busy
