@@ -64,7 +64,8 @@ Singleton {
 
     Process {
         id: writeProc
-        command: ["sh", "-c", "mkdir -p \"$HOME/.config/callisto\" && cat > \"$HOME/.config/callisto/settings.json\""]
+        // Renamed into place: the watcher above must never see half a file.
+        command: ["sh", "-c", "d=\"$HOME/.config/callisto\" && mkdir -p \"$d\" && cat > \"$d/.settings.tmp\" && mv \"$d/.settings.tmp\" \"$d/settings.json\""]
         stdinEnabled: true
         property string payload: ""
         onStarted: {

@@ -13,6 +13,7 @@ QtObject {
         "clock": { family: "Jost", weight: 600, size: board ? 26 : 16, line: board ? 30 : 20 },
         "workspace": { family: "Jost", weight: 600, size: board ? 17 : 13, line: board ? 22 : 16 },
         "numeral": { family: "Jost", weight: 600, size: board ? 26 : 18, line: board ? 30 : 22 },
+        "display": { family: "Jost", weight: 600, size: board ? 56 : 36, line: board ? 64 : 44 },
         "headline": { family: "Jost", weight: 600, size: board ? 28 : 22, line: board ? 32 : 26 },
         "title": { family: "Google Sans Flex", weight: 600, size: board ? 16 : 15, line: board ? 22 : 20 },
         "body": { family: "Google Sans Flex", weight: 400, size: board ? 15 : 13, line: board ? 21 : 18 },

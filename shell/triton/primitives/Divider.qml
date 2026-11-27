@@ -4,7 +4,8 @@ import qs.tokens
 
 Rectangle {
     id: root
-    implicitWidth: 1
-    implicitHeight: Metrics.dividerHeight
+    property bool horizontal: false
+    implicitWidth: horizontal ? 0 : 1
+    implicitHeight: horizontal ? 1 : Metrics.dividerHeight
     color: Theming.of(root).veilHi
 }

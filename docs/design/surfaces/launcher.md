@@ -50,6 +50,12 @@ Super+Space toggles (IPC `launcher toggle`, exists).
 list (con), calc (1248 / 4), commands (> dark), empty results (EmptyState
 inline), loading (files search, `LoadingWave` in header trailing).
 
+## As built
+
+`LauncherService` was rewritten: substring-only matching and no memory were
+audit defect #12. Filters are All, Apps and Windows; there is no file search
+yet. Tab shows the selected row's actions in place.
+
 ## Salvage
 Keep wholesale: `LauncherService` (scoring, `matchedApps`, `topHit`, calc
 evaluation, `launch`/`runCommand`, prefix modes), `LauncherState`.

@@ -12,6 +12,8 @@ ClippingRectangle {
     property string glyph: Icons.notifications
     property bool picture: false // fill the disc instead of sitting inside it
     property real size: Metrics.disc
+    property real iconSize: Metrics.iconLg
+    property string tone: "onsurface"
 
     readonly property Scheme scheme: Theming.of(root)
 
@@ -24,7 +26,7 @@ ClippingRectangle {
         id: image
         visible: status === Image.Ready
         anchors.centerIn: parent
-        width: root.picture ? root.size : Metrics.iconLg
+        width: root.picture ? root.size : root.iconSize
         height: width
         source: root.source
         sourceSize: Qt.size(root.size * 2, root.size * 2)
@@ -36,5 +38,6 @@ ClippingRectangle {
         anchors.centerIn: parent
         glyph: root.glyph
         size: "lg"
+        tone: root.tone
     }
 }

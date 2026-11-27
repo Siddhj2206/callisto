@@ -51,6 +51,8 @@ QtObject {
     readonly property color veilHi: Qt.alpha(ink, veilHiAlpha)
     readonly property color highlight: Qt.rgba(1, 1, 1, highlightAlpha)
     readonly property color hairline: Qt.alpha(ink, hairlineAlpha)
+    // Dims the screen behind a modal surface.
+    readonly property color scrim: Qt.rgba(0, 0, 0, 0.3)
 
     function assign(roles) {
         for (const key in roles) {

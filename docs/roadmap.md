@@ -101,7 +101,10 @@ definition of done is in `component-system.md` §7.
   - [ ] Media pill, recording and mic chips, workspace preview, tray
   - [ ] Fade a long window title instead of cutting it; suppress reveal over fullscreen
   - [ ] Window title appears only after the first focus change if the shell restarts
-- [ ] Launcher (#12)
+- [x] Launcher (#12): ranked by match and habit, open windows, commands, arithmetic, app actions; apps start in their own systemd scope. Checked in QEMU
+  - [ ] File search (`/`) and reveal in files
+  - [ ] Spring out of the bar's wave button (it drops from the top)
+  - [ ] Decide: the dimmed screen behind it is blurred too, which the board does not show
 - [x] Quick Settings: main, Wi-Fi, Bluetooth and Sound pages. Clicks, slider, drill-in, Esc and click-outside checked in QEMU on Hyprland
   - [ ] Try Wi-Fi joining, Bluetooth and brightness on real hardware (the VM has none)
   - [ ] Arrow-key grid navigation between tiles (Tab works)
@@ -117,6 +120,7 @@ definition of done is in `component-system.md` §7.
 - [ ] Screenshot (#10)
 - [ ] Settings app (#11)
 - [ ] Light mode and contrast pass
+- [ ] **Rebuild the ISO and check blur on every surface.** The VM checks ran new QML on the old ISO, whose engine turns blur off
 
 ## 6. Release
 

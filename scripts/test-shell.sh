@@ -36,7 +36,6 @@ while [[ $# -gt 0 ]]; do
         --nested) MODE="nested"; shift ;;
         --shot) SHOT_OUT="$2"; shift 2 ;;
         --wait) WAIT_SECONDS="$2"; shift 2 ;;
-        --dev) QS_ENTRY="devshell.qml"; shift ;;
         --entry) QS_ENTRY="$2"; shift 2 ;;
         --script) INTER_SCRIPT="$2"; shift 2 ;;
         *) echo "test-shell: unknown argument: $1" >&2; exit 2 ;;

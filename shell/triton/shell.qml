@@ -3,7 +3,6 @@ pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Io
 import QtQuick
-import "launcher"
 import "power"
 import "clipboard"
 import "overview"
@@ -13,6 +12,7 @@ import "lock"
 import "services"
 import qs.foundations
 import qs.surfaces.bar
+import qs.surfaces.launcher
 import qs.surfaces.notifications
 import qs.surfaces.osd
 import qs.surfaces.quicksettings
@@ -45,7 +45,7 @@ ShellRoot {
 
     // The launcher is a modal singleton — one instance regardless of screen
     // count. It positions itself on the focused output at runtime.
-    Launcher {}
+    LauncherHost {}
 
     // OSD: state-driven, invisible until a producer shows something.
     OsdHost {}
