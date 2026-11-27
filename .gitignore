@@ -14,6 +14,9 @@
 /live-build/config/chroot
 /live-build/config/common
 /live-build/config/source
+# `lb config` links the stock hooks in; only ours are tracked
+/live-build/config/hooks/*/*
+!/live-build/config/hooks/*/*callisto*
 /live-build/chroot.*
 /live-build/binary.*
 /live-build/callisto-amd64.*
