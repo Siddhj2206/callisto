@@ -84,9 +84,8 @@ def load_tokens() -> dict:
 
 # --- Scheme resolution -------------------------------------------------------
 
-# Accents are named regions of the wallpaper. "wallpaper" (the default) means
-# the dominant color matugen extracts; the named presets are curated fallbacks
-# for users who want a fixed identity regardless of wallpaper. Color math is
+# "planet" (the default) is the design's blue; "wallpaper" takes the dominant
+# color matugen extracts; the other presets are fixed identities. Color math is
 # matugen's — the engine shells out and reads its JSON, never reimplements
 # the tonal palette algorithm.
 SCHEME_CACHE = Path.home() / ".cache" / "callisto" / "scheme-cache.json"
@@ -209,7 +208,7 @@ def resolve_tokens(store: dict, tokens: dict) -> dict:
     dark = dict(tokens["color"]["dark"])
     light = dict(tokens["color"].get("light", {}))
     appearance = store.get("appearance", {})
-    accent = appearance.get("accent", "wallpaper")
+    accent = appearance.get("accent", "planet")
     contrast = appearance.get("contrast", 0.0)
     try:
         contrast = max(-1.0, min(1.0, float(contrast)))

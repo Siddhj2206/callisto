@@ -14,6 +14,7 @@ see `/usr/share/doc/*/copyright`.
 | JetBrains Mono | `design/fonts/JetBrainsMono-*` | [OFL 1.1](licenses/OFL-JetBrainsMono.txt) |
 | Material Symbols (Google), subsetted and renamed "Triton Symbols" | `design/fonts/TritonSymbols*` | [Apache 2.0](licenses/Apache-2.0-MaterialSymbols.txt) |
 | GTK and KDE color templates, after [dux-shell](https://github.com/duxlabs-dev/dux-shell) (Avenge Media) | `GTK_COLORS` and `kde_colors` in `bin/callisto-apply` | [MIT](licenses/MIT-dux-shell.txt) |
+| *Triton (artist's impression)*, the wallpaper: [ESO/L. Calçada](https://www.eso.org/public/images/eso1015a/). Resized, blurred and dimmed copies are used by the boards and galleries | `design/wallpaper.jpg`, `references/assets/`, `shell/triton/gallery/assets/` | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | React and ReactDOM (Meta), used only to open the design boards | `references/_runtime/` | MIT |
 
 ## Fetched at build time
@@ -22,9 +23,3 @@ see `/usr/share/doc/*/copyright`.
 |---|---|---|
 | [matugen](https://github.com/InioX/matugen) 4.2.0, upstream release binary, pinned by checksum | Colors from the wallpaper | GPL 2.0; source at the same tag |
 | Flatpaks listed in `live-build/config/package-lists/callisto.flatpaks.txt` | Apps | Each app's own |
-
-## Not yet settled
-
-- `design/wallpaper.jpg` (also in `references/assets/`) came with the design
-  boards. Its author and licence are not recorded. **It needs one, or a
-  replacement, before this repository or an image is published.**

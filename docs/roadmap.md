@@ -196,6 +196,6 @@ the live session.
 - [x] CI runs `make check` (`.github/workflows/check.yml`); not yet seen to run, as nothing is pushed
 - [ ] CI: `qmllint`, shell harness, ISO build, QEMU smoke test
 - [ ] Choose a licence for the repository
-- [ ] A licence for the wallpaper, or another one (`THIRD_PARTY.md`)
+- [x] An attributed wallpaper: ESO's artist's impression of Triton, CC BY 4.0 (`THIRD_PARTY.md`)
 - [ ] Before the first push: history still carries about 170 MB of removed test screenshots
 - [ ] The step that cuts the icon font subsets is not in the repository

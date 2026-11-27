@@ -134,7 +134,7 @@ Singleton {
     readonly property string wallpaper: get("appearance", "wallpaper", "") || defaultWallpaper
     readonly property bool wallpaperOnLock: get("appearance", "wallpaperOnLock", true)
     readonly property string appearanceMode: get("appearance", "mode", "dark")
-    readonly property string accent: get("appearance", "accent", "wallpaper")
+    readonly property string accent: get("appearance", "accent", "planet")
     readonly property string material: get("appearance", "material", "mica")
     readonly property string barMode: get("shell", "barMode", "edge") // "edge" | "hidden" | "pinned"
     readonly property int revealDelay: get("shell", "revealDelay", Motion.barRevealDwell)
