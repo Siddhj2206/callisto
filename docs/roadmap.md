@@ -102,7 +102,8 @@ definition of done is in `component-system.md` §7.
 - [x] Bar (#13): edge reveal by default, pinned, window title. Checked in QEMU, which also showed that clicking a workspace had never worked on Hyprland 0.55
   - [x] Media pill
   - [x] Mic and screen/camera chips, background apps. In QEMU with stand-ins; a real portal share and camera have not been tried
-  - [ ] Recording chip, workspace preview
+  - [x] Recording chip
+  - [ ] Workspace preview
   - [ ] Fade a long window title instead of cutting it; suppress reveal over fullscreen
   - [ ] Window title appears only after the first focus change if the shell restarts
 - [x] Launcher (#12): ranked by match and habit, open windows, commands, arithmetic, app actions; apps start in their own systemd scope. Checked in QEMU
@@ -124,7 +125,7 @@ definition of done is in `component-system.md` §7.
 - [x] Wallpaper picker (#15): the real desktop is the preview, system and Pictures wallpapers, colors shown before they are applied. In QEMU: preview, apply, revert. Open: more shipped wallpapers (only one exists), dynamic and solid sets, per-display, greeter wallpaper, light-image prompt
 - [x] Lock (#10, #14): pure view and host, shared backdrop, login card and password field. In QEMU: wrong and right password, restart while locked, with and without the blur module. Open: caps-lock chip, unlocking state, a look on real multi-monitor hardware
 - [x] Greeter: greetd running the shell's `greeter.qml`, tuigreet behind it. In QEMU: login, back after logout, wrong and right password, shut down, fallback. On a built ISO: back after logout and login. Open: other users by name, keyboard layout and session pickers, multi-monitor
-- [x] Screenshot (#10): frozen screen, region, window and screen modes, delay, result card. In QEMU: region, whole screen and window captures reach the file and the clipboard. Open: video recording, markup editor, selection handles, private windows, multi-monitor, window hover on real hardware (the VM delivers motion without a pointer frame)
+- [x] Screenshot (#10): frozen screen, region, window and screen modes, delay, result card. In QEMU: region, whole screen and window captures reach the file and the clipboard. Video recording added since (QEMU only, not in a built ISO). Open: markup editor, selection handles, private windows, multi-monitor, window hover on real hardware (the VM delivers motion without a pointer frame)
 - [x] Settings app (#11, #16): 14 pages on the component library, only controls that do something. In QEMU: every page, search by typing, accent, light mode, bar mode, power mode, one instance, closing ends it. **Not yet in a built ISO**. Open: the apply checklist toast, monitor arrangement and per-display settings, the shortcuts list, per-app volume, default-app choosers, Wi-Fi password and Bluetooth pairing on real hardware, page transitions
 - [x] Light mode and contrast pass: Mica and Glass now show the wallpaper only and get as opaque as text needs over it, Thick holds AA over anything, Solid is really opaque. `scripts/check-contrast.py` measures it. In QEMU: bar, quick settings, toasts, center, OSD and Settings in light mode. **Not yet in a built ISO**. Open: switcher and wallpaper picker in light mode on screen, contrast of the Medium and High settings, real GPU
 - [x] Check blur on every surface: bar, OSD, quick settings, toasts and the center show the blurred wallpaper with a window behind them; the launcher blurs the window. In QEMU. Open: clipboard and switcher over a busy window

@@ -3,7 +3,7 @@ import qs
 import qs.patterns
 import qs.tokens
 
-// The microphone and camera chips, in the bar or alone while it is hidden.
+// The recording, camera and microphone chips on the bar.
 Row {
     id: root
 
@@ -11,10 +11,23 @@ Row {
     property bool micMuted: false
     property string video: "" // "" | "camera" | "screen"
 
-    readonly property bool active: micApp !== "" || video !== ""
+    property string recording: "" // time so far, while the screen is recorded
+
+    readonly property bool active: micApp !== "" || video !== "" || recording !== ""
+
+    signal stopRequested
 
     spacing: Metrics.barGap
 
+    IndicatorChip {
+        visible: root.recording !== ""
+        tone: "error"
+        glyph: Icons.fiberManualRecord
+        text: "Recording " + root.recording
+        actionGlyph: Icons.stop
+        actionLabel: "Stop recording"
+        onActionRequested: root.stopRequested()
+    }
     IndicatorChip {
         visible: root.video !== ""
         tone: "error"

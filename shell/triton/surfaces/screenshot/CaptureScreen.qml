@@ -19,11 +19,15 @@ Item {
     property string screenName: ""
     property int delay: 0
     property bool pointer: false
+    property bool video: false
+    property string audio: "" // "" | "mic" | "system"
 
     signal captured(rect area, bool copyOnly)
     signal modePicked(string mode)
     signal delayCycled
     signal pointerToggled
+    signal videoToggled
+    signal audioPicked(string audio)
     signal cancelled
 
     readonly property Scheme scheme: Theming.of(root)
@@ -74,6 +78,8 @@ Item {
             modePicked("window");
         else if (event.key === Qt.Key_3)
             modePicked("screen");
+        else if (event.key === Qt.Key_V)
+            videoToggled();
         else if (event.key === Qt.Key_Left)
             nudge(-step, 0);
         else if (event.key === Qt.Key_Right)
@@ -213,9 +219,14 @@ Item {
             }
             KeyHint {
                 keys: ["Enter"]
-                text: "capture"
+                text: root.video ? "record" : "capture"
             }
             KeyHint {
+                keys: ["V"]
+                text: root.video ? "picture" : "video"
+            }
+            KeyHint {
+                visible: !root.video
                 keys: ["Shift"]
                 text: "copy only"
             }
@@ -267,6 +278,7 @@ Item {
                 onClicked: root.delayCycled()
             }
             IconButton {
+                visible: !root.video
                 anchors.verticalCenter: parent.verticalCenter
                 variant: "veil"
                 size: Metrics.buttonHeight
@@ -276,21 +288,49 @@ Item {
                 activeFocusOnTab: false
                 onClicked: root.pointerToggled()
             }
+            Repeater {
+                model: root.video ? [{ id: "mic", glyph: Icons.mic, label: "Record the microphone" },
+                    { id: "system", glyph: Icons.volumeUp, label: "Record what the speakers play" }] : []
+
+                IconButton {
+                    required property var modelData
+                    anchors.verticalCenter: parent.verticalCenter
+                    variant: "veil"
+                    size: Metrics.buttonHeight
+                    glyph: modelData.glyph
+                    label: modelData.label
+                    selected: root.audio === modelData.id
+                    activeFocusOnTab: false
+                    onClicked: root.audioPicked(selected ? "" : modelData.id)
+                }
+            }
+            IconButton {
+                anchors.verticalCenter: parent.verticalCenter
+                variant: "veil"
+                size: Metrics.buttonHeight
+                glyph: Icons.videocam
+                label: "Record video"
+                selected: root.video
+                activeFocusOnTab: false
+                onClicked: root.videoToggled()
+            }
             Pressable {
                 width: Metrics.captureButton
                 height: width
-                label: "Capture"
+                label: root.video ? "Record" : "Capture"
                 activeFocusOnTab: false
                 onClicked: root.take(false)
 
                 WaveShape {
                     anchors.fill: parent
+                    color: root.video ? root.scheme.errorContainer : root.scheme.primary
 
                     Icon {
                         anchors.centerIn: parent
-                        glyph: Icons.photoCamera
+                        glyph: root.video ? Icons.fiberManualRecord : Icons.photoCamera
+                        fill: root.video
                         size: "lg"
-                        tone: "onprimary"
+                        tone: root.video ? "onerrorcontainer" : "onprimary"
                     }
                 }
             }

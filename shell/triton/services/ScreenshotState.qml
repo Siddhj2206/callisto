@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 import QtQuick
+import qs.services
 import qs.tokens
 
 // Taking a screenshot. The screens are frozen before anything is drawn over
@@ -17,6 +18,9 @@ Singleton {
     property string mode: "region" // "region" | "window" | "screen", remembered
     property int delay: 0 // seconds
     property bool pointer: false
+    property bool video: false // record instead of taking a picture
+    property string audio: "" // "" | "mic" | "system", one source at a time
+    readonly property int videoCountdown: 3
     property int countdown: 0
     property var result: null // { path, width, height, saved }
 
@@ -27,8 +31,11 @@ Singleton {
         return "file://" + frozenDir + "/" + screenName + ".ppm?" + generation;
     }
 
+    // Print also ends a recording.
     function toggle() {
-        if (open)
+        if (RecordState.recording)
+            RecordState.stop();
+        else if (open)
             cancel();
         else
             start("freeze");
@@ -41,7 +48,7 @@ Singleton {
     }
 
     property string pending: "" // what to do once the screen has settled
-    property var request: [] // the capture waiting for that
+    property var request: null // the capture waiting for that
 
     function start(what) {
         result = null;
@@ -71,6 +78,14 @@ Singleton {
 
     // rect is in the screen's logical coordinates.
     function capture(screen, rect, copyOnly) {
+        const geometry = Math.round(screen.x + rect.x) + "," + Math.round(screen.y + rect.y)
+            + " " + Math.round(rect.width) + "x" + Math.round(rect.height);
+        if (video) {
+            const area = mode === "screen" ? ["-o", screen.name] : ["-g", geometry];
+            countDown({ record: (audio !== "" ? ["--audio", audio] : []).concat(area) },
+                Math.max(delay, videoCountdown));
+            return;
+        }
         const flags = copyOnly ? ["--copy-only"] : [];
         if (delay === 0) {
             const scale = screen.scale;
@@ -80,12 +95,14 @@ Singleton {
             return;
         }
         // A delayed capture is of the screen as it is then, not as frozen.
-        const geometry = Math.round(screen.x + rect.x) + "," + Math.round(screen.y + rect.y)
-            + " " + Math.round(rect.width) + "x" + Math.round(rect.height);
-        request = ["callisto-shot", "grab"].concat(flags, pointer ? ["--pointer"] : [], ["-g", geometry]);
-        request.copyOnly = copyOnly;
+        countDown({ command: ["callisto-shot", "grab"].concat(flags, pointer ? ["--pointer"] : [], ["-g", geometry]),
+            copyOnly: copyOnly }, delay);
+    }
+
+    function countDown(what, seconds) {
+        request = what;
         ready = false;
-        countdown = delay;
+        countdown = seconds;
         ticker.restart();
     }
 
@@ -124,9 +141,24 @@ Singleton {
                 freezer.running = true;
             } else if (root.pending === "screen") {
                 root.run(["callisto-shot", "grab", "-o", Hyprland.focusedMonitor.name], false);
+            } else if (root.request.record) {
+                root.open = false;
+                root.forget();
+                RecordState.start(root.request.record);
             } else {
-                root.run(root.request, root.request.copyOnly);
+                root.run(root.request.command, root.request.copyOnly);
             }
+        }
+    }
+
+    Connections {
+        target: RecordState
+        function onFinished(path, seconds) {
+            root.result = { path: path, video: true, seconds: seconds, saved: true };
+        }
+        function onFailed() {
+            Quickshell.execDetached(["notify-send", "-u", "critical", "Recording failed",
+                "The screen could not be recorded."]);
         }
     }
 

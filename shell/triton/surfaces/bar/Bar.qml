@@ -31,6 +31,7 @@ Item {
     property alias micApp: privacy.micApp
     property alias micMuted: privacy.micMuted
     property alias video: privacy.video
+    property alias recording: privacy.recording
 
     readonly property Item leftItem: left
     readonly property Item rightItem: right
@@ -47,6 +48,7 @@ Item {
     signal mediaPreviousRequested
     signal mediaRequested
     signal backgroundRequested
+    signal recordingStopRequested
 
     implicitHeight: Metrics.barHeight
 
@@ -117,6 +119,7 @@ Item {
         PrivacyChips {
             id: privacy
             visible: active
+            onStopRequested: root.recordingStopRequested()
         }
         IconButton {
             visible: root.background

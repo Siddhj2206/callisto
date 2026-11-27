@@ -28,6 +28,9 @@ Singleton {
         : videoLinks.some(l => !!l.source.properties["device.api"]) ? "camera" : "screen"
 
     function name(node) {
+        // Our own screen recorder names itself with a number.
+        if ((node.properties["application.name"] ?? "").startsWith("wf-recorder"))
+            return "Microphone";
         return node.properties["application.name"] || node.description || node.name || "Microphone";
     }
 

@@ -7,7 +7,6 @@ import Quickshell.Services.UPower
 import QtQuick
 import qs
 import qs.foundations
-import qs.patterns
 import qs.services
 import qs.surfaces.bar
 import qs.tokens
@@ -141,6 +140,8 @@ Scope {
                 micApp: PrivacyService.micApp
                 micMuted: PrivacyService.micMuted
                 video: PrivacyService.video
+                recording: RecordState.recording ? RecordState.elapsed : ""
+                onRecordingStopRequested: RecordState.stop()
 
                 unread: NotificationState.unreadCount > 0
                 dnd: NotificationState.dndActive
@@ -151,38 +152,6 @@ Scope {
                 onStatusRequested: QuickSettingsState.toggle()
                 onNotificationsRequested: NotificationState.toggle()
                 onVolumeStepped: steps => AudioService.stepVolume(steps)
-            }
-        }
-    }
-
-    // The bar is usually hidden, and an open microphone must not be: while it
-    // is, the chips stay in the corner on their own. Clicks pass through.
-    PanelWindow {
-        screen: host.screen
-        anchors {
-            top: true
-            right: true
-        }
-        margins {
-            top: Metrics.barTop
-            right: Metrics.barSide
-        }
-        implicitWidth: Math.max(1, alone.width)
-        implicitHeight: Metrics.barHeight
-        visible: alert.active && !host.shown && !ScreenshotState.open && !WallpaperState.open
-        exclusionMode: ExclusionMode.Ignore
-        color: "transparent"
-        WlrLayershell.namespace: "triton-glass"
-        mask: Region {}
-
-        Island {
-            id: alone
-
-            PrivacyChips {
-                id: alert
-                micApp: PrivacyService.micApp
-                micMuted: PrivacyService.micMuted
-                video: PrivacyService.video
             }
         }
     }

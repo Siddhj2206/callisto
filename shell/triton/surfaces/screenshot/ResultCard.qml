@@ -9,7 +9,8 @@ import qs.tokens
 Item {
     id: root
 
-    property var result: null // { path, width, height, saved }
+    property var result: null // { path, width, height, saved } or { path, video, seconds }
+    readonly property bool video: result?.video ?? false
 
     signal viewRequested
     signal folderRequested
@@ -46,11 +47,18 @@ Item {
 
             Image {
                 anchors.fill: parent
-                source: root.result ? "file://" + root.result.path : ""
+                source: root.result && !root.video ? "file://" + root.result.path : ""
                 sourceSize.width: Metrics.shotCard * 2
                 fillMode: Image.PreserveAspectFit
                 asynchronous: true
                 cache: false
+            }
+            Icon {
+                anchors.centerIn: parent
+                visible: root.video
+                glyph: Icons.movie
+                size: "lg"
+                tone: "onsurfacevariant"
             }
         }
         AppText {
@@ -63,8 +71,10 @@ Item {
         AppText {
             role: "bodySmall"
             tone: "onsurfacevariant"
-            text: !root.result ? "" : root.result.width + " × " + root.result.height
-                + (root.result.saved ? " · saved and copied" : " · copied, not saved")
+            text: !root.result ? ""
+                : root.video ? "Recorded " + root.result.seconds + " s · saved to Videos/Screencasts"
+                : root.result.width + " × " + root.result.height
+                    + (root.result.saved ? " · saved and copied" : " · copied, not saved")
         }
         Row {
             spacing: Metrics.buttonGap

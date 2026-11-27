@@ -1,5 +1,6 @@
 import QtQuick
 import qs.foundations
+import qs.primitives
 import qs.tokens
 
 // Something that must not be missed, such as an open microphone: a warm pill
@@ -10,12 +11,17 @@ Item {
     property string glyph: ""
     property string text: ""
     property string tone: "tertiary" // "tertiary" | "error"
+    property string actionGlyph: "" // a button inside the chip
+    property string actionLabel: ""
+
+    signal actionRequested
 
     readonly property Scheme scheme: Theming.of(root)
     readonly property string ink: tone === "error" ? "onerrorcontainer" : "ontertiarycontainer"
 
     implicitHeight: Metrics.barSlot
-    implicitWidth: row.implicitWidth + Metrics.statusPad * 2
+    implicitWidth: row.implicitWidth + Metrics.statusPad * (actionGlyph !== "" ? 1 : 2)
+        + (actionGlyph !== "" ? Metrics.barPad : 0)
     Accessible.role: Accessible.Indicator
     Accessible.name: text
 
@@ -26,7 +32,8 @@ Item {
     }
     Row {
         id: row
-        anchors.centerIn: parent
+        x: Metrics.statusPad
+        anchors.verticalCenter: parent.verticalCenter
         spacing: Metrics.batteryGap * 2
 
         Icon {
@@ -41,7 +48,18 @@ Item {
             width: Math.min(implicitWidth, Metrics.mediaTitleMax)
             role: "label"
             tone: root.ink
+            tabular: true
             text: root.text
+        }
+        IconButton {
+            visible: root.actionGlyph !== ""
+            anchors.verticalCenter: parent.verticalCenter
+            size: Metrics.barSlot - Metrics.barPad * 2
+            iconSize: "sm"
+            variant: "veil"
+            glyph: root.actionGlyph
+            label: root.actionLabel
+            onClicked: root.actionRequested()
         }
     }
 }

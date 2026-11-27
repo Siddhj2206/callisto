@@ -8,9 +8,16 @@
 
 crop and grab put the picture on the clipboard and, unless --copy-only, in
 Pictures/Screenshots; they print "PATH WIDTH HEIGHT".
+
+  record [--audio mic|system] -g GEOMETRY | -o OUTPUT   start; prints PATH
+  status             "PATH SECONDS" while recording, else exit 1
+  stop               finish the file
+
+A recording is its own user unit, so it outlives a restart of the shell.
 """
 
 import os
+import re
 import struct
 import subprocess
 import sys
@@ -19,30 +26,83 @@ import zlib
 from pathlib import Path
 
 
+UNIT = "callisto-record.service"
+
+
+def user_dir(kind: str, fallback: str) -> Path:
+    try:
+        found = subprocess.run(["xdg-user-dir", kind], capture_output=True, text=True).stdout.strip()
+    except OSError:
+        found = ""
+    return Path(found) if found and Path(found) != Path.home() else Path.home() / fallback
+
+
+def runtime() -> Path:
+    return Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp")) / "callisto"
+
+
 def folder(copy_only: bool) -> Path:
-    if copy_only:
-        path = Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp")) / "callisto" / "shot"
-    else:
-        try:
-            pictures = subprocess.run(["xdg-user-dir", "PICTURES"], capture_output=True,
-                                      text=True).stdout.strip()
-        except OSError:
-            pictures = ""
-        home = Path.home()
-        base = Path(pictures) if pictures and Path(pictures) != home else home / "Pictures"
-        path = base / "Screenshots"
+    path = runtime() / "shot" if copy_only else user_dir("PICTURES", "Pictures") / "Screenshots"
     path.mkdir(parents=True, exist_ok=True)
     return path
 
 
-def destination(copy_only: bool) -> Path:
-    base = folder(copy_only)
-    stem = time.strftime("Screenshot %Y-%m-%d %H-%M-%S")
-    path, number = base / f"{stem}.png", 1
+def unused(base: Path, kind: str, suffix: str) -> Path:
+    stem = time.strftime(f"{kind} %Y-%m-%d %H-%M-%S")
+    path, number = base / f"{stem}{suffix}", 1
     while path.exists():
         number += 1
-        path = base / f"{stem} ({number}).png"
+        path = base / f"{stem} ({number}){suffix}"
     return path
+
+
+def destination(copy_only: bool) -> Path:
+    return unused(folder(copy_only), "Screenshot", ".png")
+
+
+def recording() -> bool:
+    return subprocess.run(["systemctl", "--user", "is-active", "--quiet", UNIT]).returncode == 0
+
+
+def audio_source(which: str) -> str:
+    """wf-recorder's audio flag: the default microphone, or what the speakers play."""
+    target = "@DEFAULT_AUDIO_SOURCE@" if which == "mic" else "@DEFAULT_AUDIO_SINK@"
+    found = subprocess.run(["wpctl", "inspect", target], capture_output=True, text=True, check=True).stdout
+    name = re.search(r'node\.name = "([^"]+)"', found)
+    if not name:
+        raise SystemExit(f"callisto-shot: no {which} to record")
+    return f"--audio={name.group(1)}" + ("" if which == "mic" else ".monitor")
+
+
+def record(rest: list[str]) -> None:
+    audio = []
+    if rest[:1] == ["--audio"] and rest[1:2] in (["mic"], ["system"]):
+        audio, rest = [audio_source(rest[1])], rest[2:]
+    if len(rest) != 2 or rest[0] not in ("-g", "-o"):
+        raise SystemExit(__doc__)
+    if recording():
+        raise SystemExit("callisto-shot: already recording")
+    base = user_dir("VIDEOS", "Videos") / "Screencasts"
+    base.mkdir(parents=True, exist_ok=True)
+    path = unused(base, "Recording", ".mp4")
+    runtime().mkdir(parents=True, exist_ok=True)
+    (runtime() / "recording").write_text(str(path))
+    subprocess.run(["systemctl", "--user", "reset-failed", UNIT], capture_output=True)
+    # SIGINT lets wf-recorder close the file. The filter keeps both sides even,
+    # which H.264 in 4:2:0 requires and a dragged region need not be.
+    subprocess.run(["systemd-run", "--user", "--quiet", "--collect", f"--unit={UNIT}",
+                    "--property=KillSignal=SIGINT", "--property=TimeoutStopSec=30",
+                    "wf-recorder", *audio, *rest, "-x", "yuv420p",
+                    "-F", "crop=trunc(iw/2)*2:trunc(ih/2)*2", "-f", str(path)], check=True)
+    print(path)
+
+
+def status() -> None:
+    if not recording():
+        raise SystemExit(1)
+    since = subprocess.run(["systemctl", "--user", "show", "--value", "-p", "ActiveEnterTimestampMonotonic", UNIT],
+                           capture_output=True, text=True, check=True).stdout.strip()
+    print((runtime() / "recording").read_text(), max(0, int(time.monotonic() - int(since or 0) / 1e6)), sep="\t")
 
 
 def read_ppm(path: str) -> tuple[int, int, bytes]:
@@ -105,6 +165,12 @@ def main(args: list[str]) -> None:
         path = destination(copy_only)
         subprocess.run(["grim", *pointer, rest[0], rest[1], str(path)], check=True)
         finish(path)
+    elif command == "record":
+        record(rest)
+    elif command == "status":
+        status()
+    elif command == "stop":
+        subprocess.run(["systemctl", "--user", "stop", UNIT], check=True)
     elif command == "delete":
         Path(rest[0]).unlink(missing_ok=True)
     else:

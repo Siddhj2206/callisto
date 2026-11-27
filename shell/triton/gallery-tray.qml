@@ -67,6 +67,7 @@ ShellRoot {
                                 PrivacyChips { micApp: "Recorder with a very long name that goes on"; micMuted: true }
                                 PrivacyChips { video: "screen"; micApp: "Meet" }
                                 PrivacyChips { video: "camera" }
+                                PrivacyChips { recording: "00:42" }
                             }
                         }
                     }

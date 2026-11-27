@@ -117,10 +117,10 @@ thumbnails for the preview popover (Hyprland toplevel export), tray overflow
   neither a themed icon nor a usable image still draws Qt's checkerboard.
 - Mic chip: any app recording from a microphone, by name. Video chip: "Camera"
   for a device, otherwise "Screen shared".
-- **Differs from the board:** while the bar is hidden, the chips stay in the top
-  right corner by themselves, click-through. The bar is hidden by default, so
-  a chip only on the bar would rarely be seen.
+- The chips are part of the bar and hide with it; nothing floats on its own.
+  With the bar hidden (the default), an open microphone or a recording shows
+  only once the bar is revealed.
 - Checked in QEMU: a stand-in tray app (menu, submenu, activate), `pw-record`
   for the mic, a stand-in PipeWire video source for the screen chip. Not
   checked: a real app's screen share through the portal, a real camera.
-- Not built: the recording chip (needs screen recording).
+- Recording chip: elapsed time and a stop button.

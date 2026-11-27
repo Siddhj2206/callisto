@@ -109,6 +109,7 @@ ShellRoot {
         target: "screenshot"
         function open(): void { ScreenshotState.toggle(); }
         function screen(): void { ScreenshotState.screenNow(); }
+        function stop(): void { RecordState.stop(); }
     }
     IpcHandler {
         target: "overview"

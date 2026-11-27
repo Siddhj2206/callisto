@@ -61,7 +61,13 @@ or `ScreencopyView` capture service and `wf-recorder` for video (new
   captures the screen, Super+Shift+S also opens. IPC `screenshot open|screen`.
 - The after-capture card offers view, show folder and delete, and holds for 5 s
   (hover pauses it). The bar and toasts stay out of the way while capturing.
-- Not built: video recording, the markup editor, selection resize handles,
+- Video (`V` or the camera button): countdown of at least 3 s, then
+  `wf-recorder` in its own user unit (`callisto-record`), which survives a shell
+  restart. Microphone or speaker sound, one at a time. Stop from the bar chip,
+  Print, or IPC `screenshot stop`. Files go to Videos/Screencasts. Checked in
+  QEMU (software encoding).
+- Not built: both sound sources at once, click highlighting, a video thumbnail
+  on the result card, the markup editor, selection resize handles,
   private-window handling and Tab between monitors.
 
 In the QEMU VM, hover does not follow the pointer until a click, in the shell and

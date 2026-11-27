@@ -27,3 +27,4 @@ ThemeSync 1.0 ThemeSync.qml
 singleton MediaService 1.0 MediaService.qml
 singleton PrivacyService 1.0 PrivacyService.qml
 singleton TrayState 1.0 TrayState.qml
+singleton RecordState 1.0 RecordState.qml

@@ -69,6 +69,10 @@ Scope {
                     screenName: window.modelData.name
                     delay: ScreenshotState.delay
                     pointer: ScreenshotState.pointer
+                    video: ScreenshotState.video
+                    audio: ScreenshotState.audio
+                    onVideoToggled: ScreenshotState.video = !ScreenshotState.video
+                    onAudioPicked: audio => ScreenshotState.audio = audio
                     onModePicked: mode => ScreenshotState.mode = mode
                     onDelayCycled: ScreenshotState.cycleDelay()
                     onPointerToggled: ScreenshotState.pointer = !ScreenshotState.pointer
