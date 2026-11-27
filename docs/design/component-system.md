@@ -429,6 +429,9 @@ The generator needs the 3-shape paths; only the wave path exists today.
 - Two compositor classes. Layers named `triton-glass` (bar, quick settings,
   center, toasts, OSD) and the Settings window blur the wallpaper only (`xray`).
   Other shell layers (Thick Glass) blur the windows below.
+- Hyprland cuts blur out with a hard edge, so `ignore_alpha` is high (.65 for
+  `triton-glass`, .55 for `quickshell`) to keep rounded corners clean. Keep it
+  under the lowest fill that has to be blurred.
 - Mica and Glass start at the alpha in the table. `Scheme.legible` raises it
   until `onSurfaceVariant` on a veil reaches 4.5:1 over the wallpaper's
   brightest color (dark) or darkest (light), which `ThemeSync` samples. This

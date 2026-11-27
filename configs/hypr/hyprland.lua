@@ -122,8 +122,13 @@ hl.window_rule({ match = { class = "^(org\\.callisto\\.Settings)$" }, float = tr
 -- "triton-glass" is the bar, quick settings, center, toasts and OSD: their
 -- blur samples the wallpaper only (xray). The rest of the shell's layers
 -- (launcher, clipboard, switcher, dialogs) blur the windows below.
-hl.layer_rule({ match = { namespace = "^(quickshell|triton-glass)$" }, blur = true, ignore_alpha = 0.05, no_anim = true })
-hl.layer_rule({ match = { namespace = "^(triton-glass)$" }, xray = true })
+--
+-- Hyprland cuts the blur out with a hard edge, so it must start only where a
+-- panel is nearly all there, or rounded corners get a jagged fringe. Keep each
+-- value under the lowest fill it has to blur: glass and mica are .70 and up,
+-- the power menu's backdrop (a "quickshell" layer) is .60.
+hl.layer_rule({ match = { namespace = "^(quickshell)$" }, blur = true, ignore_alpha = 0.55, no_anim = true })
+hl.layer_rule({ match = { namespace = "^(triton-glass)$" }, blur = true, ignore_alpha = 0.65, no_anim = true, xray = true })
 
 -- --- Session autostart --------------------------------------------------------------
 -- The shell IS the wallpaper renderer (Desktop.qml layer surface) — no swaybg
