@@ -56,10 +56,11 @@ RUN . /tmp/matugen.env \
     && chmod 0755 /usr/local/bin/matugen \
     && rm -f /tmp/matugen.tar.gz /tmp/matugen.env
 
-# The theme engine and system tokens mirror the ISO layout exactly.
+# The theme engine, system tokens and wallpaper mirror the ISO layout exactly.
 COPY bin/callisto-apply /usr/local/bin/callisto-apply
 COPY design/tokens.json /usr/share/callisto/tokens.json
 COPY configs/callisto/default-settings.json /usr/share/callisto/default-settings.json
+COPY design/wallpaper.jpg /usr/share/backgrounds/callisto/wallpaper.jpg
 RUN chmod 0755 /usr/local/bin/callisto-apply
 
 COPY containers/shelltest-entrypoint.sh /entrypoint.sh
