@@ -54,7 +54,7 @@ Branch `fix/broken-basics`. Tested on a booted ISO in QEMU on 2026-11-27.
 ## 2. Remaining correctness fixes
 
 - [x] Dedicated lock-screen PAM stack, `callisto-lock`, falling back to `login` if the file is missing (#8, #22, M3). In QEMU. Fingerprint is not in the first release
-- [x] Clipboard via `cliphist` as a user service, skipping password-manager copies (#9, M4). Checked in a VM with the package and unit installed by hand; **not yet in a built ISO**
+- [x] Clipboard via `cliphist` as a user service, skipping password-manager copies (#9, M4). In QEMU on a built ISO: service active, a copy shows in the list
 - [ ] Atomic settings store writes (#4, M6)
 - [ ] Don't drop a change made while the engine is running (#3; M9 replaces this)
 - [ ] Display scale can return to 1.0 (#6)
@@ -81,7 +81,7 @@ before. The old shell code is a reference only. Rules and file layout are in
 ## 4. Platform architecture
 
 - [ ] Keybinds through `GlobalShortcut`; media keys without `uwsm app` (#7, M7)
-- [x] Shell as `callisto-shell.service`, with lock restore (M8). In QEMU: killed while locked, it restarts and locks again. **Not yet in a built ISO**
+- [x] Shell as `callisto-shell.service`, with lock restore (M8). In QEMU: killed while locked, it restarts and locks again. The unit starts on a built ISO
 - [ ] `callisto-settingsd` replaces `callisto-apply` (#3, #4, #5, M9)
 - [ ] Power profile set by the shell (M10)
 - [ ] Simpler start-up (#25 part, M11)
@@ -119,11 +119,14 @@ definition of done is in `component-system.md` §7.
 - [x] Window switcher and Overview (#10). In QEMU: quick Alt+Tab, hold and cycle, close, live previews, drag to a workspace, type to launch. Open: compact and find modes, private windows, drag by touchpad on real hardware, multi-monitor
 - [x] Wallpaper picker (#15): the real desktop is the preview, system and Pictures wallpapers, colors shown before they are applied. In QEMU: preview, apply, revert. Open: more shipped wallpapers (only one exists), dynamic and solid sets, per-display, greeter wallpaper, light-image prompt
 - [x] Lock (#10, #14): pure view and host, shared backdrop, login card and password field. In QEMU: wrong and right password, restart while locked, with and without the blur module. Open: media pill, caps-lock chip, unlocking state, a look on real multi-monitor hardware
-- [x] Greeter: greetd running the shell's `greeter.qml`, tuigreet behind it. In QEMU: login, back after logout, wrong and right password, shut down, fallback. **Not yet in a built ISO**. Open: other users by name, keyboard layout and session pickers, multi-monitor
+- [x] Greeter: greetd running the shell's `greeter.qml`, tuigreet behind it. In QEMU: login, back after logout, wrong and right password, shut down, fallback. On a built ISO: back after logout and login. Open: other users by name, keyboard layout and session pickers, multi-monitor
 - [x] Screenshot (#10): frozen screen, region, window and screen modes, delay, result card. In QEMU: region, whole screen and window captures reach the file and the clipboard. Open: video recording, markup editor, selection handles, private windows, multi-monitor, window hover on real hardware (the VM delivers motion without a pointer frame)
 - [ ] Settings app (#11)
 - [ ] Light mode and contrast pass
 - [ ] **Check blur on every surface.** ISO rebuilt at `fb763d0`; blur is on and looks right behind the launcher and power menu. Bar, OSD, quick settings, toasts and the center still need a look over a busy background
+
+ISO rebuilt at `461bc8f` and booted in QEMU with nothing patched in: no failed
+units; launcher, clipboard, screenshot, overview, lock, greeter and login work.
 
 ## 6. Release
 
