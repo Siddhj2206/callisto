@@ -10,6 +10,8 @@ were checked.
 
 The original 6-day execution plan that lived here is in git history.
 
+What it should all be like: [`principles.md`](principles.md).
+
 ## Constraints
 
 - Debian trixie plus trixie-backports, built with `live-build`. Packaged

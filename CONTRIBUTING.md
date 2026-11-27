@@ -1,5 +1,7 @@
 # Contributing
 
+Read [`docs/principles.md`](docs/principles.md) first: changes are held to it.
+
 ## Setup
 
 You need rootless podman, Python 3, `shellcheck` and, to try an image, QEMU

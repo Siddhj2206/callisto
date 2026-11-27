@@ -2,6 +2,7 @@
 
 | Document | What it covers |
 |---|---|
+| [principles](principles.md) | What Callisto should be like to use and to work on |
 | [architecture](architecture.md) | How the pieces fit: image, session, shell, settings, installer |
 | [roadmap](roadmap.md) | What is done, how it was checked, and what is left |
 | [design/component-system](design/component-system.md) | The shell's rules, tokens and components |
