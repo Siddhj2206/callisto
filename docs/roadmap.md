@@ -167,6 +167,10 @@ Missing
 
 - [ ] Flatpak accent portal and color override (M16)
 - [x] Greeter on greetd and Calamares installer (M17): offline, UEFI and BIOS bootloaders on the medium, optional LUKS, ext4 or btrfs. In QEMU, offline: UEFI with encrypted ext4, and BIOS with encrypted btrfs; both boot, log in on a UK layout and have no failed units.
+- [x] Idle turns the display off and on again under the Lua config (the old commands were rejected). In a VM: the commands run by hand, `dpmsStatus` 0 then 1; the idle timeout itself was not waited out
+- [x] Clipboard history on a fresh session says "nothing copied yet", not "unavailable". In a VM
+- [ ] Keyboard options (`XKBOPTIONS`) carry over from the installer. Settings daemon test and a VM live session; not run through an install
+- [ ] Manual layout with a second encrypted partition and no key file: `install-bootloader` drops `keyscript`. Checked on sample lines only
 - [ ] Try the ISO on a spare machine: the biggest unknown
 - [ ] Install checks not run yet: unencrypted, manual partitioning, dual boot
 - [ ] After a session is force-killed the greeter can fall back to tuigreet (the graphics device is still busy)

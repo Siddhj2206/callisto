@@ -31,7 +31,15 @@ def cliphist(*args: str, data: bytes = b"") -> bytes:
 
 
 def history() -> list[tuple[str, str]]:
-    lines = cliphist("list").decode("utf-8", "replace").splitlines()
+    try:
+        listed = cliphist("list")
+    except subprocess.CalledProcessError as error:
+        # Nothing has been copied yet, so there is no database: that is empty
+        # history, not a missing one.
+        if b"please store something first" not in error.stderr:
+            raise
+        listed = b""
+    lines = listed.decode("utf-8", "replace").splitlines()
     return [tuple(line.split("\t", 1)) for line in lines[:LIMIT] if "\t" in line]
 
 
