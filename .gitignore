@@ -35,5 +35,5 @@ shell/triton/fonts/
 # the shell/ and configs/ trees are the source of truth.
 *.tmp
 /tmp/
-vendor/
+references/dux-shell/
 .vscode/
