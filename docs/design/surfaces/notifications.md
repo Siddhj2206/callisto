@@ -52,6 +52,12 @@ stops, no animation). Reduce motion: fades only.
   action, Delete dismisses, Left/Right collapse/expand group, `c` clears group,
   Esc closes. IPC `notifications toggle` (Super+N) exists.
 
+## As built
+
+`NotificationState` was rewritten, not salvaged: it never marked notifications
+as tracked and advertised no capabilities, so actions, replies, updates and
+withdrawals could not work. History is now the server's tracked list.
+
 ## Salvage
 Keep wholesale: `NotificationState` (server, groups, DND, overflow, unread,
 sweeping timer). Visual code: replace.

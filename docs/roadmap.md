@@ -106,7 +106,9 @@ definition of done is in `component-system.md` §7.
   - [ ] Try Wi-Fi joining, Bluetooth and brightness on real hardware (the VM has none)
   - [ ] Arrow-key grid navigation between tiles (Tab works)
   - [ ] Battery line, media card
-- [ ] Notifications
+- [x] Notifications: toasts and center. Timeout, hover pause, overflow, replace, withdraw, actions, inline reply and Do Not Disturb checked in QEMU, with the replies seen on D-Bus
+  - [ ] Wavy progress, call and screenshot card kinds
+  - [ ] Center keyboard navigation (Tab and Esc work)
 - [ ] Power
 - [ ] Clipboard
 - [ ] Window switcher and Overview (#10)

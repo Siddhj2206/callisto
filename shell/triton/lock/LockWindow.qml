@@ -43,7 +43,7 @@ WlSessionLock {
             notifications: SettingsService.get("notifications", "lockscreenNotifications", true)
                 ? NotificationState.groups.map(g => ({
                     app: g.app,
-                    glyph: g.items && g.items[0] ? g.items[0].appIcon || "" : "",
+                    glyph: "",
                 }))
                 : []
             userName: Quickshell.env("USER") || "user"

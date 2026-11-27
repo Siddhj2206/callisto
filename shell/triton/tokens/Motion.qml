@@ -21,4 +21,5 @@ QtObject {
     readonly property int barHideDelay: 600
     readonly property int urgentPeek: 4000
     readonly property int osdHold: 1200
+    readonly property int toastHold: 6000
 }

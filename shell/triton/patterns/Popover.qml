@@ -15,6 +15,7 @@ PanelWindow {
     property bool open: false
     property real panelWidth: Metrics.panelWidth
     property real panelHeight: 0
+    property real panelRadius: Metrics.radiusPanelM
 
     // Esc, or Left/Backspace that nothing inside used, asks to step back.
     signal back
@@ -77,7 +78,7 @@ PanelWindow {
 
             Material {
                 anchors.fill: parent
-                radius: Metrics.radiusPanelM
+                radius: root.panelRadius
             }
             // Clicks on the panel must not reach the dismiss area.
             MouseArea {

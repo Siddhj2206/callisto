@@ -4,7 +4,6 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 import "launcher"
-import "notifications"
 import "power"
 import "clipboard"
 import "overview"
@@ -14,6 +13,7 @@ import "lock"
 import "services"
 import qs.foundations
 import qs.surfaces.bar
+import qs.surfaces.notifications
 import qs.surfaces.osd
 import qs.surfaces.quicksettings
 
@@ -57,8 +57,8 @@ ShellRoot {
     LockWindow {}
 
     // Notifications: toasts appear on demand; the center opens from the bell.
-    ToastWindow {}
-    CenterWindow {}
+    ToastHost {}
+    CenterHost {}
 
     QuickSettingsHost {}
 

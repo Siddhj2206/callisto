@@ -9,6 +9,7 @@ Item {
     id: root
 
     property bool show: false
+    property real fromX: 0
     property real fromY: 0
     property real fromScale: 1
     property var token: Motion.spatialDefault
@@ -17,7 +18,10 @@ Item {
 
     opacity: show ? 1 : 0
     scale: fromScale + (1 - fromScale) * travel.value
-    transform: Translate { y: root.fromY * (1 - travel.value) }
+    transform: Translate {
+        x: root.fromX * (1 - travel.value)
+        y: root.fromY * (1 - travel.value)
+    }
 
     Behavior on opacity { Fade {} }
 
