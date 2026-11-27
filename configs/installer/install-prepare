@@ -20,6 +20,7 @@ rm -f "$root/etc/sudoers.d/callisto-live" \
     "$root/usr/local/bin/setxkbmap" \
     "$root/usr/share/applications/org.callisto.Install.desktop" \
     "$root/usr/lib/systemd/user/callisto-install-hint.service" \
+    "$root/usr/lib/callisto/install-hint" \
     "$root/etc/systemd/user/graphical-session.target.wants/callisto-install-hint.service"
 
 # The layout chosen in the installer is every new account's starting point.
