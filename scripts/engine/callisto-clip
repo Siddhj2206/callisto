@@ -1,0 +1,174 @@
+#!/usr/bin/env python3
+"""The clipboard picker's side of the history that cliphist keeps.
+
+    callisto-clip list                 entries as JSON, pinned first
+    callisto-clip show KEY             an entry's text
+    callisto-clip copy|pin|unpin|delete KEY
+    callisto-clip wipe                 forget the history (pins stay)
+
+Keys are "h:<cliphist id>" or "p:<pin name>". cliphist has no pins, so a pin
+is a copy of the content kept here, which survives wiping and expiry.
+"""
+
+import hashlib
+import json
+import os
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+DATA = Path(os.environ.get("XDG_DATA_HOME") or Path.home() / ".local/share") / "callisto/pins"
+THUMBS = Path(os.environ.get("XDG_RUNTIME_DIR") or "/tmp") / "callisto/clip"
+INDEX = DATA / "index.json"
+LIMIT = 200
+BINARY = re.compile(r"^\[\[ binary data (.+?) (png|jpg|jpeg|gif|bmp|tiff|webp) (\d+)x(\d+) \]\]$")
+COLOR = re.compile(r"^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$")
+
+
+def cliphist(*args: str, data: bytes = b"") -> bytes:
+    return subprocess.run(["cliphist", *args], input=data, capture_output=True, check=True).stdout
+
+
+def history() -> list[tuple[str, str]]:
+    lines = cliphist("list").decode("utf-8", "replace").splitlines()
+    return [tuple(line.split("\t", 1)) for line in lines[:LIMIT] if "\t" in line]
+
+
+def pins() -> list[dict]:
+    try:
+        return json.loads(INDEX.read_text())
+    except (OSError, ValueError):
+        return []
+
+
+def save_pins(entries: list[dict]) -> None:
+    DATA.mkdir(parents=True, exist_ok=True, mode=0o700)
+    temp = INDEX.with_suffix(".tmp")
+    temp.write_text(json.dumps(entries))
+    temp.replace(INDEX)
+
+
+def describe(preview: str) -> dict:
+    image = BINARY.match(preview)
+    if image:
+        size, kind, width, height = image.groups()
+        return {"kind": "image", "title": f"Image {width} × {height}",
+                "detail": f"{kind.upper()} · {width} × {height} · {size}", "format": kind}
+    title = " ".join(preview.split())
+    if COLOR.match(title):
+        return {"kind": "color", "title": title, "detail": "Colour"}
+    if re.match(r"^(https?|file)://\S+$", title):
+        return {"kind": "link", "title": title, "detail": "Link"}
+    return {"kind": "text", "title": title, "detail": "Text"}
+
+
+def content(key: str) -> bytes:
+    source, name = key.split(":", 1)
+    if not re.fullmatch(r"[0-9a-f]+", name):
+        raise SystemExit(f"callisto-clip: bad key {key!r}")
+    if source == "p":
+        return (DATA / name).read_bytes()
+    return cliphist("decode", data=f"{name}\t\n".encode())
+
+
+def thumbnail(name: str, ident: str, kind: str) -> str:
+    THUMBS.mkdir(parents=True, exist_ok=True, mode=0o700)
+    path = THUMBS / f"{ident}.{kind}"
+    if not path.exists():
+        path.write_bytes(content(name))
+    return str(path)
+
+
+def listing() -> list[dict]:
+    pinned = pins()
+    rows = []
+    for pin in pinned:
+        row = {"key": f"p:{pin['name']}", "pinned": True, **describe(pin["preview"])}
+        if row["kind"] == "image":
+            row["path"] = str(DATA / pin["name"])
+        rows.append(row)
+    held = {pin["preview"] for pin in pinned}
+    for ident, preview in history():
+        if preview in held:
+            continue
+        row = {"key": f"h:{ident}", "pinned": False, **describe(preview)}
+        if row["kind"] == "image":
+            row["path"] = thumbnail(row["key"], ident, row["format"])
+        rows.append(row)
+    return rows
+
+
+def pin(key: str) -> None:
+    source, ident = key.split(":", 1)
+    if source != "h":
+        return
+    preview = dict(history()).get(ident)
+    if preview is None:
+        return
+    data = content(key)
+    name = hashlib.sha256(data).hexdigest()[:24]
+    DATA.mkdir(parents=True, exist_ok=True, mode=0o700)
+    (DATA / name).write_bytes(data)
+    save_pins([{"name": name, "preview": preview}] + [p for p in pins() if p["name"] != name])
+
+
+def unpin(key: str) -> None:
+    source, name = key.split(":", 1)
+    if source != "p":
+        return
+    data = content(key)
+    # Put it back into the history if it is no longer there.
+    gone = next((p for p in pins() if p["name"] == name), None)
+    if gone and gone["preview"] not in {preview for _, preview in history()}:
+        cliphist("store", data=data)
+    save_pins([p for p in pins() if p["name"] != name])
+    (DATA / name).unlink(missing_ok=True)
+
+
+def delete(key: str) -> None:
+    source, name = key.split(":", 1)
+    if source == "h":
+        cliphist("delete", data=f"{name}\t\n".encode())
+        return
+    content(key)  # validates the name
+    save_pins([p for p in pins() if p["name"] != name])
+    (DATA / name).unlink(missing_ok=True)
+
+
+def copy(key: str) -> None:
+    # No pipes: wl-copy stays behind to serve the clipboard.
+    subprocess.run(["wl-copy"], input=content(key), check=True,
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def wipe() -> None:
+    cliphist("wipe")
+    for thumb in THUMBS.glob("*"):
+        thumb.unlink(missing_ok=True)
+
+
+def main(argv: list[str]) -> int:
+    match argv:
+        case ["list"]:
+            print(json.dumps(listing()))
+        case ["show", key]:
+            sys.stdout.write(content(key)[:20000].decode("utf-8", "replace"))
+        case ["copy", key]:
+            copy(key)
+        case ["pin", key]:
+            pin(key)
+        case ["unpin", key]:
+            unpin(key)
+        case ["delete", key]:
+            delete(key)
+        case ["wipe"]:
+            wipe()
+        case _:
+            print(__doc__, file=sys.stderr)
+            return 2
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

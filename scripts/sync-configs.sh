@@ -114,6 +114,12 @@ install -m 0644 "$REPO_ROOT/configs/callisto/default-settings.json" \
 install -m 0755 "$REPO_ROOT/scripts/engine/callisto-apply" \
     "$INCLUDES/usr/local/bin/callisto-apply"
 
+# Clipboard history: the user service, its filter, and the picker's helper.
+install -m 0755 "$REPO_ROOT/scripts/engine/callisto-clip" \
+    "$REPO_ROOT/scripts/engine/callisto-clip-store" "$INCLUDES/usr/local/bin/"
+install -D -m 0644 "$REPO_ROOT/configs/systemd/user/callisto-clipboard.service" \
+    "$INCLUDES/usr/lib/systemd/user/callisto-clipboard.service"
+
 # Seed the compiled outputs so first-boot targets that fail hard on missing
 # includes (foot's include directive) find real files. These are the same
 # bytes `callisto-apply` would emit from defaults; the engine rewrites them

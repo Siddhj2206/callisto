@@ -1,0 +1,10 @@
+#!/bin/sh
+# Run by `wl-paste --watch` for every copy; the content is on stdin.
+# Anything marked secret is dropped before it reaches the history.
+case "${CLIPBOARD_STATE:-}" in
+    sensitive | clear | nil) exec cat >/dev/null ;;
+esac
+if wl-paste --list-types 2>/dev/null | grep -qixF 'x-kde-passwordManagerHint'; then
+    exec cat >/dev/null
+fi
+exec cliphist store

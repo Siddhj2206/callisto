@@ -79,6 +79,10 @@ fi
 systemctl enable greetd.service || echo "callisto: WARNING could not enable greetd" >&2
 systemctl set-default graphical.target || true
 
+# --- User services ---------------------------------------------------------------
+systemctl --global enable callisto-clipboard.service \
+    || echo "callisto: WARNING could not enable clipboard history" >&2
+
 # Disable other display managers if any snuck in as dependencies; greetd is the
 # sole session entry point.
 for dm in gdm3 gdm sddm lightdm; do

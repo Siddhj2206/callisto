@@ -4,7 +4,8 @@ import qs.foundations
 import qs.primitives
 import qs.tokens
 
-// One result. While `choosing`, the row's actions replace its subtitle.
+// One row of a picker: { title, subtitle, icon, glyph, picture, mark, actions }.
+// While `choosing`, the row's actions replace its subtitle.
 Pressable {
     id: root
 
@@ -29,6 +30,7 @@ Pressable {
         x: Metrics.cardActions
         anchors.verticalCenter: parent.verticalCenter
         source: root.row.icon
+        picture: root.row.picture ?? false
         glyph: root.row.glyph
         tone: root.tone
     }
@@ -37,7 +39,7 @@ Pressable {
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: disc.right
         anchors.leftMargin: Metrics.rowGap
-        anchors.right: hint.left
+        anchors.right: mark.left
         anchors.rightMargin: Metrics.rowGap
 
         AppText {
@@ -75,12 +77,27 @@ Pressable {
         }
     }
 
+    // A small state marker, such as a pin.
+    Icon {
+        id: mark
+        anchors.right: hint.left
+        anchors.rightMargin: visible ? Metrics.rowGap : 0
+        anchors.verticalCenter: parent.verticalCenter
+        visible: (root.row.mark ?? "") !== ""
+        width: visible ? pixels : 0
+        glyph: root.row.mark ?? ""
+        fill: true
+        size: "sm"
+        tone: root.tone
+    }
+
     Keycap {
         id: hint
         anchors.right: parent.right
         anchors.rightMargin: Metrics.rowPad
         anchors.verticalCenter: parent.verticalCenter
         visible: root.selected && !root.choosing
+        width: visible ? implicitWidth : 0
         text: "Enter"
     }
 }

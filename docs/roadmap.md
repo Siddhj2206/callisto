@@ -53,7 +53,7 @@ Branch `fix/broken-basics`. Tested on a booted ISO in QEMU on 2026-11-27.
 ## 2. Remaining correctness fixes
 
 - [ ] Dedicated lock-screen PAM stack (#8, #22, M3)
-- [ ] Clipboard via `cliphist` as a user service, skipping password-manager copies (#9, M4)
+- [x] Clipboard via `cliphist` as a user service, skipping password-manager copies (#9, M4). Checked in a VM with the package and unit installed by hand; **not yet in a built ISO**
 - [ ] Atomic settings store writes (#4, M6)
 - [ ] Don't drop a change made while the engine is running (#3; M9 replaces this)
 - [ ] Display scale can return to 1.0 (#6)
@@ -113,7 +113,8 @@ definition of done is in `component-system.md` §7.
   - [ ] Center keyboard navigation (Tab and Esc work)
 - [x] Power: one connected group, countdown before log out, restart and shut down. In QEMU: keys, cancel, inhibitor note and refusal, lock and unlock, shut down
   - [ ] Unsaved-work dialog and pending-updates note (no data source yet)
-- [ ] Clipboard
+- [x] Clipboard: search, filters, preview, pin, delete, clear, paste. Checked in QEMU, pasting into foot and Firefox
+  - [ ] Retention settings; grouping by day
 - [ ] Window switcher and Overview (#10)
 - [ ] Wallpaper picker (#15)
 - [ ] Lock and Greeter (#10, #14)

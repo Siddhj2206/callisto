@@ -57,3 +57,21 @@ dialog, links paste the URL.
 Keep: `ClipboardState` (entries, `paste`, `pin`, persistence), `callisto-clipwatch`
 (note `docs/audit.md` defect 9: sensitive items stored in plaintext - needs the
 sensitive-content hint before the masked state can be real). Visual: replace.
+
+## As built
+
+Backend: `cliphist`, filled by `callisto-clipboard.service`
+(`wl-paste --watch callisto-clip-store`, which drops anything marked secret).
+`scripts/engine/callisto-clip` lists and changes the history and keeps pins.
+Shell: `services/ClipboardState.qml`, `surfaces/clipboard/`, shared
+`patterns/{SearchHeader,ResultRow}`, gallery `gallery-clipboard.qml`.
+
+- Desktop size 760 x 520. Filters sit in the header; the preview never hides.
+- No scrim, like the launcher.
+- Paste copies, then sends Ctrl+V (Ctrl+Shift+V to known terminals) to the
+  window that had focus. Shift+Enter only copies; there is no "paste as plain
+  text".
+- Pin is Ctrl+P, since letters go to the search field. Ctrl+Shift+Del clears.
+- Secrets are never stored, so there is no masked entry with a countdown.
+- Not built: "Today" grouping and source app (cliphist records neither), a
+  Code filter, "Copy as file", 1-9 quick paste, retention settings.

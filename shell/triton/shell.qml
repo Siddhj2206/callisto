@@ -3,7 +3,6 @@ pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Io
 import QtQuick
-import "clipboard"
 import "overview"
 import "wallpaper"
 import "settings"
@@ -11,6 +10,7 @@ import "lock"
 import "services"
 import qs.foundations
 import qs.surfaces.bar
+import qs.surfaces.clipboard
 import qs.surfaces.launcher
 import qs.surfaces.notifications
 import qs.surfaces.osd
@@ -71,7 +71,7 @@ ShellRoot {
         }
     }
 
-    ClipboardWindow {}
+    ClipboardHost {}
 
     OverviewWindow {}
 

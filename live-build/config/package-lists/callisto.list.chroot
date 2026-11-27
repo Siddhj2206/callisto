@@ -65,6 +65,7 @@ tuigreet
 # mako-notifier removed — the shell IS the notification daemon
 foot
 wl-clipboard
+cliphist
 grim
 slurp
 brightnessctl

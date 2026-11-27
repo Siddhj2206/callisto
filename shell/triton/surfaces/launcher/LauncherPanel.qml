@@ -17,7 +17,7 @@ Item {
     property var results: []
     property string expression: ""
     property string calcResult: ""
-    property alias query: input.text
+    property alias query: header.query
 
     signal queryEdited(string text)
     signal filterPicked(string name)
@@ -35,14 +35,14 @@ Item {
     property int action: -1 // >= 0 while choosing among the row's actions
 
     function reset() {
-        input.text = "";
+        header.query = "";
         selection = 0;
         action = -1;
         list.contentY = 0;
     }
 
     function focusInput() {
-        input.forceActiveFocus();
+        header.focusInput();
     }
 
     function select(index) {
@@ -116,86 +116,36 @@ Item {
         id: column
         width: parent.width
 
-        Item {
+        SearchHeader {
+            id: header
             width: parent.width
-            height: Metrics.launcherHeader
-
-            WaveShape {
-                id: badge
-                x: Metrics.panelPad
-                anchors.verticalCenter: parent.verticalCenter
-                width: Metrics.control
-                height: width
-                color: root.mode === "commands" ? root.scheme.tertiary : root.scheme.primary
-
-                Icon {
-                    anchors.centerIn: parent
-                    glyph: root.mode === "calc" ? Icons.calculate : root.mode === "commands" ? Icons.chevronRight : Icons.search
-                    tone: root.mode === "commands" ? "ontertiary" : "onprimary"
-                }
+            glyph: root.mode === "calc" ? Icons.calculate : root.mode === "commands" ? Icons.chevronRight : Icons.search
+            tone: root.mode === "commands" ? "tertiary" : "primary"
+            placeholder: "Search apps, > commands, = math"
+            onEdited: text => {
+                root.selection = 0;
+                list.contentY = 0;
+                root.queryEdited(text);
             }
+            onKeyPressed: event => event.accepted = root.handle(event.key, event.modifiers)
 
-            TextInput {
-                id: input
-                anchors.left: badge.right
-                anchors.leftMargin: Metrics.rowGap
-                anchors.right: chips.left
-                anchors.rightMargin: Metrics.rowGap
-                anchors.verticalCenter: parent.verticalCenter
-                clip: true
-                focus: true
-                font.family: Typography.roles.title.family
-                font.pixelSize: Typography.roles.title.size
-                color: root.scheme.onsurface
-                selectionColor: root.scheme.primary
-                selectedTextColor: root.scheme.onprimary
-                Accessible.name: "Search"
-                onTextEdited: {
-                    root.selection = 0;
-                    list.contentY = 0;
-                    root.queryEdited(text);
-                }
-                Keys.onPressed: event => event.accepted = root.handle(event.key, event.modifiers)
+            Repeater {
+                model: root.mode === "apps" ? root.filters : []
 
-                AppText {
-                    visible: input.text === ""
-                    anchors.fill: parent
-                    role: "title"
-                    tone: "onsurfacevariant"
-                    text: "Search apps, > commands, = math"
-                }
-            }
-
-            Row {
-                id: chips
-                anchors.right: parent.right
-                anchors.rightMargin: Metrics.panelPad
-                anchors.verticalCenter: parent.verticalCenter
-                spacing: Metrics.cardActions
-
-                Repeater {
-                    model: root.mode === "apps" ? root.filters : []
-
-                    Chip {
-                        required property var modelData
-                        text: modelData.label
-                        selected: root.filter === modelData.id
-                        activeFocusOnTab: false
-                        onClicked: root.filterPicked(modelData.id)
-                    }
-                }
                 Chip {
-                    visible: root.mode === "commands"
-                    text: "Commands"
-                    selected: true
+                    required property var modelData
+                    text: modelData.label
+                    selected: root.filter === modelData.id
                     activeFocusOnTab: false
+                    onClicked: root.filterPicked(modelData.id)
                 }
             }
-        }
-
-        Divider {
-            horizontal: true
-            width: parent.width
+            Chip {
+                visible: root.mode === "commands"
+                text: "Commands"
+                selected: true
+                activeFocusOnTab: false
+            }
         }
 
         // Calc
