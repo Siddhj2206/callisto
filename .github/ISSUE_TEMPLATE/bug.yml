@@ -1,0 +1,27 @@
+name: Bug
+description: Something does not work
+labels: [bug]
+body:
+  - type: textarea
+    attributes:
+      label: What happened, and what you expected
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps to see it
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Image
+      description: The commit it was built from, or the date you downloaded it
+  - type: input
+    attributes:
+      label: Machine
+      description: Model and graphics, or "virtual machine"
+  - type: textarea
+    attributes:
+      label: Logs
+      description: "journalctl --user -b -u callisto-shell"
+      render: text
