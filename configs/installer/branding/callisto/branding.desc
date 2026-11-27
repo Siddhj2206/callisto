@@ -17,12 +17,12 @@ strings:
   bootloaderEntryName: callisto
   productUrl: ""
 images:
-  productLogo: logo.svg
-  productIcon: logo.svg
+  productLogo: logo.png
+  productIcon: logo.png
 slideshow: show.qml
 slideshowAPI: 2
 style:
-  sidebarBackground: "#111318"
-  sidebarText: "#E2E2E9"
-  sidebarTextCurrent: "#002D6E"
-  sidebarBackgroundCurrent: "#B0C6FF"
+  SidebarBackground: "#111318"
+  SidebarText: "#E2E2E9"
+  SidebarTextCurrent: "#002D6E"
+  SidebarBackgroundCurrent: "#B0C6FF"

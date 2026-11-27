@@ -106,10 +106,14 @@ less
 vim-tiny
 htop
 fastfetch
+# Third-party installers ask it which Debian this is.
+lsb-release
 
 # --- An installed system ---------------------------------------------------------
 locales
 keyboard-configuration
+# The console font and layout, and ckbcomp for the installer's keyboard preview.
+console-setup
 # Compressed swap in memory.
 systemd-zram-generator
 btrfs-progs

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -4 168 168" width="48" height="48" role="img"><title>Callisto</title><defs>
+<clipPath id="bd"><circle cx="80" cy="80" r="61"/></clipPath>
+<clipPath id="bf"><circle cx="80" cy="80" r="68.5"/></clipPath>
+</defs>
+<g transform="rotate(-22 80 80)" fill="none"><ellipse cx="80" cy="80" rx="80" ry="20" stroke="#0A1236" stroke-width="14"/><ellipse cx="80" cy="80" rx="80" ry="20" stroke="#F4EAD5" stroke-width="8"/></g>
+<circle cx="80" cy="80" r="66" fill="#1C3274" stroke="#F4EAD5" stroke-width="5"/>
+<circle cx="80" cy="80" r="62.5" fill="none" stroke="#0A1236" stroke-width="3"/>
+<g clip-path="url(#bd)"><polygon points="55.00,38.00 57.60,45.44 65.47,45.59 59.18,50.36 61.47,57.91 55.00,53.40 48.53,57.91 50.82,50.36 44.53,45.59 52.40,45.44" fill="#F4EAD5"/><circle cx="80" cy="196" r="94" fill="#3E6FD8" stroke="#0A1236" stroke-width="4"/></g>
+<g clip-path="url(#bf)"><path d="M0 80 A80 20 0 0 0 160 80" transform="rotate(-22 80 80)" fill="none" stroke="#0A1236" stroke-width="14"/></g>
+<path d="M0 80 A80 20 0 0 0 160 80" transform="rotate(-22 80 80)" fill="none" stroke="#F4EAD5" stroke-width="8"/>
+<circle cx="112.4" cy="87.1" r="15" fill="#E8A33D" stroke="#0A1236" stroke-width="3.5"/></svg>

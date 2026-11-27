@@ -4,6 +4,7 @@ import Quickshell.Io
 import QtQuick
 import qs.foundations
 import qs.patterns
+import qs.primitives
 import qs.services
 import qs.tokens
 
@@ -40,10 +41,9 @@ Page {
     Row {
         spacing: Metrics.panelPad
 
-        WaveShape {
+        OsLogo {
             width: Metrics.avatarLarge
             height: width
-            color: Theming.of(root).primary
         }
         Column {
             anchors.verticalCenter: parent.verticalCenter

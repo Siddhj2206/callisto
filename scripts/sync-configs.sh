@@ -105,6 +105,16 @@ install -m 0644 "$REPO_ROOT/design/wallpaper.jpg" \
     "$INCLUDES/usr/share/backgrounds/callisto/wallpaper.jpg" 2>/dev/null \
     || echo "    (no wallpaper yet)"
 
+# The logo: the icon os-release names, at every size the kit renders.
+for size in 16 24 32 48 64 128 256 512; do
+    install -D -m 0644 "$REPO_ROOT/design/logo/png/callisto-logo-$size.png" \
+        "$INCLUDES/usr/share/icons/hicolor/${size}x${size}/apps/callisto-logo.png"
+done
+install -D -m 0644 "$REPO_ROOT/design/logo/png/callisto-logo-256.png" \
+    "$INCLUDES/usr/share/pixmaps/callisto-logo.png"
+install -D -m 0644 "$REPO_ROOT/configs/fastfetch/config.jsonc" "$INCLUDES/etc/xdg/fastfetch/config.jsonc"
+install -D -m 0644 "$REPO_ROOT/configs/fastfetch/logo.txt" "$INCLUDES/usr/share/callisto/fastfetch-logo.txt"
+
 # --- System-level data -----------------------------------------------------------
 # /usr/share/callisto holds OS-shipped defaults and manifests, deliberately
 # separate from per-user config — distro updates must never overwrite user

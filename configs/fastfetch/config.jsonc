@@ -1,0 +1,11 @@
+{
+  "logo": {
+    "type": "file",
+    "source": "/usr/share/callisto/fastfetch-logo.txt",
+    "color": { "1": "38;2;62;111;216", "2": "38;2;244;234;213", "3": "38;2;232;163;61" }
+  },
+  "modules": [
+    "title", "separator", "os", "host", "kernel", "uptime", "packages", "shell",
+    "display", "wm", "terminal", "cpu", "gpu", "memory", "disk", "break", "colors"
+  ]
+}

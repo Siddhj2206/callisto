@@ -4,6 +4,6 @@ Name=Install Callisto
 Comment=Copy Callisto to this computer
 Keywords=install;installer;setup;disk;
 Exec=callisto-install
-Icon=system-software-install
+Icon=callisto-logo
 Terminal=false
 Categories=System;

@@ -15,18 +15,37 @@ echo "callisto: running setup hook"
 # --- Identity ------------------------------------------------------------------
 echo "callisto" > /etc/hostname
 
-cat > /etc/os-release <<'EOF'
-PRETTY_NAME="Callisto OS"
+# base-files owns /usr/lib/os-release (/etc/os-release links to it) and would
+# put Debian's back on its next upgrade, so its copy is diverted aside.
+# VERSION_CODENAME stays Debian's: third-party apt instructions build their
+# repository lines from it.
+if ! dpkg-divert --list /usr/lib/os-release | grep -q .; then
+    cp /usr/lib/os-release /usr/lib/os-release.debian
+    dpkg-divert --local --no-rename \
+        --divert /usr/lib/os-release.debian --add /usr/lib/os-release
+fi
+cat > /usr/lib/os-release <<'EOF'
+PRETTY_NAME="Callisto OS 0.1.0 (Phobos)"
 NAME="Callisto"
 VERSION_ID="0.1.0"
 VERSION="0.1.0 (Phobos)"
+VERSION_CODENAME=trixie
+DEBIAN_CODENAME=trixie
 ID=callisto
 ID_LIKE=debian
+LOGO=callisto-logo
+ANSI_COLOR="0;38;2;62;111;216"
+DEFAULT_HOSTNAME=callisto
+VENDOR_NAME="Callisto"
 HOME_URL="https://github.com/callisto-os"
 DOCUMENTATION_URL="https://github.com/callisto-os/docs"
 SUPPORT_URL="https://github.com/callisto-os/issues"
 BUG_REPORT_URL="https://github.com/callisto-os/issues"
 EOF
+ln -sfn ../usr/lib/os-release /etc/os-release
+
+# So GTK finds the logo in an icon theme that may already have a cache.
+gtk-update-icon-cache -qtf /usr/share/icons/hicolor 2>/dev/null || true
 
 # dpkg origin so package-management tooling attributes the derivative correctly.
 mkdir -p /etc/dpkg/origins
@@ -41,6 +60,9 @@ cat > /etc/issue <<'EOF'
 Callisto OS \n \l
 
 EOF
+echo "Callisto OS" > /etc/issue.net
+# base-files seeds motd with Debian's own notice.
+: > /etc/motd
 
 # --- Live user provisioning ---------------------------------------------------
 # live-config's boot-time user creation uses a DES-crypt hash (8Ab05sVQ4LLps,
@@ -103,6 +125,10 @@ done
 
 # greetd owns VT1; a getty there races it on boot and fragments the session.
 systemctl mask getty@tty1.service 2>/dev/null || true
+
+# foot's server socket is unused, and its ordering cycle makes systemd drop it
+# with a warning at every login.
+systemctl --global disable foot-server.socket 2>/dev/null || true
 
 # --- Desktop integration services ----------------------------------------------
 # The polkit authentication agent runs as a systemd user unit — enabled for

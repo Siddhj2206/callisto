@@ -61,7 +61,7 @@ Item {
         y: Metrics.lockSide
         spacing: Metrics.rowGap
 
-        WaveShape {
+        OsLogo {
             width: Metrics.brandMark
             height: width
         }
