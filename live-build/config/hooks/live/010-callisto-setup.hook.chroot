@@ -37,10 +37,10 @@ LOGO=callisto-logo
 ANSI_COLOR="0;38;2;62;111;216"
 DEFAULT_HOSTNAME=callisto
 VENDOR_NAME="Callisto"
-HOME_URL="https://github.com/callisto-os"
-DOCUMENTATION_URL="https://github.com/callisto-os/docs"
-SUPPORT_URL="https://github.com/callisto-os/issues"
-BUG_REPORT_URL="https://github.com/callisto-os/issues"
+HOME_URL="https://github.com/siddhj2206/callisto"
+DOCUMENTATION_URL="https://github.com/siddhj2206/callisto/tree/main/docs"
+SUPPORT_URL="https://github.com/siddhj2206/callisto/issues"
+BUG_REPORT_URL="https://github.com/siddhj2206/callisto/issues"
 EOF
 ln -sfn ../usr/lib/os-release /etc/os-release
 
@@ -51,7 +51,7 @@ gtk-update-icon-cache -qtf /usr/share/icons/hicolor 2>/dev/null || true
 mkdir -p /etc/dpkg/origins
 cat > /etc/dpkg/origins/callisto <<'EOF'
 Vendor: Callisto
-Vendor-URL: https://github.com/callisto-os
+Vendor-URL: https://github.com/siddhj2206/callisto
 Parent: Debian
 EOF
 ln -sf callisto /etc/dpkg/origins/default
