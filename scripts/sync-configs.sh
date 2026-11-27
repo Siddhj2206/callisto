@@ -124,6 +124,16 @@ install -D -m 0644 "$REPO_ROOT/configs/systemd/user/callisto-clipboard.service" 
 install -D -m 0644 "$REPO_ROOT/configs/systemd/user/callisto-shell.service" \
     "$INCLUDES/usr/lib/systemd/user/callisto-shell.service"
 
+# The greeter: its session script, compositor config, and a copy of the shell
+# it can read (the user's copy lives in their home).
+install -m 0755 "$REPO_ROOT/scripts/callisto-greeter" "$INCLUDES/usr/local/bin/callisto-greeter"
+install -D -m 0644 "$REPO_ROOT/configs/greeter/hyprland.lua" \
+    "$INCLUDES/usr/share/callisto/greeter/hyprland.lua"
+install -D -m 0644 "$REPO_ROOT/configs/greeter/tmpfiles.conf" \
+    "$INCLUDES/usr/lib/tmpfiles.d/callisto-greeter.conf"
+rm -rf "$INCLUDES/usr/share/callisto/shell"
+cp -r "$REPO_ROOT/shell/triton" "$INCLUDES/usr/share/callisto/shell"
+
 # The lock screen's own PAM stack.
 install -D -m 0644 "$REPO_ROOT/configs/pam/callisto-lock" "$INCLUDES/etc/pam.d/callisto-lock"
 

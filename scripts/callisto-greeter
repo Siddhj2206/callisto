@@ -1,0 +1,14 @@
+#!/bin/sh
+# greetd's default session: the graphical login screen, or tuigreet when that
+# cannot start or dies. The greeter marks a successful login in $result; any
+# other way out is a failure.
+export HOME=/var/lib/callisto-greeter
+result="${XDG_RUNTIME_DIR:-/tmp}/callisto-greeter-result"
+rm -f "$result"
+: >"$result"
+
+CALLISTO_GREETER_RESULT="$result" \
+    Hyprland --config /usr/share/callisto/greeter/hyprland.lua >"$HOME/hyprland.log" 2>&1
+
+[ "$(cat "$result" 2>/dev/null)" = ok ] && exit 0
+exec tuigreet --time --remember --cmd /usr/local/bin/start-callisto

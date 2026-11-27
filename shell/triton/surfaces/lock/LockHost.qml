@@ -1,10 +1,8 @@
 pragma ComponentBehavior: Bound
 
 import Quickshell
-import Quickshell.Services.UPower
 import Quickshell.Wayland
 import QtQuick
-import qs
 import qs.foundations
 import qs.services
 import qs.surfaces.lock
@@ -35,8 +33,6 @@ WlSessionLock {
                 anchors.fill: parent
                 focus: true
 
-                readonly property var battery: UPower.displayDevice
-                readonly property bool hasBattery: battery?.ready && battery.isLaptopBattery
                 readonly property int minutes: Math.max(0, Math.floor((clock.date.getTime() - LockState.lockedAt) / 60000))
 
                 wallpaper: {
@@ -53,10 +49,9 @@ WlSessionLock {
                 busy: LockState.busy
                 waiting: SettingsService.get("notifications", "lockscreenNotifications", true)
                     ? NotificationState.groups.map(g => ({ app: g.app, count: g.items.length })) : []
-                networkGlyph: NetworkService.wired ? Icons.lan : NetworkService.online ? Icons.wifi : ""
-                batteryPercent: hasBattery ? Math.round(battery.percentage * 100) : -1
-                batteryGlyph: !hasBattery ? ""
-                    : battery.state === UPowerDeviceState.Charging ? Icons.batteryChargingFull : Icons.battery5Bar
+                networkGlyph: SessionStatus.networkGlyph
+                batteryGlyph: SessionStatus.batteryGlyph
+                batteryPercent: SessionStatus.batteryPercent
 
                 onSubmitted: password => LockState.submit(password)
 

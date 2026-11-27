@@ -96,6 +96,19 @@ Layout: user row centres the selection and scrolls; all anchored groups use
 screen margins; password pill pref 460 (min 320). Keyboard: Left/Right change
 user, Tab to field/pickers, Enter log in, F-keys not used.
 
+## Greeter as built
+
+`greeter.qml` is a Quickshell entry of its own with
+`surfaces/greeter/{GreeterScreen,GreeterHost}` and `services/GreeterState.qml`.
+greetd runs `callisto-greeter`, which starts Hyprland with
+`configs/greeter/hyprland.lua`; the image carries a copy of the shell in
+`/usr/share/callisto/shell`. Any way out other than a login starts tuigreet.
+Logs and the last user are in `/var/lib/callisto-greeter`.
+
+Differences from the boards: no accessibility button, session or layout picker
+(there is one session and one layout), no "Other…" entry, no footer. Restart
+and shut down act at once. The live image shows its password.
+
 ## Salvage
 Keep: `LockState` (PAM flow, `fieldState`, `errorText`, `lock()/unlock()/submit()`,
 `pendingPassword`), the "lock exists for the shell's lifetime" rule in

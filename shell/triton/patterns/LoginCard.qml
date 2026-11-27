@@ -46,18 +46,9 @@ Item {
         width: parent.width - Metrics.panelPad * 2
         spacing: Metrics.cardActions
 
-        WaveShape {
+        UserAvatar {
             anchors.horizontalCenter: parent.horizontalCenter
-            width: Metrics.avatarLarge
-            height: width
-            color: root.scheme.tertiaryContainer
-
-            AppText {
-                anchors.centerIn: parent
-                role: "headline"
-                tone: "ontertiarycontainer"
-                text: root.name.charAt(0).toUpperCase()
-            }
+            name: root.name
         }
         AppText {
             width: parent.width

@@ -128,6 +128,9 @@ QtObject {
     readonly property real loginCard: board ? 420 : 340
     readonly property real loginBottom: board ? 116 : 64
     readonly property real avatarLarge: board ? 96 : 72
+    readonly property real avatarSelected: board ? 150 : 112
+    readonly property real avatarRing: board ? 180 : 136
+    readonly property real brandMark: board ? 56 : 40
     readonly property real lockSide: board ? 68 : 32
     readonly property real lockNotifications: board ? 380 : 300
     readonly property real lockField: board ? 56 : 44

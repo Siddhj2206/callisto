@@ -70,6 +70,9 @@ if ! grep -q "^greeter:" /etc/passwd; then
         || useradd -r -s /usr/sbin/nologin greeter \
         || echo "callisto: WARNING greeter user creation failed" >&2
 fi
+# Its home, made at boot by tmpfiles.d/callisto-greeter.conf.
+usermod -d /var/lib/callisto-greeter greeter \
+    || echo "callisto: WARNING greeter home not set" >&2
 
 # --- Session greeter -------------------------------------------------------------
 # live-config auto-configures the autologin of known display managers but does

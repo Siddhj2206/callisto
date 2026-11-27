@@ -12,6 +12,7 @@ Item {
     property bool busy: false
     property bool wrong: false
     property bool revealed: false
+    property string submitLabel: "Unlock"
 
     signal accepted(string password)
 
@@ -121,7 +122,7 @@ Item {
         size: Metrics.control
         variant: root.text !== "" ? "filled" : "veil"
         glyph: Icons.arrowForward
-        label: "Unlock"
+        label: root.submitLabel
         activeFocusOnTab: false
         onClicked: root.submit()
     }
