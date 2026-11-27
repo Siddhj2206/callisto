@@ -3,7 +3,6 @@ pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Io
 import QtQuick
-import "wallpaper"
 import "settings"
 import "services"
 import qs.foundations
@@ -13,6 +12,7 @@ import qs.surfaces.launcher
 import qs.surfaces.lock
 import qs.surfaces.overview
 import qs.surfaces.switcher
+import qs.surfaces.wallpaper
 import qs.surfaces.notifications
 import qs.surfaces.osd
 import qs.surfaces.power
@@ -26,14 +26,7 @@ ShellRoot {
 
     Fonts {}
 
-    Variants {
-        model: Quickshell.screens
-
-        Desktop {
-            required property var modelData
-            screen: modelData
-        }
-    }
+    DesktopHost {}
 
     Variants {
         model: Quickshell.screens
@@ -78,7 +71,7 @@ ShellRoot {
 
     SwitcherHost {}
 
-    WallpaperWindow {}
+    WallpaperHost {}
 
     // The settings app: a normal floating window inside the same shell
     // process. It shares SettingsService and Theme singletons with the
@@ -149,7 +142,7 @@ ShellRoot {
     }
     IpcHandler {
         target: "wallpaper"
-        function toggle(): void { WallpaperState.open ? WallpaperState.close(true) : WallpaperState.show(); }
+        function toggle(): void { WallpaperState.toggle(); }
     }
 
     // Live theme application: the theme engine writes user-resolved tokens

@@ -109,7 +109,7 @@ def store_scheme(cache_key: str, scheme: dict) -> None:
         pass
 
 
-def matugen_scheme(image_path: str, contrast: float = 0.0) -> dict | None:
+def matugen_scheme(image_path: str, contrast: float = 0.0, remember: bool = True) -> dict | None:
     """Run matugen against a wallpaper, return {token_name: '#rrggbb'} for the
     dark scheme, or None if matugen/image is unavailable. Results are cached
     keyed on path+mtime — every settings write runs the engine, and respawning
@@ -149,7 +149,8 @@ def matugen_scheme(image_path: str, contrast: float = 0.0) -> dict | None:
             if "light" in entry:
                 scheme["light"][name] = entry["light"]["color"].upper()
     if scheme["dark"]:
-        store_scheme(cache_key, scheme)
+        if remember:
+            store_scheme(cache_key, scheme)
         return scheme
     return None
 
@@ -217,22 +218,7 @@ def resolve_tokens(store: dict, tokens: dict) -> dict:
     if accent == "wallpaper":
         wallpaper = appearance.get(
             "wallpaper", "/usr/share/backgrounds/callisto/wallpaper.jpg")
-        kind = appearance.get("wallpaperKind", "")
-        # Generative wallpapers have no image file — matugen has nothing to
-        # extract. Their seeds are part of the shell's authored scenes; the
-        # engine mirrors them so colors still follow the wallpaper choice.
-        # Seeds are the scenes' actual dominant colors (WallpaperScene.qml).
-        KIND_SEEDS = {
-            "dune": "#E58A4B",
-            "nebula": "#6B3FA0",
-            "ice": "#2F7F9A",
-            "dusk": "#4A2C5C",
-            "planet": "#1F4FBF",
-            "paper": "#CBD3E4",
-        }
-        if kind and kind in KIND_SEEDS:
-            scheme = matugen_color_scheme(KIND_SEEDS[kind], contrast)
-        elif wallpaper:
+        if wallpaper:
             scheme = matugen_scheme(wallpaper, contrast)
     elif accent in ACCENT_SEEDS:
         scheme = matugen_color_scheme(ACCENT_SEEDS[accent], contrast)
@@ -574,7 +560,19 @@ def apply_live(store: dict, tokens: dict) -> None:
             pass
 
 
+def preview_scheme(image_path: str) -> int:
+    """Print the colors an image would give, as JSON, changing nothing."""
+    contrast = load_store().get("appearance", {}).get("contrast", 0.0)
+    scheme = matugen_scheme(image_path, contrast, remember=False)
+    if not scheme:
+        return 1
+    print(json.dumps(scheme))
+    return 0
+
+
 def main() -> int:
+    if len(sys.argv) == 3 and sys.argv[1] == "--scheme":
+        return preview_scheme(sys.argv[2])
     store = load_store()
     tokens = load_tokens()
     effective = resolve_tokens(store, tokens)

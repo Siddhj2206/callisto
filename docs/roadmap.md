@@ -117,7 +117,7 @@ definition of done is in `component-system.md` §7.
 - [x] Clipboard: search, filters, preview, pin, delete, clear, paste. Checked in QEMU, pasting into foot and Firefox
   - [ ] Retention settings; grouping by day
 - [x] Window switcher and Overview (#10). In QEMU: quick Alt+Tab, hold and cycle, close, live previews, drag to a workspace, type to launch. Open: compact and find modes, private windows, drag by touchpad on real hardware, multi-monitor
-- [ ] Wallpaper picker (#15)
+- [x] Wallpaper picker (#15): the real desktop is the preview, system and Pictures wallpapers, colors shown before they are applied. In QEMU: preview, apply, revert. Open: more shipped wallpapers (only one exists), dynamic and solid sets, per-display, greeter wallpaper, light-image prompt
 - [x] Lock (#10, #14): pure view and host, shared backdrop, login card and password field. In QEMU: wrong and right password, restart while locked, with and without the blur module. Open: media pill, caps-lock chip, unlocking state, a look on real multi-monitor hardware
 - [x] Greeter: greetd running the shell's `greeter.qml`, tuigreet behind it. In QEMU: login, back after logout, wrong and right password, shut down, fallback. **Not yet in a built ISO**. Open: other users by name, keyboard layout and session pickers, multi-monitor
 - [ ] Screenshot (#10)

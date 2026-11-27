@@ -51,3 +51,15 @@ preview-vs-store precedence, the engine apply flow. `WallpaperScene` placeholder
 painters are not part of the design: replace with real assets. Needs: folder
 scan and watch, dynamic-set schedule, per-display store keys, luminance +
 palette extraction results from the engine (Q16).
+
+## As built
+
+`surfaces/wallpaper/{DesktopHost,Crossfade,WallpaperHost,WallpaperDock,PaletteCard}`
+and `services/WallpaperState`.
+
+- Two sources: `/usr/share/backgrounds/callisto` and the Pictures folder. The
+  drawn placeholder scenes and the `wallpaperKind` key are gone.
+- The palette card asks `callisto-apply --scheme <image>`, which changes nothing.
+- "Applying to" is one switch for the lock screen. The greeter runs as its own
+  user and keeps the shipped wallpaper.
+- One click tries a wallpaper, a second one (or Enter) sets it.

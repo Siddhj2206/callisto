@@ -140,6 +140,9 @@ QtObject {
     readonly property real dragThreshold: 8
     readonly property real aspectMin: 0.6
     readonly property real aspectMax: 2.4
+    readonly property real wallThumbWidth: board ? 200 : 160
+    readonly property real wallThumbHeight: board ? 120 : 96
+    readonly property real paletteWidth: board ? 370 : 300
     readonly property real lockSide: board ? 68 : 32
     readonly property real lockNotifications: board ? 380 : 300
     readonly property real lockField: board ? 56 : 44
