@@ -6,6 +6,7 @@
 # live-build: everything it generates. The sources are auto/, config/archives,
 # config/package-lists and our own hooks.
 /live-build/.build/
+/live-build/.lock
 /live-build/binary/
 /live-build/cache/
 /live-build/chroot/
