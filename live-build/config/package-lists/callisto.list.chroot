@@ -16,6 +16,8 @@ live-config-systemd
 systemd-sysv
 
 # --- Core session infrastructure ----------------------------------------------
+# Listed so the installer's autoremove keeps it: only live-config pulls it in.
+sudo
 dbus-user-session
 # dbus-broker reuses the systemd activation environment — reference dbus-daemon
 # can't unset vars, which is how stale session env leaks across logout/login.
