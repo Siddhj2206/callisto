@@ -114,7 +114,10 @@ fi
 echo "==> Shell log:"
 if [[ -f "$SHOT_DIR/quickshell.log" ]]; then
     cat "$SHOT_DIR/quickshell.log"
-    if grep -qE "ERROR|error|is not installed|is not a type" "$SHOT_DIR/quickshell.log"; then
+    # The container has no NetworkManager, audio or GPU. Those three complaints
+    # are expected; anything else is the shell's.
+    if grep -vE "Network will not work|Failed to create pipewire context|Failed to find render device" \
+            "$SHOT_DIR/quickshell.log" | grep -E "ERROR|error|is not installed|is not a type" >&2; then
         echo "!! shell reported errors" >&2
         exit 1
     fi
