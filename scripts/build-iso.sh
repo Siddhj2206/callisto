@@ -61,7 +61,11 @@ podman run --rm --privileged \
             mount --bind "/dev/$node" "chroot/dev/$node"
         done
         lb chroot
-        for node in $nodes; do umount "chroot/dev/$node"; : >"chroot/dev/$node"; done
+        # live-build may have unmounted them already, along with its own.
+        for node in $nodes; do
+            if mountpoint -q "chroot/dev/$node"; then umount "chroot/dev/$node"; fi
+            : >"chroot/dev/$node"
+        done
         lb installer
         lb binary
         lb source
