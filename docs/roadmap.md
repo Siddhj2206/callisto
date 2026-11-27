@@ -25,7 +25,7 @@ What it should all be like: [`principles.md`](principles.md).
 |---|---|
 | Platform | All in on Hyprland, systemd and Flatpak |
 | Shell | Rebuild on a component library, shadcn-style. Keep `services/` |
-| `references/dux-shell` | Patterns only (popouts, animation). Triton keeps its own look |
+| [dux-shell](https://github.com/duxlabs-dev/dux-shell) | Borrow patterns only (popouts, animation, color templates). Triton keeps its own look |
 | Flatpak colors | Apps get the full wallpaper palette (read-only override), on by default, with a toggle |
 | Glass | Shows the wallpaper only (xray on); the launcher may be the exception |
 | Light mode | Lock, greeter, power, overview and screenshot are always dark; the rest follows light/dark |

@@ -12,7 +12,7 @@ boards disagree and what was decided. Per-surface trees are in
 [`surfaces/`](surfaces/).
 
 The specification was written on 2026-11-27 from the boards in
-`references/*.dc.html`, `references/triton/` and the design board map in
+`references/*.dc.html`, their shared stylesheets and the design board map in
 [`../research/design-board-map.md`](../research/design-board-map.md). Where it
 disagrees with the map, the boards win.
 
@@ -184,7 +184,7 @@ are placeholders that need a designer decision (see section 8).
 
 **Scheme roles.** The 28 roles in `tokens.json` stay as they are (dark values
 verbatim; light values are hand-picked and need matugen regeneration, per
-`references/triton/README.md` "Known gaps").
+the design export's list of known gaps).
 
 **Derived roles added to `Palette`** (computed in the generator, per scheme):
 

@@ -1,87 +1,48 @@
-# Triton Shell — entire project
+# Design boards
 
-This project’s pages, files, and uploads as this browser tab had them at export.
-Anything left out is listed below.
+The visual specification of the desktop (the Triton design: Material 3
+Expressive shapes and springs, space-age livery, tasteful blur). One file per
+screen or component set, drawn at 1646 × 1029 logical pixels (2880 × 1800 at
+1.75×).
 
-## Contents
-
-### Overview
-
-- `Main.dc.html` — Triton: desktop on the real wallpaper
-- `Adwaita.dc.html` — Futura: libadwaita apps
-
-### Foundations
-
-- `Color.dc.html` — Foundations: color
-- `Type.dc.html` — Foundations: type, shape, motion
-- `Materials.dc.html` — Futura: materials
-
-### Components
-
-- `Controls.dc.html` — Components: controls
-- `Containers.dc.html` — Components: containers
-- `ComponentIndex.dc.html` — Design system: component index
-
-### Bar and panels
-
-- `BarStates.dc.html` — Shell: bar states
-- `MediaBar.dc.html` — Shell: bar media controls
-- `Notifications.dc.html` — Shell: notifications
-- `OSD.dc.html` — Shell: on-screen displays
-- `QuickSettings.dc.html` — Shell: quick settings hand-off
-
-### Launch and switch
-
-- `Launcher.dc.html` — Shell: launcher
-- `Overview.dc.html` — Shell: overview
-- `WindowSwitcher.dc.html` — Shell: window switcher
-- `WindowSwitcherStates.dc.html` — Shell: switcher states
-- `Clipboard.dc.html` — Shell: clipboard history
-- `ClipboardStates.dc.html` — Shell: clipboard states
-
-### Session
-
-- `Lock.dc.html` — Shell: lock screen
-- `Greeter.dc.html` — Shell: greeter
-- `LoginStates.dc.html` — Shell: login states
-- `Power.dc.html` — Shell: power menu
-- `PowerStates.dc.html` — Shell: power states
-
-### Settings and capture
-
-- `Settings.dc.html` — Shell: settings
-- `SettingsStates.dc.html` — Shell: settings pages
-- `Wallpaper.dc.html` — Shell: wallpaper picker
-- `WallpaperStates.dc.html` — Shell: wallpaper states
-- `Screenshot.dc.html` — Shell: screenshot
-- `ScreenshotStates.dc.html` — Shell: capture states
-
-### Other files
-
-- `canvas.json` — the canvas: its pages, where each artboard sits, its notes and shapes
-- `triton/README.md`
-- `triton/components.css`
-- `triton/sync.py.txt`
-- `triton/tokens.css`
-- `triton/tokens.json`
-- `assets/` — files uploaded to the design (images, fonts, media)
-- `_runtime/` — what runs the pages in a browser; not part of the design
-
-## Uploaded files
-
-Images, fonts and media uploaded to the design are written once each under
-`assets/` — 1 in this export — and the exported files refer to them there. A
-reference a script puts together while the page runs (for example
-`"/_blob/" + id`) is not rewritten and does not load from this folder.
-
-A page in a subfolder may not show an upload that reaches it through a script, a data
-file or an imported component, because those files link to `assets/` from a different folder.
+The tokens the code is built from are [`../design/tokens.json`](../design/tokens.json).
 
 ## Viewing
 
-To view a page, start a local web server in this folder (for example `python3 -m http.server`), then open an artboard’s `.dc.html` file through it. Opening the file directly may not work, because some browsers block its scripts.
+```sh
+cd references && python3 -m http.server
+```
 
-## Left out of this export
+Then open a `.dc.html` file through the server. `_runtime/` and `assets/` are
+what the pages need to run; they are not part of the design.
 
-The export never includes hidden files (files whose names start with a dot) or
-files the editor keeps for its own use.
+## Boards
+
+| Group | Boards |
+|---|---|
+| Overview | `Main`, `Adwaita` |
+| Foundations | `Color`, `Type`, `Materials` |
+| Components | `Controls`, `Containers`, `ComponentIndex` |
+| Bar and panels | `BarStates`, `MediaBar`, `Notifications`, `OSD`, `QuickSettings` |
+| Launch and switch | `Launcher`, `Overview`, `WindowSwitcher`, `WindowSwitcherStates`, `Clipboard`, `ClipboardStates` |
+| Session | `Lock`, `Greeter`, `LoginStates`, `Power`, `PowerStates` |
+| Settings and capture | `Settings`, `SettingsStates`, `Wallpaper`, `WallpaperStates`, `Screenshot`, `ScreenshotStates` |
+
+## Principles
+
+1. **Real estate first.** Tiled windows are square with no gaps. Radius, shadow
+   and blur belong to things that float.
+2. **Three materials.** Solid for content, Mica for chrome, Glass for floating
+   things, Thick Glass for big panels over busy content. No glass on glass.
+3. **Color from the wallpaper.** Primary is action and focus, tertiary is
+   warmth, containers carry state. In the light scheme, primary is for fills,
+   never text on a material.
+4. **The wave is identity:** launcher button, avatars, album art, swatches,
+   loading. Never decoration on controls.
+5. **Springs, not durations.** Spatial springs may overshoot a little; effects
+   springs never do. Reduce motion swaps both for short fades.
+6. **Re-skin, never re-layout** GNOME and libadwaita apps.
+
+The boards were drawn for another compositor and mention niri; Callisto uses
+Hyprland. Where the boards disagree with each other, the decisions are in
+[component-system §8](../docs/design/component-system.md).

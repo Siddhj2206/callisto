@@ -27,9 +27,6 @@
 # Copied from design/fonts so the shell can load them from its own tree
 /shell/triton/fonts/
 
-# A separate repository, kept beside the design boards for reference
-/references/dux-shell/
-
 # Editors and tools
 __pycache__/
 *.swp
