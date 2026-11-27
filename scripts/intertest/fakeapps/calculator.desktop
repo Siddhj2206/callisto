@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Calculator
-GenericName=calculator
-Comment=calculator
-Icon=applications-other
-Exec=/bin/true
-Categories=Utility;

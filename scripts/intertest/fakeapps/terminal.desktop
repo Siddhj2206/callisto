@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Terminal
-GenericName=terminal emulator
-Comment=terminal emulator
-Icon=applications-other
-Exec=/bin/true
-Categories=Utility;
