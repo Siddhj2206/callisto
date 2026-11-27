@@ -133,10 +133,10 @@ definition of done is in `component-system.md` §7.
 - [x] Light mode and contrast pass: Mica and Glass now show the wallpaper only and get as opaque as text needs over it, Thick holds AA over anything, Solid is really opaque. `scripts/check-contrast.py` measures it. In QEMU: bar, quick settings, toasts, center, OSD and Settings in light mode. Open: switcher and wallpaper picker in light mode on screen, contrast of the Medium and High settings, real GPU
 - [x] Check blur on every surface: bar, OSD, quick settings, toasts and the center show the blurred wallpaper with a window behind them; the launcher blurs the window. In QEMU. Open: clipboard and switcher over a busy window
 
-ISO rebuilt at `461bc8f` and booted in QEMU with nothing patched in: no failed
+ISO rebuilt at `af55d23` and booted in QEMU with nothing patched in: no failed
 units; launcher, clipboard, screenshot, overview, lock, greeter and login work.
 
-ISO rebuilt at `69be7a3` (clean) and booted in QEMU with nothing patched in: no
+ISO rebuilt at `c7470b4` (clean) and booted in QEMU with nothing patched in: no
 failed units and no shell errors. Checked on it: Super+B, the media pill, track
 OSD and lock screen pill, background apps, volume OSD, screen recording with and
 without speaker sound, Settings, switching to light mode, quick settings, lock
@@ -165,7 +165,7 @@ Missing
 - [ ] Greeter: network and accessibility buttons; disk unlock screen (with Plymouth)
 - [ ] Lock: next calendar event, keyboard layout in the status pill
 
-ISO rebuilt from the reorganised repository (clean, `6305eae`) and checked in
+ISO rebuilt from the reorganised repository (clean, `9b30600`) and checked in
 QEMU: `make smoke`; no failed units in the live session; Settings opens; an
 offline UEFI install with encrypted ext4 boots, takes the passphrase, logs in
 through the greeter on a UK layout, locks and unlocks, and keeps nothing from
@@ -197,5 +197,5 @@ the live session.
 - [ ] CI: `qmllint`, shell harness, ISO build, QEMU smoke test
 - [x] Licence: GPL-3.0-or-later
 - [x] An attributed wallpaper: ESO's artist's impression of Triton, CC BY 4.0 (`THIRD_PARTY.md`)
-- [ ] Before the first push: history still carries about 170 MB of removed test screenshots
+- [x] History rewritten before the first push: no test captures, build output or old wallpaper
 - [ ] The step that cuts the icon font subsets is not in the repository
