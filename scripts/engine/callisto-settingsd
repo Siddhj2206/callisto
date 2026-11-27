@@ -100,7 +100,6 @@ SCHEMA = {
     "display.refreshRate": one_of("60", "120", "auto"),
     "display.vrr": boolean,
     "display.nightLight": boolean,
-    "power.profile": one_of("power-saver", "balanced", "performance"),
     "power.dimIdle": boolean,
     "power.suspendIdle": boolean,
 }
@@ -125,7 +124,6 @@ DOMAIN_OF = {
     "display.refreshRate": "display",
     "display.vrr": "display",
     "display.nightLight": "nightlight",
-    "power.profile": "profile",
     "power.dimIdle": "idle",
     "power.suspendIdle": "idle",
 }
@@ -298,8 +296,7 @@ async def main() -> None:
     daemon = Daemon()
     server = await asyncio.start_unix_server(daemon.client, sock=listening_socket())
     tasks = [asyncio.create_task(daemon.applier()), asyncio.create_task(daemon.schedule())]
-    # Bring the session in line with the store once. A power profile is only
-    # set if the user ever chose one.
+    # Bring the session in line with the store once.
     daemon.mark(*engine.DOMAINS)
     notify_ready()
     async with server:

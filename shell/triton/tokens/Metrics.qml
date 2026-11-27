@@ -148,6 +148,20 @@ QtObject {
     readonly property real shotThumb: board ? 170 : 140
     readonly property real countdownBadge: board ? 200 : 144
     readonly property real minSelection: 4
+    readonly property real settingsWidth: board ? 1100 : 920
+    readonly property real settingsHeight: board ? 760 : 640
+    readonly property real settingsMinWidth: board ? 720 : 560
+    readonly property real settingsMinHeight: board ? 520 : 440
+    readonly property real settingsNarrow: board ? 860 : 760
+    readonly property real settingsSidebar: board ? 280 : 220
+    readonly property real settingsContent: board ? 760 : 720
+    readonly property real settingsControl: board ? 320 : 220
+    readonly property real settingsStack: board ? 560 : 480
+    readonly property real settingsPad: board ? 32 : 24
+    readonly property real settingsHero: board ? 200 : 168
+    readonly property real optionCard: board ? 200 : 150
+    readonly property real optionPreview: board ? 96 : 64
+    readonly property real accentDot: board ? 48 : 30
     readonly property real lockSide: board ? 68 : 32
     readonly property real lockNotifications: board ? 380 : 300
     readonly property real lockField: board ? 56 : 44

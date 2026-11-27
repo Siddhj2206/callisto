@@ -22,3 +22,5 @@ singleton BrightnessService 1.0 BrightnessService.qml
 singleton PowerService 1.0 PowerService.qml
 singleton SessionStatus 1.0 SessionStatus.qml
 singleton GreeterState 1.0 GreeterState.qml
+singleton SettingsCatalog 1.0 SettingsCatalog.qml
+ThemeSync 1.0 ThemeSync.qml

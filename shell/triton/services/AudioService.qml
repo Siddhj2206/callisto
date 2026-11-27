@@ -5,7 +5,7 @@ import Quickshell
 import Quickshell.Services.Pipewire
 import QtQuick
 
-// Default output and microphone, and the list of outputs to choose from.
+// Default output and microphone, and the lists to choose them from.
 Singleton {
     id: root
 
@@ -17,7 +17,12 @@ Singleton {
     readonly property bool muted: available ? audio.muted : false
     readonly property var outputs: Pipewire.nodes.values.filter(node => node.isSink && !node.isStream && node.audio !== null)
 
-    PwObjectTracker { objects: [root.sink, root.source, ...root.outputs].filter(node => node !== null) }
+    readonly property var inputs: Pipewire.nodes.values.filter(node => !node.isSink && !node.isStream && node.audio !== null)
+    readonly property var sourceAudio: source?.audio ?? null
+    readonly property real sourceVolume: sourceAudio ? sourceAudio.volume : 0
+    readonly property bool sourceMuted: sourceAudio ? sourceAudio.muted : false
+
+    PwObjectTracker { objects: [root.sink, root.source, ...root.outputs, ...root.inputs].filter(node => node !== null) }
 
     function name(node) {
         return node ? (node.description || node.nickname || node.name) : "";
@@ -38,6 +43,23 @@ Singleton {
     function toggleMute() {
         if (available)
             audio.muted = !audio.muted;
+    }
+
+    function setSourceVolume(value) {
+        if (!sourceAudio)
+            return;
+        sourceAudio.volume = Math.max(0, Math.min(1, value));
+        if (value > 0)
+            sourceAudio.muted = false;
+    }
+
+    function toggleSourceMute() {
+        if (sourceAudio)
+            sourceAudio.muted = !sourceAudio.muted;
+    }
+
+    function setInput(node) {
+        Pipewire.preferredDefaultAudioSource = node;
     }
 
     function setOutput(node) {

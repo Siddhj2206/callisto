@@ -156,16 +156,15 @@ def matugen_scheme(image_path: str, contrast: float = 0.0, remember: bool = True
     return None
 
 
-# Accents are wallpaper regions on the board. Their exact seed hexes are
-# derived from the board's rendered swatches; "wallpaper" means dominant-color
-# extraction, a "#rrggbb" string means fully custom, and the names are curated
-# seeds. All of them flow through the same matugen scheme generation.
+# Accents are wallpaper regions on the board, which gives their seed colors
+# (SettingsCatalog shows the same). "wallpaper" means dominant-color
+# extraction, a "#rrggbb" string means fully custom, and the names are presets. All of them flow through the same matugen scheme generation.
 ACCENT_SEEDS = {
     "planet": "#2458C8",
-    "hull": "#1B4560",
-    "rock": "#4A4D55",
-    "shadow": "#23262E",
-    "haze": "#4A3D8F",
+    "hull": "#D8DEE8",
+    "rock": "#C0552A",
+    "shadow": "#1B2A4A",
+    "haze": "#4FA3A5",
 }
 
 
@@ -521,12 +520,6 @@ def live_idle(store: dict) -> None:
         run_quiet("systemctl", "--user", "try-restart", "hypridle.service", timeout=10)
 
 
-def live_profile(store: dict) -> None:
-    profile = store.get("power", {}).get("profile")
-    if profile in ("power-saver", "balanced", "performance"):
-        run_quiet("powerprofilesctl", "set", profile)
-
-
 def live_appearance_keys(store: dict) -> None:
     # xdg-desktop-portal-gtk republishes these as the appearance portal keys,
     # which is how dark mode reaches GTK4, Firefox, Electron and Flatpaks.
@@ -555,7 +548,7 @@ def write_palette(store: dict, effective: dict, active: dict) -> list:
 
 
 # What a change can touch. settingsd passes only the ones that changed.
-DOMAINS = ("palette", "material", "input", "display", "nightlight", "idle", "profile")
+DOMAINS = ("palette", "material", "input", "display", "nightlight", "idle")
 
 
 def apply(store: dict, domains=DOMAINS) -> list:
@@ -576,7 +569,7 @@ def apply(store: dict, domains=DOMAINS) -> list:
         live_appearance_keys(store)
     for domain, push in (("material", live_material), ("input", live_input),
                          ("display", live_display), ("nightlight", live_nightlight),
-                         ("idle", live_idle), ("profile", live_profile)):
+                         ("idle", live_idle)):
         if domain in domains:
             push(store)
     return changed

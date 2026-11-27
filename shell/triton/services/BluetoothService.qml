@@ -42,6 +42,24 @@ Singleton {
             root.adapter.enabled = on;
     }
 
+    // Looking for new devices costs power, so only while someone is watching.
+    function scan(on) {
+        if (root.available && root.adapter.enabled)
+            root.adapter.discovering = on;
+    }
+
+    function toggleDevice(row) {
+        const d = row?.deviceObj;
+        if (!d)
+            return;
+        if (d.connected)
+            d.disconnect();
+        else if (d.paired)
+            d.connect();
+        else
+            d.pair();
+    }
+
     function connectDevice(row) {
         if (row && row.deviceObj)
             row.deviceObj.connected = true;

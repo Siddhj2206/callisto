@@ -42,7 +42,7 @@ It listens on `$XDG_RUNTIME_DIR/callisto/settingsd.sock` for JSON lines
 (`{"op":"set","key":"appearance.mode","value":"light"}`, `{"op":"get"}`),
 refuses keys and values outside its schema, writes the store atomically, and
 after 120 ms of quiet runs the engine for the domains that changed (palette,
-material, input, display, nightlight, idle, profile). `shell.*` and
+material, input, display, nightlight, idle). `shell.*` and
 `notifications.*` keys run nothing: the shell reads them from the store.
 
 A new setting needs a schema entry in the daemon, and a domain if something

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Settings
+Comment=Change how this computer looks and behaves
+Exec=callisto-settings
+Icon=preferences-system
+Categories=Settings;
+Keywords=preferences;display;sound;network;wallpaper;theme;
+StartupNotify=false

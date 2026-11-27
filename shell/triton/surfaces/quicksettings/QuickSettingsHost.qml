@@ -28,9 +28,9 @@ Popover {
     readonly property bool scanning: open && page === "wifi"
     onScanningChanged: NetworkService.scan(scanning)
 
-    function openSettings(index) {
+    function openSettings(page) {
         QuickSettingsState.dismiss();
-        SettingsAppState.show(index);
+        SettingsAppState.show(page);
     }
 
     QsPanel {
@@ -120,7 +120,7 @@ Popover {
             onBack: QuickSettingsState.page = ""
             onToggled: on => NetworkService.setWifiEnabled(on)
             onConnectRequested: (network, password) => NetworkService.connectTo(network, password)
-            onSettingsRequested: root.openSettings(0)
+            onSettingsRequested: root.openSettings("network")
         }
     }
 
@@ -133,7 +133,7 @@ Popover {
             onBack: QuickSettingsState.page = ""
             onToggled: on => BluetoothService.setEnabled(on)
             onDeviceClicked: device => device.connected ? device.disconnect() : device.connect()
-            onSettingsRequested: root.openSettings(1)
+            onSettingsRequested: root.openSettings("bluetooth")
         }
     }
 
@@ -144,7 +144,7 @@ Popover {
             current: AudioService.sink
             onBack: QuickSettingsState.page = ""
             onOutputClicked: node => AudioService.setOutput(node)
-            onSettingsRequested: root.openSettings(3)
+            onSettingsRequested: root.openSettings("sound")
         }
     }
 }

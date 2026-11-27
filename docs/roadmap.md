@@ -83,9 +83,9 @@ before. The old shell code is a reference only. Rules and file layout are in
 - [ ] Keybinds through `GlobalShortcut`; media keys without `uwsm app` (#7, M7)
 - [x] Shell as `callisto-shell.service`, with lock restore (M8). In QEMU: killed while locked, it restarts and locks again. The unit starts on a built ISO
 - [x] `callisto-settingsd` (#3, #4, #5, M9): socket-activated, validates values, applies only what changed, owns the day/night schedule. `callisto-apply` stays as its compiler, and for seeding before the session. In QEMU, not yet in a built ISO. Open: the portal Settings backend (with M16), night light on a schedule, the power profile still passes through the store (M10)
-- [ ] Power profile set by the shell (M10)
+- [x] Power profile set by the shell (M10), out of the settings store. In QEMU
 - [ ] Simpler start-up (#25 part, M11)
-- [ ] Settings as its own process (#16, M12)
+- [x] Settings as its own process (#16, M12): `callisto-settings`, `settings-app.qml`, a menu entry. In QEMU: its own systemd scope
 - [ ] Flatpak cleanup: Debian Nautilus, pinned languages, Bazaar (#23, #24, M13)
 - [ ] Boot trim, zram, oomd (#25, M14)
 - [ ] Hyprland GPU defaults and per-surface layer rules (M15)
@@ -121,7 +121,7 @@ definition of done is in `component-system.md` §7.
 - [x] Lock (#10, #14): pure view and host, shared backdrop, login card and password field. In QEMU: wrong and right password, restart while locked, with and without the blur module. Open: media pill, caps-lock chip, unlocking state, a look on real multi-monitor hardware
 - [x] Greeter: greetd running the shell's `greeter.qml`, tuigreet behind it. In QEMU: login, back after logout, wrong and right password, shut down, fallback. On a built ISO: back after logout and login. Open: other users by name, keyboard layout and session pickers, multi-monitor
 - [x] Screenshot (#10): frozen screen, region, window and screen modes, delay, result card. In QEMU: region, whole screen and window captures reach the file and the clipboard. Open: video recording, markup editor, selection handles, private windows, multi-monitor, window hover on real hardware (the VM delivers motion without a pointer frame)
-- [ ] Settings app (#11)
+- [x] Settings app (#11, #16): 14 pages on the component library, only controls that do something. In QEMU: every page, search by typing, accent, light mode, bar mode, power mode, one instance, closing ends it. **Not yet in a built ISO**. Open: the apply checklist toast, monitor arrangement and per-display settings, the shortcuts list, per-app volume, default-app choosers, Wi-Fi password and Bluetooth pairing on real hardware, page transitions
 - [ ] Light mode and contrast pass
 - [ ] **Check blur on every surface.** ISO rebuilt at `fb763d0`; blur is on and looks right behind the launcher and power menu. Bar, OSD, quick settings, toasts and the center still need a look over a busy background
 

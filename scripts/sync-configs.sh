@@ -130,6 +130,11 @@ install -D -m 0644 "$REPO_ROOT/configs/systemd/user/callisto-clipboard.service" 
 # Screenshots: the capture and crop helper.
 install -m 0755 "$REPO_ROOT/scripts/engine/callisto-shot" "$INCLUDES/usr/local/bin/"
 
+# Settings: its launcher and menu entry (the app is part of the shell tree).
+install -m 0755 "$REPO_ROOT/scripts/callisto-settings" "$INCLUDES/usr/local/bin/"
+install -D -m 0644 "$REPO_ROOT/configs/applications/org.callisto.Settings.desktop" \
+    "$INCLUDES/usr/share/applications/org.callisto.Settings.desktop"
+
 # The shell itself.
 install -D -m 0644 "$REPO_ROOT/configs/systemd/user/callisto-shell.service" \
     "$INCLUDES/usr/lib/systemd/user/callisto-shell.service"

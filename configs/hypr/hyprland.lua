@@ -113,7 +113,7 @@ hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
 hl.window_rule({ match = { float = true }, rounding = 20 })
 
 -- Shell dialogs and settings windows float by design.
-hl.window_rule({ match = { title = "^(Callisto Settings)$" }, float = true, center = true, rounding = 20 })
+hl.window_rule({ match = { class = "^(org\\.callisto\\.Settings)$" }, float = true, center = true, rounding = 20 })
 
 -- --- Layer rules: shell materials -------------------------------------------------
 -- Quickshell layer surfaces get compositor blur for Glass and Thick Glass.
@@ -160,7 +160,7 @@ hl.bind("ALT + Alt_L",       hl.dsp.global("callisto:switcher-commit"), { releas
 hl.bind(mod .. " + V",           qsipc("clipboard", "toggle"))
 hl.bind(mod .. " + N",           qsipc("notifications", "toggle"))
 hl.bind(mod .. " + I",           qsipc("quicksettings", "toggle"))
-hl.bind(mod .. " + comma",       qsipc("settings", "toggle"))
+hl.bind(mod .. " + comma",       hl.dsp.exec_cmd("callisto-settings"))
 hl.bind(mod .. " + SHIFT + W",   qsipc("wallpaper", "toggle"))
 
 -- Apps

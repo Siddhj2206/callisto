@@ -28,7 +28,7 @@ with tempfile.TemporaryDirectory() as tmp:
     for path in (home, bin_dir, runtime):
         path.mkdir()
     calls = tmp / "calls"
-    for name in ("hyprctl", "gsettings", "systemctl", "powerprofilesctl"):
+    for name in ("hyprctl", "gsettings", "systemctl"):
         stub = bin_dir / name
         # hyprctl is slow, so that changes can arrive during an apply.
         stub.write_text(f'#!/bin/sh\necho "{name} $*" >> {calls}\n' + ("sleep 0.2\n" if name == "hyprctl" else ""))
@@ -74,7 +74,6 @@ with tempfile.TemporaryDirectory() as tmp:
 
         first = new_calls(3)
         check("applies everything on start", "hyprsunset" in first and "gsettings" in first)
-        check("leaves the power profile alone until one is chosen", "powerprofilesctl" not in first)
         check("creates the store", json.loads(store.read_text()) == {"version": 1})
         check("no monitor rule before a scale is chosen", "hl.monitor" not in user_lua.read_text())
 

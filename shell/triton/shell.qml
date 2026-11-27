@@ -3,7 +3,6 @@ pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Io
 import QtQuick
-import "settings"
 import "services"
 import qs.foundations
 import qs.surfaces.bar
@@ -76,29 +75,6 @@ ShellRoot {
 
     WallpaperHost {}
 
-    // The settings app: a normal floating window inside the same shell
-    // process. It shares SettingsService and Theme singletons with the
-    // shell — editing a setting repaints the shell in the same frame the
-    // engine writes, no IPC needed. Toggled by the launcher/QS buttons via
-    // the state below.
-    FloatingWindow {
-        id: settingsWindow
-        visible: SettingsAppState.open
-        title: "Callisto Settings" // hyprland.lua floats it by this title
-        color: "transparent"
-        implicitWidth: 1100
-        implicitHeight: 700 // fits an 800px screen under the pinned bar
-        minimumSize: Qt.size(900, 620)
-        onVisibleChanged: {
-            if (!visible)
-                SettingsAppState.open = false;
-        }
-
-        SettingsWindow {
-            anchors.fill: parent
-        }
-    }
-
     // IPC: Hyprland keybinds and user scripts drive shell surfaces through
     // `qs ipc call <target> <function>` — no socket hacks, no dotfile
     // editing. The settings app uses the same channel for live preview.
@@ -133,10 +109,6 @@ ShellRoot {
         function toggle(): void { OverviewState.toggle(); }
     }
     IpcHandler {
-        target: "settings"
-        function toggle(): void { SettingsAppState.toggle(); }
-    }
-    IpcHandler {
         target: "bar"
         function toggle(): void { BarState.toggle(); }
     }
@@ -153,47 +125,5 @@ ShellRoot {
         function toggle(): void { WallpaperState.toggle(); }
     }
 
-    // Live theme application: the theme engine writes user-resolved tokens
-    // here when the settings app changes accent/contrast/mode. watchChanges
-    // re-fires onLoaded on every write, so accent changes repaint the whole
-    // shell in the same frame the engine writes — no restart, no re-login.
-    FileView {
-        id: userTokens
-        path: Quickshell.env("HOME") + "/.config/callisto/tokens.json"
-        watchChanges: true
-        atomicWrites: true
-        blockLoading: false
-        onFileChanged: reload()
-        onLoaded: {
-            try {
-                Theme.reduceMotion = SettingsService.get("shell", "reduceMotion", false);
-                Theme.applyUserTokens(JSON.parse(text()));
-            } catch (e) {
-                console.warn("triton: user tokens unparseable, keeping compiled defaults:", e);
-            }
-        }
-        onLoadFailed: {
-            // No user tokens yet — compiled defaults apply. Normal before
-            // the first settings change.
-        }
-    }
-
-    // Auto light/dark: re-resolve on the minute boundary. Cheap, since
-    // applyUserTokens only repaints when active_mode flips the palette. Other
-    // apps follow through settingsd, which keeps the same schedule.
-    Timer {
-        interval: 60000
-        running: Theme.userTokens !== null
-        repeat: true
-        onTriggered: Theme.applyUserTokens(Theme.userTokens)
-    }
-
-    // reduceMotion follows the store reactively — it lives outside the
-    // tokens file since it's an accessibility preference, not a color role.
-    Connections {
-        target: SettingsService
-        function onStoreChanged() {
-            Theme.reduceMotion = SettingsService.get("shell", "reduceMotion", false);
-        }
-    }
+    ThemeSync {}
 }

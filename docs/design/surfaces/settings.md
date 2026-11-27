@@ -84,3 +84,23 @@ Pipewire, display) are the salvageable half; layouts are not. Note
 `docs/audit.md` defect 11: the accent seeds in `AppearancePanel.qml` contradict
 the boards (Hull pale, Rock orange): take seeds from the board
 (`#2458C8 #D8DEE8 #C0552A #1B2A4A #4FA3A5`).
+
+## As built
+
+`settings-app.qml` (its own Quickshell process, app id `org.callisto.Settings`),
+`scripts/callisto-settings` (opens it or brings it forward, on a named page),
+`surfaces/settings/` and `services/SettingsCatalog`. `gallery-settings.qml`
+renders it without services.
+
+- A setting is shown only if something obeys it. Left out for that reason: gaps,
+  radii and column presets, expressiveness, reveal edge, refresh-rate choice,
+  seconds in the clock, material fallback on battery.
+- Sidebar and page are one `Page` column at most `settingsContent` wide; below
+  `settingsNarrow` they take turns, with a back button.
+- Typing searches, Ctrl+F focuses the field, Escape clears, Up and Down change
+  page, Enter opens the first result.
+- Accent presets use the board's seed colors (audit #11).
+- The power mode goes straight to power-profiles-daemon.
+- Not built: apply checklist toast, monitor arranger and per-display settings,
+  layout preview, shortcuts list, per-app volume, default-app choosers, drill
+  and crossfade transitions.
