@@ -1,0 +1,23 @@
+#!/bin/sh
+# Live session only. The installer applies the chosen keyboard with setxkbmap,
+# which a Wayland compositor never sees, so passwords would be typed on one
+# layout and asked for on another. Pass the choice on to Hyprland.
+if [ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+    exec /usr/bin/setxkbmap "$@"
+fi
+layout= variant= options=
+args="$*"
+while [ $# -gt 0 ]; do
+    case $1 in
+        -layout) layout=${2:-}; shift ;;
+        -variant) variant=${2:-}; shift ;;
+        -option) options=${2:-}; shift ;;
+    esac
+    [ $# -gt 0 ] && shift
+done
+[ -n "$layout" ] || exec /usr/bin/setxkbmap $args
+# These go into a Lua string.
+case "$layout$variant$options" in
+    *[!A-Za-z0-9_,:-]*) echo "setxkbmap: odd keyboard layout: $args" >&2; exit 1 ;;
+esac
+exec hyprctl eval "hl.config({ input = { kb_layout = \"$layout\", kb_variant = \"$variant\", kb_options = \"$options\" } })"

@@ -22,5 +22,5 @@ colors.write_text(engine.emit_qt6ct_colorscheme(light))
     f"[Appearance]\ncolor_scheme_path={colors}\ncustom_palette=true\nstyle={engine.qt_style()}\n")
 (out / "kdeglobals").write_text(engine.merge_ini(out / "kdeglobals", engine.kde_colors(light)))
 PY
-exec sudo --preserve-env=XDG_RUNTIME_DIR,WAYLAND_DISPLAY,QT_QPA_PLATFORM,QT_QPA_PLATFORMTHEME \
+exec sudo --preserve-env=XDG_RUNTIME_DIR,WAYLAND_DISPLAY,HYPRLAND_INSTANCE_SIGNATURE,QT_QPA_PLATFORM,QT_QPA_PLATFORMTHEME \
     XDG_CONFIG_HOME="$qt" /usr/bin/calamares "$@"

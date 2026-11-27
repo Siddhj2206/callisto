@@ -17,6 +17,7 @@ rm -rf "$root/etc/calamares" "$root/usr/lib/callisto/install-prepare" \
     "$root/usr/lib/callisto/install-bootloader"
 rm -f "$root/etc/sudoers.d/callisto-live" \
     "$root/usr/local/bin/callisto-install" \
+    "$root/usr/local/bin/setxkbmap" \
     "$root/usr/share/applications/org.callisto.Install.desktop" \
     "$root/usr/lib/systemd/user/callisto-install-hint.service" \
     "$root/etc/systemd/user/graphical-session.target.wants/callisto-install-hint.service"
