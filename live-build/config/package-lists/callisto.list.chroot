@@ -75,9 +75,10 @@ hypridle
 hyprlock
 hyprsunset
 
-# --- File management infrastructure ---------------------------------------------
-# gvfs gives the shell and portals trash, thumbnails, and mounts; the GNOME
-# file manager itself comes as a Flatpak like the other GUI apps.
+# --- File management ------------------------------------------------------------
+# Nautilus is the one GUI app from Debian: Flathub's build is end-of-life
+# (3.28). gvfs gives it, the shell and portals trash, thumbnails, and mounts.
+nautilus
 gvfs
 gvfs-backends
 

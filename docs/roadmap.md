@@ -155,7 +155,10 @@ Missing
 - [x] Background apps (tray) behind the bar's overflow button
 - [x] Privacy chips: microphone in use, screen shared or camera on
 - [ ] Urgent workspace pulses and reveals the bar
-- [ ] GTK apps get colors only: no translucent header bar and sidebar, no 20 px buttons (`Adwaita` board); the terminal has no Mica background
+- [x] GTK4 apps follow the `Adwaita` board: palette, translucent window and sidebar, solid content, pill buttons and rows, Glass popovers, with a toggle in Settings. In a VM, on Files from Debian, dark and light. Before this no Flatpak app saw our colors at all. Open: folder icons stay blue; Text Editor paints itself from its editor style; Flatpak Qt apps and GTK3 apps follow light/dark only
+- [x] Qt apps from Debian get the palette (qt6ct had been rejecting the color file). In a VM
+- [x] Files comes from Debian; Flathub's was end-of-life 3.28
+- [ ] The terminal has no Mica background
 - [ ] Greeter: network and accessibility buttons; disk unlock screen (with Plymouth)
 - [ ] Lock: next calendar event, keyboard layout in the status pill
 

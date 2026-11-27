@@ -9,9 +9,6 @@
 # runtimes dominate ISO size. Demos need enough apps to make the launcher
 # feel real, not a full workstation.
 
-# File management
-org.gnome.Nautilus
-
 # Text editing
 org.gnome.TextEditor
 
