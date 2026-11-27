@@ -1,6 +1,6 @@
 #!/bin/sh
 # The bar is hidden by default, so say where the installer is.
 sleep 4
-action=$(notify-send --app-name=Callisto --urgency=critical --action=install="Install Callisto" \
+action=$(notify-send --app-name=Callisto --expire-time=0 --action=install="Install Callisto" \
     "You are trying Callisto" "Nothing is saved until you install. Super+Space opens the launcher.")
 [ "$action" = install ] && exec uwsm app -- callisto-install

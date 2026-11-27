@@ -1,6 +1,6 @@
 [Unit]
 Description=Offer to install Callisto
-After=callisto-shell.service
+After=graphical-session.target callisto-shell.service
 PartOf=graphical-session.target
 ConditionKernelCommandLine=boot=live
 

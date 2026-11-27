@@ -1,5 +1,26 @@
 #!/bin/sh
-# Start the installer from the live session. Root, on the user's Wayland
-# socket, with the user's Qt colors.
+# Start the installer from the live session: root, on the user's Wayland
+# socket. Always in the light palette, whatever the session uses: Calamares
+# draws some labels in black.
+qt="${XDG_RUNTIME_DIR}/callisto-installer"
+mkdir -p "$qt/qt6ct/colors"
+python3 - "$qt" <<'PY'
+import sys
+from importlib.machinery import SourceFileLoader
+from importlib.util import module_from_spec, spec_from_loader
+from pathlib import Path
+
+sys.dont_write_bytecode = True
+loader = SourceFileLoader("engine", "/usr/local/bin/callisto-apply")
+engine = module_from_spec(spec_from_loader("engine", loader))
+loader.exec_module(engine)
+light = {"color": {"dark": engine.load_tokens()["color"]["light"]}}
+out = Path(sys.argv[1])
+colors = out / "qt6ct/colors/callisto.conf"
+colors.write_text(engine.emit_qt6ct_colorscheme(light))
+(out / "qt6ct/qt6ct.conf").write_text(
+    f"[Appearance]\ncolor_scheme_path={colors}\ncustom_palette=true\nstyle={engine.qt_style()}\n")
+(out / "kdeglobals").write_text(engine.merge_ini(out / "kdeglobals", engine.kde_colors(light)))
+PY
 exec sudo --preserve-env=XDG_RUNTIME_DIR,WAYLAND_DISPLAY,QT_QPA_PLATFORM,QT_QPA_PLATFORMTHEME \
-    XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}" /usr/bin/calamares "$@"
+    XDG_CONFIG_HOME="$qt" /usr/bin/calamares "$@"
