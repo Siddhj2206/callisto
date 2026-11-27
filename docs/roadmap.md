@@ -52,7 +52,7 @@ Branch `fix/broken-basics`. Tested on a booted ISO in QEMU on 2026-11-27.
 
 ## 2. Remaining correctness fixes
 
-- [ ] Dedicated lock-screen PAM stack (#8, #22, M3)
+- [x] Dedicated lock-screen PAM stack, `callisto-lock`, falling back to `login` if the file is missing (#8, #22, M3). In QEMU. Fingerprint is not in the first release
 - [x] Clipboard via `cliphist` as a user service, skipping password-manager copies (#9, M4). Checked in a VM with the package and unit installed by hand; **not yet in a built ISO**
 - [ ] Atomic settings store writes (#4, M6)
 - [ ] Don't drop a change made while the engine is running (#3; M9 replaces this)
@@ -80,7 +80,7 @@ before. The old shell code is a reference only. Rules and file layout are in
 ## 4. Platform architecture
 
 - [ ] Keybinds through `GlobalShortcut`; media keys without `uwsm app` (#7, M7)
-- [ ] Shell as a systemd user unit, with lock restore (M8)
+- [x] Shell as `callisto-shell.service`, with lock restore (M8). In QEMU: killed while locked, it restarts and locks again. **Not yet in a built ISO**
 - [ ] `callisto-settingsd` replaces `callisto-apply` (#3, #4, #5, M9)
 - [ ] Power profile set by the shell (M10)
 - [ ] Simpler start-up (#25 part, M11)
@@ -117,7 +117,8 @@ definition of done is in `component-system.md` §7.
   - [ ] Retention settings; grouping by day
 - [ ] Window switcher and Overview (#10)
 - [ ] Wallpaper picker (#15)
-- [ ] Lock and Greeter (#10, #14)
+- [x] Lock (#10, #14): pure view and host, shared backdrop, login card and password field. In QEMU: wrong and right password, restart while locked, with and without the blur module. Open: media pill, caps-lock chip, unlocking state, a look on real multi-monitor hardware
+- [ ] Greeter
 - [ ] Screenshot (#10)
 - [ ] Settings app (#11)
 - [ ] Light mode and contrast pass

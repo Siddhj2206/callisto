@@ -53,6 +53,7 @@ hyprland
 quickshell
 uwsm
 qt6-wayland
+qml6-module-qtquick-effects
 # QT_QPA_PLATFORMTHEME=qt6ct (set in /etc/xdg/uwsm/env): Qt apps autoselect
 # nothing useful on Hyprland sessions, and hyprqt6engine isn't packaged in
 # Debian. The engine generates qt6ct's color scheme from the Triton tokens.

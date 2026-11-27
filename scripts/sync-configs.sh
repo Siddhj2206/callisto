@@ -120,6 +120,13 @@ install -m 0755 "$REPO_ROOT/scripts/engine/callisto-clip" \
 install -D -m 0644 "$REPO_ROOT/configs/systemd/user/callisto-clipboard.service" \
     "$INCLUDES/usr/lib/systemd/user/callisto-clipboard.service"
 
+# The shell itself.
+install -D -m 0644 "$REPO_ROOT/configs/systemd/user/callisto-shell.service" \
+    "$INCLUDES/usr/lib/systemd/user/callisto-shell.service"
+
+# The lock screen's own PAM stack.
+install -D -m 0644 "$REPO_ROOT/configs/pam/callisto-lock" "$INCLUDES/etc/pam.d/callisto-lock"
+
 # Seed the compiled outputs so first-boot targets that fail hard on missing
 # includes (foot's include directive) find real files. These are the same
 # bytes `callisto-apply` would emit from defaults; the engine rewrites them

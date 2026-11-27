@@ -6,12 +6,12 @@ import QtQuick
 import "overview"
 import "wallpaper"
 import "settings"
-import "lock"
 import "services"
 import qs.foundations
 import qs.surfaces.bar
 import qs.surfaces.clipboard
 import qs.surfaces.launcher
+import qs.surfaces.lock
 import qs.surfaces.notifications
 import qs.surfaces.osd
 import qs.surfaces.power
@@ -54,7 +54,7 @@ ShellRoot {
     // The session lock exists for the shell's lifetime — it must never be
     // created on demand (window-creation latency at lock time is a security
     // hole) and never destroyed while locked.
-    LockWindow {}
+    LockHost {}
 
     // Notifications: toasts appear on demand; the center opens from the bell.
     ToastHost {}

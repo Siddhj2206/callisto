@@ -86,6 +86,8 @@ hl.config({
         mouse_move_enables_dpms = true,
         key_press_enables_dpms = true,
         vrr = 1,
+        -- Let a restarted shell take over a lock the old one held.
+        allow_session_lock_restore = true,
     },
 
     ecosystem = {
@@ -122,12 +124,13 @@ hl.layer_rule({ match = { namespace = "^(quickshell)$" }, no_anim = true })
 
 -- --- Session autostart --------------------------------------------------------------
 -- The shell IS the wallpaper renderer (Desktop.qml layer surface) — no swaybg
--- or hyprpaper. The polkit agent is a systemd user unit (hyprpolkitagent,
--- enabled globally in the image) and needs no autostart entry here either.
+-- or hyprpaper. It runs as callisto-shell.service, which restarts it if it dies,
+-- and the polkit agent is a unit too (hyprpolkitagent, enabled globally).
 -- Everything user-facing spawns through `uwsm app --` so apps land in proper
 -- systemd scopes instead of inside the compositor unit.
 hl.on("hyprland.start", function()
-    hl.exec_cmd("uwsm app -- qs -c triton")
+    -- Only for start-callisto's last resort, a session without uwsm.
+    hl.exec_cmd("command -v uwsm >/dev/null || qs -n -c triton")
 end)
 
 -- --- Keybinds ----------------------------------------------------------------------------

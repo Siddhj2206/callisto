@@ -1,0 +1,19 @@
+[Unit]
+Description=Callisto shell (Triton)
+PartOf=graphical-session.target
+After=graphical-session.target
+ConditionEnvironment=WAYLAND_DISPLAY
+StartLimitIntervalSec=30
+StartLimitBurst=5
+
+[Service]
+Type=exec
+# -n: never a second instance
+ExecStart=/usr/bin/qs -n -c triton
+# Always: a locked session must get its lock screen back however the shell died.
+Restart=always
+RestartSec=300ms
+Slice=session-graphical.slice
+
+[Install]
+WantedBy=graphical-session.target

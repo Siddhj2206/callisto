@@ -23,4 +23,5 @@ QtObject {
     readonly property int osdHold: 1200
     readonly property int toastHold: 6000
     readonly property int powerCountdown: 5000
+    readonly property int passwordReveal: 5000
 }

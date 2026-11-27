@@ -80,6 +80,8 @@ systemctl enable greetd.service || echo "callisto: WARNING could not enable gree
 systemctl set-default graphical.target || true
 
 # --- User services ---------------------------------------------------------------
+systemctl --global enable callisto-shell.service \
+    || echo "callisto: WARNING could not enable the shell" >&2
 systemctl --global enable callisto-clipboard.service \
     || echo "callisto: WARNING could not enable clipboard history" >&2
 

@@ -55,6 +55,28 @@ Ctrl+U clears; eye reveals 5 s (`passwordReveal`); caps-lock chip is a
 passive hint. Fingerprint row shown only when fprintd is present (current code
 always shows it: `docs/audit.md` defect 8). Battery/status hidden in VMs.
 
+## Lock as built
+
+`surfaces/lock/LockScreen.qml` is the view, `LockHost.qml` the session lock,
+`services/LockState.qml` the state and PAM. The greeter reuses
+`patterns/SessionBackdrop`, `LoginCard` and `PasswordField`.
+
+Differences from the boards:
+
+- No lift on unlock: the compositor shows nothing behind a lock surface, so
+  there is nothing to reveal. The lock appears and leaves at once.
+- "Wrong password" without a tries count; PAM does not report one.
+- No fingerprint row (not in the first release). Media pill, caps-lock chip and
+  the unlocking animation are not built; the card says "Checking…".
+- The blur is a Qt effect inside the shell, loaded separately, so a missing
+  `qml6-module-qtquick-effects` costs the blur and nothing else.
+- Waiting notifications show app names and counts, and hide on narrow screens.
+
+Recovery: `callisto-shell.service` restarts the shell, a marker in
+`XDG_RUNTIME_DIR` makes it lock again, and Hyprland's
+`allow_session_lock_restore` lets it take the lock back. In between, Hyprland
+holds the screen locked.
+
 ## Greeter
 
 ```

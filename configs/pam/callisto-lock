@@ -1,0 +1,6 @@
+#%PAM-1.0
+# Unlocking the shell's lock screen, and nothing else: no pam_nologin, no
+# faildelay, no session modules. Deliberately not "@include common-auth",
+# where a fingerprint module could be inserted and hold up the password.
+auth     required  pam_unix.so
+account  required  pam_unix.so
