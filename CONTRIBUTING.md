@@ -46,6 +46,12 @@ The rules, in full in
 - A downloaded binary is pinned by version and checksum, and listed in
   [`THIRD_PARTY.md`](THIRD_PARTY.md).
 
+## Licence
+
+Contributions are made under GPL-3.0-or-later, the licence of the project.
+Anything brought in from elsewhere must be compatible with it and listed in
+[`THIRD_PARTY.md`](THIRD_PARTY.md).
+
 ## Commits
 
 [Conventional commits](https://www.conventionalcommits.org): `fix(installer):

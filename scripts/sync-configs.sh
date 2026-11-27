@@ -53,7 +53,8 @@ for size in 16 24 32 48 64 128 256 512; do
 done
 put 0644 design/logo/png/callisto-logo-256.png usr/share/pixmaps/callisto-logo.png
 
-# The licences travel with the fonts and the borrowed templates.
+# The licences travel with the code, the fonts and the borrowed templates.
+put 0644 LICENSE usr/share/doc/callisto/LICENSE
 put 0644 THIRD_PARTY.md usr/share/doc/callisto/THIRD_PARTY.md
 for licence in "$REPO"/licenses/*; do
     put 0644 "licenses/${licence##*/}" "usr/share/doc/callisto/licenses/${licence##*/}"

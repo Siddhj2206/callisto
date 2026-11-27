@@ -1,5 +1,8 @@
 # Third-party work
 
+Callisto's own work is under [GPL-3.0-or-later](LICENSE). What is below is not
+ours and keeps its own licence.
+
 Callisto OS is assembled from other people's software. This lists what is
 copied into this repository or fetched by name into the image. Everything else
 comes from Debian and Flathub under its own licences; on an installed system

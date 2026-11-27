@@ -69,7 +69,11 @@ make check    # lint, generated files, contrast, daemon tests
 
 ## Credits and licence
 
-Callisto stands on Debian, Hyprland, Quickshell and many others. Borrowed work
-and its licences are listed in [THIRD_PARTY.md](THIRD_PARTY.md).
+Copyright © 2026 Siddhj2206.
 
-This repository does not have a licence of its own yet.
+Callisto is free software: you can redistribute it and modify it under the
+terms of the [GNU General Public License](LICENSE), version 3 or any later
+version. It comes with no warranty.
+
+It stands on Debian, Hyprland, Quickshell and many others. Borrowed work keeps
+its own licence; see [THIRD_PARTY.md](THIRD_PARTY.md).
