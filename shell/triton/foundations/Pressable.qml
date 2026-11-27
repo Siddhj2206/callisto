@@ -19,6 +19,8 @@ Item {
     readonly property real shapeRadius: morph.value
 
     signal clicked
+    // The wheel is left to the list underneath unless this is set.
+    property bool takesWheel: false
     signal scrolled(real steps)
 
     activeFocusOnTab: interactive
@@ -73,6 +75,10 @@ Item {
         cursorShape: Qt.PointingHandCursor
         onClicked: root.clicked()
         onWheel: wheel => {
+            if (!root.takesWheel) {
+                wheel.accepted = false;
+                return;
+            }
             const steps = wheel.angleDelta.y / 120;
             if (steps !== 0)
                 root.scrolled(steps);

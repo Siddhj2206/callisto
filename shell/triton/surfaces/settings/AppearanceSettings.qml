@@ -126,7 +126,7 @@ Page {
         SettingRow {
             glyph: Icons.palette
             title: "Match app colors"
-            subtitle: "Apps use this palette the next time they open"
+            subtitle: "Flatpak apps can use this palette too, from their next start"
             Switch {
                 label: "Match app colors"
                 checked: SettingsService.get("appearance", "themeApps", true)

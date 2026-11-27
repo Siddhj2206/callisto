@@ -135,6 +135,7 @@ Item {
         StatusPill {
             id: status
             onClicked: root.statusRequested()
+            takesWheel: true
             onScrolled: steps => root.volumeStepped(steps)
         }
         IconButton {
