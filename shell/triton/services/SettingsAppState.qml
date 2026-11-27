@@ -9,6 +9,14 @@ import QtQuick
 
 Singleton {
     property bool open: false
+    property int panel: 7 // sidebar index; 7 is Appearance
+
+    // Opens on a given page, or on the last one.
+    function show(index) {
+        if (index !== undefined)
+            panel = index;
+        open = true;
+    }
 
     function toggle() {
         open = !open;

@@ -9,9 +9,18 @@ import QtQuick
 
 Singleton {
     property bool open: false
+    property string page: "" // "" is the main page; "wifi", "bluetooth", "sound"
 
     function toggle() {
-        open = !open;
+        if (open)
+            dismiss();
+        else
+            show("");
+    }
+
+    function show(name) {
+        page = name;
+        open = true;
     }
 
     function dismiss() {

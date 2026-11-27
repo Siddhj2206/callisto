@@ -70,7 +70,8 @@ before. The old shell code is a reference only. Rules and file layout are in
 - [x] Veil values in `generate-theme.py` fixed; dark and light schemes generated
 - [x] Motion: `Spring`, `Fade`, `Presence`. Spring checked on Quickshell 0.3.0: 9.45% overshoot (9.5% expected)
 - [x] Foundations and the primitives the bar and OSD use
-- [x] Component gallery, dark and light (`shell/triton/gallery.qml`)
+- [x] Component gallery, dark and light (`shell/triton/gallery.qml`, panels in `gallery-panels.qml`)
+- [x] Drop-down panel (`Popover`), tile, slider, switch, button, list row, text field
 - [x] Literal lint for `primitives/`, `patterns/`, `surfaces/` (`scripts/lint-literals.py`; run by hand until CI exists)
 - [ ] **Approve the desktop sizes** (gallery)
 - [ ] Floating shadows (needs `qml6-module-qtquick-effects` and a higher `ignore_alpha`)
@@ -101,7 +102,10 @@ definition of done is in `component-system.md` §7.
   - [ ] Fade a long window title instead of cutting it; suppress reveal over fullscreen
   - [ ] Window title appears only after the first focus change if the shell restarts
 - [ ] Launcher (#12)
-- [ ] Quick Settings
+- [x] Quick Settings: main, Wi-Fi, Bluetooth and Sound pages. Clicks, slider, drill-in, Esc and click-outside checked in QEMU on Hyprland
+  - [ ] Try Wi-Fi joining, Bluetooth and brightness on real hardware (the VM has none)
+  - [ ] Arrow-key grid navigation between tiles (Tab works)
+  - [ ] Battery line, media card
 - [ ] Notifications
 - [ ] Power
 - [ ] Clipboard

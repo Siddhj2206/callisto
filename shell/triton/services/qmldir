@@ -15,3 +15,5 @@ singleton NetworkService 1.0 NetworkService.qml
 singleton BluetoothService 1.0 BluetoothService.qml
 singleton OverviewService 1.0 OverviewService.qml
 OsdProducers 1.0 OsdProducers.qml
+singleton AudioService 1.0 AudioService.qml
+singleton BrightnessService 1.0 BrightnessService.qml

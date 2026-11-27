@@ -5,82 +5,54 @@ import Quickshell
 import Quickshell.Networking
 import QtQuick
 
-// Network state for the bar and quick settings. Thin projection of
-// Quickshell.Networking into the shapes the UI consumes: wifi on/off,
-// connected network name, scan results as plain row objects.
-//
-// The 0.3.0 Networking module talks to NetworkManager directly — no nmcli
-// scraping, no manual dbus. Where there is no wifi hardware (QEMU, desktops
-// on ethernet) the service degrades to wired/empty states.
-
+// Network state for the bar and quick settings, over NetworkManager.
 Singleton {
     id: root
 
     readonly property bool wifiEnabled: Networking.wifiEnabled
     readonly property bool wifiHardwareEnabled: Networking.wifiHardwareEnabled
-    readonly property var devices: Networking.devices
+    readonly property var devices: Networking.devices.values
 
-    // First wifi device, if any.
-    readonly property var wifiDevice: {
-        for (const d of Networking.devices.values) {
-            if (d.type === DeviceType.Wifi)
-                return d;
-        }
-        return null;
-    }
+    readonly property var wifiDevice: devices.find(d => d.type === DeviceType.Wifi) ?? null
+    readonly property bool wired: devices.some(d => d.type === DeviceType.Wired && d.connected)
 
-    // The currently connected network across all devices.
-    readonly property var activeNetwork: {
-        for (const d of Networking.devices.values) {
-            if (!d.networks)
-                continue;
-            for (const n of d.networks.values) {
-                if (n.connected)
-                    return n;
-            }
-        }
-        return null;
-    }
-
+    // The connected Wi-Fi network, if any.
+    readonly property var activeNetwork: wifiDevice?.networks.values.find(n => n.connected) ?? null
     readonly property bool connected: activeNetwork !== null
-    readonly property string connectedName: activeNetwork ? (activeNetwork.name || "") : ""
-    readonly property real signalStrength: activeNetwork && activeNetwork.signalStrength !== undefined ? activeNetwork.signalStrength : 0
+    readonly property bool online: wired || connected
+    readonly property string connectedName: activeNetwork?.name ?? ""
 
-    // Scan results for the drill-in list, plain row objects sorted by
-    // signal strength, strongest first, deduplicated by SSID.
+    // Visible networks, one per name: the connected one first, then by signal.
     readonly property var networks: {
-        const dev = root.wifiDevice;
-        if (!dev || !dev.networks)
-            return [];
-        const seen = {};
-        const rows = [];
-        for (const n of dev.networks.values) {
-            if (!n.name || seen[n.name])
-                continue;
-            seen[n.name] = true;
-            rows.push({
-                name: n.name,
-                strength: n.signalStrength !== undefined ? n.signalStrength : 0,
-                connected: n.connected,
-                secure: n.secure !== undefined ? n.secure : true,
-                networkObj: n,
-            });
+        const byName = {};
+        for (const n of wifiDevice?.networks.values ?? []) {
+            if (n.name && (!byName[n.name] || n.connected))
+                byName[n.name] = n;
         }
-        rows.sort((a, b) => b.strength - a.strength);
-        return rows;
+        return Object.values(byName).sort((a, b) => (b.connected - a.connected) || (b.signalStrength - a.signalStrength));
+    }
+
+    function secured(network) {
+        return network.security !== WifiSecurityType.Open && network.security !== WifiSecurityType.Owe;
+    }
+
+    function needsPassword(network) {
+        return !network.known && secured(network);
     }
 
     function setWifiEnabled(on) {
         Networking.wifiEnabled = on;
     }
 
-    function connectTo(row) {
-        if (row && row.networkObj)
-            row.networkObj.requestConnectWithSettings();
+    function connectTo(network, password) {
+        if (password)
+            network.connectWithPsk(password);
+        else
+            network.connect();
     }
 
-    function rescan() {
-        if (root.wifiDevice)
-            root.wifiDevice.scannerEnabled = true;
+    function scan(on) {
+        if (wifiDevice)
+            wifiDevice.scannerEnabled = on;
     }
 }

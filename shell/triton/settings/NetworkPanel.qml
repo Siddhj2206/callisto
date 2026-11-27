@@ -44,7 +44,7 @@ Item {
                 required property var modelData
                 icon: Icons.wifi
                 title: modelData.name
-                supporting: (modelData.connected ? "Connected · " : "") + Math.round(modelData.strength) + "% signal"
+                supporting: (modelData.connected ? "Connected · " : "") + Math.round(modelData.signalStrength * 100) + "% signal"
             }
         }
     }

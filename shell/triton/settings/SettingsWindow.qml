@@ -13,7 +13,7 @@ import "../services"
 Item {
     id: root
 
-    property int panel: 7 // Appearance default; nav indices skip group rows
+    property int panel: SettingsAppState.panel // nav indices skip group rows
 
     width: 1100
     height: 760
@@ -33,7 +33,7 @@ Item {
         anchors.bottom: parent.bottom
         width: 280
         selectedIndex: root.panel
-        onNavigated: idx => root.panel = idx
+        onNavigated: idx => SettingsAppState.panel = idx
     }
 
     // Content area.

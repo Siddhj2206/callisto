@@ -42,6 +42,9 @@ menu, not a work list.
   `Fade` / `ColorFade`.
 - A surface is a pure view (`Bar`, `OsdPill`) plus a `...Host` that owns the
   window and services. The gallery renders the views with sample data.
+- Drop-down panels use `patterns/Popover`: a transparent window over the whole
+  focused screen, so a click outside or Esc closes it.
+- Icons use native text rendering; Qt's distance fields distort the filled font.
 - Hyprland dispatch from the shell uses the Lua form,
   `hl.dsp.focus({ workspace = 2 })`.
 - Legacy surfaces still use `Theme` and `components/` until rebuilt.

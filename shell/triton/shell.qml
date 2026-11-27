@@ -5,7 +5,6 @@ import Quickshell.Io
 import QtQuick
 import "launcher"
 import "notifications"
-import "quicksettings"
 import "power"
 import "clipboard"
 import "overview"
@@ -16,6 +15,7 @@ import "services"
 import qs.foundations
 import qs.surfaces.bar
 import qs.surfaces.osd
+import qs.surfaces.quicksettings
 
 // Triton shell entry point. Thin by design: fonts, then one copy of each
 // persistent surface per screen. State lives in singletons and services.
@@ -60,7 +60,7 @@ ShellRoot {
     ToastWindow {}
     CenterWindow {}
 
-    QsWindow {}
+    QuickSettingsHost {}
 
     PowerWindow {}
 
@@ -103,6 +103,7 @@ ShellRoot {
     IpcHandler {
         target: "quicksettings"
         function toggle(): void { QuickSettingsState.toggle(); }
+        function page(name: string): void { QuickSettingsState.show(name); }
     }
     IpcHandler {
         target: "notifications"

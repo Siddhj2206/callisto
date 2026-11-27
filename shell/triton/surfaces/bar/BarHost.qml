@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 
 import Quickshell
 import Quickshell.Hyprland
-import Quickshell.Services.Pipewire
 import Quickshell.Services.UPower
 import QtQuick
 import qs
@@ -30,11 +29,6 @@ Scope {
         return active && active.workspace === workspace ? active : null;
     }
     readonly property string appId: toplevel?.wayland?.appId ?? ""
-
-    // ---- Sound ----
-    readonly property PwNode sink: Pipewire.defaultAudioSink
-    readonly property var audio: sink?.audio ?? null
-    PwObjectTracker { objects: host.sink ? [host.sink] : [] }
 
     // ---- Battery: absent on desktops and VMs ----
     readonly property var battery: UPower.displayDevice
@@ -104,13 +98,11 @@ Scope {
                 time: Qt.formatDateTime(clock.date, SettingsService.get("shell", "clockFormat", "24h") === "24h" ? "HH:mm" : "h:mm AP")
                 date: Qt.formatDateTime(clock.date, "ddd d MMM")
 
-                // Only Wi-Fi state is known to the shell; without a Wi-Fi
-                // device, assume a wired connection.
-                networkGlyph: !NetworkService.wifiDevice ? Icons.lan
+                networkGlyph: NetworkService.wired ? Icons.lan
                     : NetworkService.connected ? Icons.wifi : Icons.wifiOff
-                volumeGlyph: !host.audio ? ""
-                    : host.audio.muted ? Icons.volumeOff
-                    : host.audio.volume < 0.5 ? Icons.volumeDown : Icons.volumeUp
+                volumeGlyph: !AudioService.available ? ""
+                    : AudioService.muted ? Icons.volumeOff
+                    : AudioService.volume < 0.5 ? Icons.volumeDown : Icons.volumeUp
                 batteryPercent: host.batteryPercent
                 batteryRing: SettingsService.get("shell", "batteryWavyRing", false)
                 batteryGlyph: {
@@ -125,7 +117,7 @@ Scope {
                     return levels[Math.max(1, Math.round(host.batteryPercent / 100 * 6))];
                 }
                 statusState: host.batteryLow ? "urgent"
-                    : NetworkService.wifiDevice && !NetworkService.connected ? "attention" : "ok"
+                    : !NetworkService.online ? "attention" : "ok"
 
                 unread: NotificationState.unreadCount > 0
                 dnd: NotificationState.dndActive
@@ -135,10 +127,7 @@ Scope {
                 onWorkspaceRequested: number => Hyprland.dispatch("hl.dsp.focus({ workspace = " + number + " })")
                 onStatusRequested: QuickSettingsState.toggle()
                 onNotificationsRequested: NotificationState.toggle()
-                onVolumeStepped: steps => {
-                    if (host.audio)
-                        host.audio.volume = Math.max(0, Math.min(1, host.audio.volume + steps * 0.05));
-                }
+                onVolumeStepped: steps => AudioService.stepVolume(steps)
             }
         }
     }

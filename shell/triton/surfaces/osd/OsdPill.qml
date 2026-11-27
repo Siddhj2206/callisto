@@ -77,9 +77,13 @@ Item {
                 }
             }
 
-            LevelTrack {
+            Slider {
                 visible: root.kind !== "micOff"
                 anchors.verticalCenter: parent.verticalCenter
+                interactive: false
+                width: Metrics.osdTrackWidth
+                trackHeight: Metrics.osdTrackHeight
+                handleHeight: Metrics.osdTrackHeight + Metrics.osdHandleOver * 2
                 value: root.value
                 off: root.off
             }

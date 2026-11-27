@@ -18,6 +18,8 @@ Text {
     text: glyph
     font.family: fill ? "Triton Symbols Filled" : "Triton Symbols"
     font.pixelSize: pixels
+    // Default distance fields smear fine cut-outs (the tick in check_circle).
+    renderType: Text.NativeRendering
     horizontalAlignment: Text.AlignHCenter
     verticalAlignment: Text.AlignVCenter
     color: Theming.of(root)[tone]
