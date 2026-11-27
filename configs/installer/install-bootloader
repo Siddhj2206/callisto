@@ -12,7 +12,9 @@ else
     packages="grub-pc"
 fi
 # Calamares has written crypttab by now when the disk is encrypted.
+encrypted=
 if [ -s "$root/etc/crypttab" ] && grep -q '^[^#]' "$root/etc/crypttab"; then
+    encrypted=yes
     packages="$packages cryptsetup cryptsetup-initramfs keyutils"
     mkdir -p "$root/etc/initramfs-tools/conf.d"
     echo "UMASK=0077" >"$root/etc/initramfs-tools/conf.d/callisto-keyfile"
@@ -28,3 +30,9 @@ options="-o Dir::Etc::sourcelist=$list -o Dir::Etc::sourceparts=- -o APT::Get::L
 chroot "$root" apt-get $options update
 # shellcheck disable=SC2086
 DEBIAN_FRONTEND=noninteractive chroot "$root" apt-get $options -y --no-install-recommends install $packages
+
+# The early boot image carries the key, so the passphrase is typed once, to
+# GRUB. (Written after the install: the file belongs to cryptsetup-initramfs.)
+if [ -n "$encrypted" ] && [ -f "$root/crypto_keyfile.bin" ]; then
+    echo 'KEYFILE_PATTERN="/crypto_keyfile.bin"' >>"$root/etc/cryptsetup-initramfs/conf-hook"
+fi
