@@ -111,7 +111,8 @@ definition of done is in `component-system.md` §7.
 - [x] Notifications: toasts and center. Timeout, hover pause, overflow, replace, withdraw, actions, inline reply and Do Not Disturb checked in QEMU, with the replies seen on D-Bus
   - [ ] Wavy progress, call and screenshot card kinds
   - [ ] Center keyboard navigation (Tab and Esc work)
-- [ ] Power
+- [x] Power: one connected group, countdown before log out, restart and shut down. In QEMU: keys, cancel, inhibitor note and refusal, lock and unlock, shut down
+  - [ ] Unsaved-work dialog and pending-updates note (no data source yet)
 - [ ] Clipboard
 - [ ] Window switcher and Overview (#10)
 - [ ] Wallpaper picker (#15)
@@ -119,7 +120,7 @@ definition of done is in `component-system.md` §7.
 - [ ] Screenshot (#10)
 - [ ] Settings app (#11)
 - [ ] Light mode and contrast pass
-- [ ] **Rebuild the ISO and check blur on every surface.** The VM checks ran new QML on the old ISO, whose engine turns blur off
+- [ ] **Check blur on every surface.** ISO rebuilt at `fb763d0`; blur is on and looks right behind the launcher and power menu. Bar, OSD, quick settings, toasts and the center still need a look over a busy background
 
 ## 6. Release
 

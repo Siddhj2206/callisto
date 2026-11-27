@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import qs
 import qs.foundations
+import qs.patterns
 import qs.primitives
 import qs.tokens
 
@@ -328,47 +329,27 @@ Item {
             width: parent.width
             height: Metrics.hintHeight
 
-            component Hint: Row {
-                property var keys: []
-                property string text: ""
-                spacing: Metrics.cardActions
-
-                Repeater {
-                    model: parent.keys
-                    Keycap {
-                        required property string modelData
-                        text: modelData
-                    }
-                }
-                AppText {
-                    anchors.verticalCenter: parent.verticalCenter
-                    role: "bodySmall"
-                    tone: "onsurfacevariant"
-                    text: parent.text
-                }
-            }
-
             Row {
                 x: Metrics.panelPad
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: Metrics.panelPad
 
-                Hint {
+                KeyHint {
                     visible: root.mode !== "calc"
                     keys: ["↑", "↓"]
                     text: "move"
                 }
-                Hint {
+                KeyHint {
                     keys: ["Enter"]
                     text: root.mode === "calc" ? "copy" : "open"
                 }
-                Hint {
+                KeyHint {
                     visible: root.mode !== "calc" && (root.results[root.selection]?.actions.length ?? 0) > 1
                     keys: ["Tab"]
                     text: "actions"
                 }
             }
-            Hint {
+            KeyHint {
                 anchors.right: parent.right
                 anchors.rightMargin: Metrics.panelPad
                 anchors.verticalCenter: parent.verticalCenter

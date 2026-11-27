@@ -3,7 +3,6 @@ pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Io
 import QtQuick
-import "power"
 import "clipboard"
 import "overview"
 import "wallpaper"
@@ -15,6 +14,7 @@ import qs.surfaces.bar
 import qs.surfaces.launcher
 import qs.surfaces.notifications
 import qs.surfaces.osd
+import qs.surfaces.power
 import qs.surfaces.quicksettings
 
 // Triton shell entry point. Thin by design: fonts, then one copy of each
@@ -62,7 +62,14 @@ ShellRoot {
 
     QuickSettingsHost {}
 
-    PowerWindow {}
+    Variants {
+        model: Quickshell.screens
+
+        PowerHost {
+            required property var modelData
+            screen: modelData
+        }
+    }
 
     ClipboardWindow {}
 

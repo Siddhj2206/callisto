@@ -11,7 +11,9 @@ Text {
     property bool fill: false
     property string tone: "onsurface"
 
-    readonly property real pixels: size === "sm" ? Metrics.iconSm : size === "lg" ? Metrics.iconLg : Metrics.iconMd
+    property real points: 0 // overrides `size`
+
+    readonly property real pixels: points > 0 ? points : size === "sm" ? Metrics.iconSm : size === "lg" ? Metrics.iconLg : Metrics.iconMd
 
     width: pixels
     height: pixels

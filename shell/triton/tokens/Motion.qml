@@ -22,4 +22,5 @@ QtObject {
     readonly property int urgentPeek: 4000
     readonly property int osdHold: 1200
     readonly property int toastHold: 6000
+    readonly property int powerCountdown: 5000
 }

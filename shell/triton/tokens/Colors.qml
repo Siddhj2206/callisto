@@ -45,6 +45,7 @@ QtObject {
         veilHiAlpha: 0.16
         highlightAlpha: 0.14
         hairlineAlpha: 0.12
+        backdropAlpha: 0.6
         ink: "#FFFFFF"
     }
     readonly property Scheme light: Scheme {
@@ -83,6 +84,7 @@ QtObject {
         veilHiAlpha: 0.1
         highlightAlpha: 0.6
         hairlineAlpha: 0.12
+        backdropAlpha: 0.6
         ink: "#191C20"
     }
 

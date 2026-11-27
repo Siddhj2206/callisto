@@ -44,3 +44,23 @@ IPC `power toggle` (Super+Shift+E) exists.
 (loginctl/systemctl) lift into a `PowerService` (new, tiny). Pending-updates
 note and unsaved-window list need Hyprland client data + a `pk-offline-update`
 probe (new). Visual code: replace.
+
+## As built
+
+`services/PowerService.qml`, `surfaces/power/{PowerHost,PowerMenu,PowerChoice}`,
+`primitives/WavyRing`, `patterns/KeyHint`, gallery `gallery-power.qml`.
+
+- One window per screen. All dim; the focused one shows the menu.
+- The backdrop is a translucent blue-black over the compositor's blur, not a
+  QML blur of the wallpaper.
+- Desktop sizes: 104 px items, 232 px focused pill (board: 140 and 300). The
+  group never wraps.
+- Any focused action grows, not only Shut down. 1–5 move focus; they do not run.
+- Leaving the countdown (key, click, Cancel) returns to the menu.
+- The note shows logind "block" inhibitors on shutdown, when Restart or Shut
+  down has focus.
+- A command that fails sends a critical notification. A blocking inhibitor does
+  make restart and shut down fail; there is no "anyway" without a polkit agent.
+- No name in the greeting on the live system.
+- Not built: the unsaved-changes dialog (Wayland gives no list of unsaved
+  documents) and the pending-updates note.

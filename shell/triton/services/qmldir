@@ -17,3 +17,4 @@ singleton OverviewService 1.0 OverviewService.qml
 OsdProducers 1.0 OsdProducers.qml
 singleton AudioService 1.0 AudioService.qml
 singleton BrightnessService 1.0 BrightnessService.qml
+singleton PowerService 1.0 PowerService.qml
