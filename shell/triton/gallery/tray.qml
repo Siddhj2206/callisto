@@ -9,8 +9,8 @@ import qs.surfaces.tray
 import qs.tokens
 
 // Background apps and privacy chips with sample data, dark over light.
-// Headless: scripts/test-shell.sh --entry gallery-tray.qml
-ShellRoot {
+// Run: scripts/test-shell.sh --gallery tray
+Scope {
     id: shell
 
     function app(title, attention) {

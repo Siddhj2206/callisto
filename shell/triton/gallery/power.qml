@@ -8,8 +8,8 @@ import qs.tokens
 
 // The power menu with sample data: opened, on Restart with a note, and
 // counting down.
-// Headless: scripts/test-shell.sh --entry gallery-power.qml
-ShellRoot {
+// Run: scripts/test-shell.sh --gallery power
+Scope {
     Fonts {}
 
     FloatingWindow {
@@ -39,7 +39,7 @@ ShellRoot {
 
                         Image {
                             anchors.fill: parent
-                            source: Qt.resolvedUrl("board-wallpaper-1646.jpg")
+                            source: Qt.resolvedUrl("assets/wallpaper-1646.jpg")
                             fillMode: Image.PreserveAspectCrop
                         }
                         Rectangle {

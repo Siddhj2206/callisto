@@ -51,7 +51,7 @@ or `ScreencopyView` capture service and `wf-recorder` for video (new
 ## As built
 
 `surfaces/screenshot/{ScreenshotHost,CaptureScreen,Countdown,ResultCard}`,
-`services/ScreenshotState` and `scripts/engine/callisto-shot`.
+`services/ScreenshotState` and `bin/callisto-shot`.
 
 - `callisto-shot` freezes each output with `grim` before the overlay maps, crops
   from that frozen image, writes to Pictures/Screenshots and copies with

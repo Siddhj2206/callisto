@@ -11,8 +11,8 @@ import qs.surfaces.osd
 import qs.tokens
 
 // Media controls with sample players, dark over light.
-// Headless: scripts/test-shell.sh --entry gallery-media.qml
-ShellRoot {
+// Run: scripts/test-shell.sh --gallery media
+Scope {
     id: shell
 
     function player(title, artist, source, playing) {
@@ -50,7 +50,7 @@ ShellRoot {
 
                     Image {
                         anchors.fill: parent
-                        source: Qt.resolvedUrl("board-wallpaper-1646.jpg")
+                        source: Qt.resolvedUrl("assets/wallpaper-1646.jpg")
                         fillMode: Image.PreserveAspectCrop
                         clip: true
                     }

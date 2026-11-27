@@ -1,48 +1,56 @@
-# Callisto — top-level build orchestration.
-#
-# The Makefile is a thin convenience layer over scripts/. All real logic
-# lives there so CI can invoke the same commands without make.
-
-.PHONY: iso run run-sw run-headless sync clean clean-all builder lint help
+# Callisto. A thin layer over scripts/, so that CI and people run the same things.
 
 ISO := callisto-amd64.hybrid.iso
+SHELL_SCRIPTS = scripts/*.sh containers/*.sh bin/callisto-clip-store bin/callisto-greeter bin/callisto-settings bin/start-callisto \
+	configs/installer/install-* configs/installer/callisto-install \
+	configs/installer/live/setxkbmap configs/installer/live/callisto-install-hint \
+	live-build/auto/config live-build/config/hooks/live/010-callisto-setup.hook.chroot \
+	live-build/config/hooks/normal/9100-callisto-boot-menu.hook.binary
+
+.DEFAULT_GOAL := help
+.PHONY: help check lint tokens iso run run-sw smoke sync shell-test images clean clean-all
 
 help: ## Show this help
-	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
 
-iso: ## Build the Callisto live ISO inside the builder container
+check: lint ## Everything that needs no VM or container: lint, tokens, contrast, tests
+	python3 scripts/lint-literals.py
+	python3 scripts/generate-theme.py --check
+	python3 scripts/check-contrast.py
+	python3 scripts/test-settingsd.py
+
+lint: ## Check shell scripts and Python
+	shellcheck -S warning $(SHELL_SCRIPTS)
+	python3 -c 'import ast, sys; [ast.parse(open(f).read(), f) for f in sys.argv[1:]]' bin/callisto-apply bin/callisto-settingsd bin/callisto-clip bin/callisto-shot scripts/*.py
+
+tokens: ## Regenerate the theme from design/tokens.json
+	python3 scripts/generate-theme.py
+
+iso: ## Build the live ISO (rootless podman)
 	scripts/build-iso.sh
 
-run: iso ## Boot the ISO in QEMU (GPU accelerated)
+run: ## Boot the built ISO in QEMU
 	scripts/run-qemu.sh
 
-run-sw: iso ## Boot the ISO in QEMU (software rendering fallback)
+run-sw: ## Boot it with software rendering
 	scripts/run-qemu.sh --sw
 
-run-headless: iso ## Boot the ISO headless with serial output (CI smoke test)
-	scripts/run-qemu.sh --headless
+smoke: ## Boot it headless and keep screenshots in .out/iso/
+	scripts/test-iso.sh
 
-sync: ## Sync shell/ and configs/ into live-build includes.chroot
+sync: ## Stage the repository into live-build's includes.chroot
 	scripts/sync-configs.sh
 
-test-shell: ## Run the shell in a nested Hyprland container (fast iteration)
+shell-test: ## Run the shell headless in a container
 	scripts/test-shell.sh
 
-lint-qml: ## Lint shell QML files inside the shell test image
-	podman run --rm --entrypoint bash -v $(CURDIR)/shell/triton:/triton:ro,z callisto-shelltest -c 'find /triton -name "*.qml" -exec qmllint {} +' || echo "build the shelltest image first: podman build -f Dockerfile.shelltest -t callisto-shelltest ."
+images: ## (Re)build the two container images
+	podman build -f containers/builder.Dockerfile -t callisto-iso-builder .
+	podman build -f containers/shelltest.Dockerfile -t callisto-shelltest .
 
-builder-shelltest: ## (Re)build the nested shell test container image
-	podman build -f Dockerfile.shelltest -t callisto-shelltest .
+clean: ## Remove build outputs, keep package caches
+	podman run --rm --privileged -v $(CURDIR):/work:z callisto-iso-builder -c 'cd /work/live-build && lb clean'
+	rm -rf $(ISO) SHA256SUMS .out
 
-builder: ## (Re)build the containerized build environment
-	sudo podman build -f Dockerfile.builder -t callisto-iso-builder .
-
-lint: ## Run static checks on shell scripts and configs
-	shellcheck scripts/*.sh live-build/auto/config live-build/config/hooks/live/* 2>/dev/null || echo "shellcheck not installed — skipping"
-
-clean: ## Remove build artifacts, keep caches (fast rebuild)
-	sudo podman run --rm --privileged -v $(CURDIR):/work:z callisto-iso-builder -c 'cd /work/live-build && lb clean' || true
-	rm -f $(ISO) SHA256SUMS
-
-clean-all: clean ## Remove build artifacts AND caches (full bootstrap on next build)
-	rm -rf live-build/cache live-build/chroot live-build/binary live-build/.build
+clean-all: clean ## Remove the caches too (the next build starts from nothing)
+	podman unshare rm -rf live-build/cache live-build/chroot live-build/binary live-build/.build

@@ -2,7 +2,7 @@
 # build-iso.sh — reproducible Callisto live ISO build.
 #
 # The build runs inside the callisto-iso-builder container image (see
-# Dockerfile.builder) so the host distribution and its package versions never
+# containers/builder.Dockerfile) so the host distribution and its package versions never
 # leak into the ISO. live-build runs rootless — verified end-to-end, iso-hybrid needs no loop devices.
 #
 # Inputs that determine the output bit-for-bit:
@@ -33,7 +33,7 @@ echo "==> Syncing configuration into includes.chroot"
 # --- Build container image ----------------------------------------------------
 if ! podman image exists "$IMAGE"; then
     echo "==> Building $IMAGE"
-    podman build -f "$REPO_ROOT/Dockerfile.builder" -t "$IMAGE" "$REPO_ROOT"
+    podman build -f "$REPO_ROOT/containers/builder.Dockerfile" -t "$IMAGE" "$REPO_ROOT"
 fi
 
 # --- Run live-build inside the container ---------------------------------------

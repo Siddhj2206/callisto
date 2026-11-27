@@ -5,7 +5,7 @@
 if [ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
     exec /usr/bin/setxkbmap "$@"
 fi
-layout= variant= options=
+layout='' variant='' options=''
 args="$*"
 while [ $# -gt 0 ]; do
     case $1 in

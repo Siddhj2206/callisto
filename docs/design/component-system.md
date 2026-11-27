@@ -1143,7 +1143,7 @@ Foundations and tokens are the only serial dependency.
 
 For each surface state named in its doc:
 1. Render `dev/states/<surface>/<state>.qml` headless (Quickshell inside
-   `Dockerfile.shelltest`, or the harness `scripts/test-shell.sh`) at the
+   `containers/shelltest.Dockerfile`, or the harness `scripts/test-shell.sh`) at the
    board logical size (1646 x 1029, scale 1.75 => 2880 x 1800 device).
 2. Diff against `design/boards/<board>.png` cropped to the state's element
    (`scripts/compare-board.sh` produces side-by-side + overlay + a numeric

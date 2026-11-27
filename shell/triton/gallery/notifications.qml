@@ -8,8 +8,8 @@ import qs.surfaces.notifications
 import qs.tokens
 
 // Toasts and the notification center with sample data, dark and light.
-// Headless: scripts/test-shell.sh --entry gallery-notifications.qml
-ShellRoot {
+// Run: scripts/test-shell.sh --gallery notifications
+Scope {
     id: shell
 
     function entry(extra) {
@@ -60,7 +60,7 @@ ShellRoot {
 
                     Image {
                         anchors.fill: parent
-                        source: Qt.resolvedUrl("board-wallpaper-1646.jpg")
+                        source: Qt.resolvedUrl("assets/wallpaper-1646.jpg")
                         fillMode: Image.PreserveAspectCrop
                         clip: true
                     }

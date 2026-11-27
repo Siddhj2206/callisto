@@ -8,8 +8,8 @@ import qs.surfaces.quicksettings
 import qs.tokens
 
 // Drop-down panels with sample data, dark over light. Headless:
-// scripts/test-shell.sh --entry gallery-panels.qml
-ShellRoot {
+// scripts/test-shell.sh --gallery panels
+Scope {
     Fonts {}
 
     FloatingWindow {
@@ -33,7 +33,7 @@ ShellRoot {
 
                     Image {
                         anchors.fill: parent
-                        source: Qt.resolvedUrl("board-wallpaper-1646.jpg")
+                        source: Qt.resolvedUrl("assets/wallpaper-1646.jpg")
                         fillMode: Image.PreserveAspectCrop
                         clip: true
                     }

@@ -88,8 +88,8 @@ the boards (Hull pale, Rock orange): take seeds from the board
 ## As built
 
 `settings-app.qml` (its own Quickshell process, app id `org.callisto.Settings`),
-`scripts/callisto-settings` (opens it or brings it forward, on a named page),
-`surfaces/settings/` and `services/SettingsCatalog`. `gallery-settings.qml`
+`bin/callisto-settings` (opens it or brings it forward, on a named page),
+`surfaces/settings/` and `services/SettingsCatalog`. `gallery/settings.qml`
 renders it without services.
 
 - A setting is shown only if something obeys it. Left out for that reason: gaps,

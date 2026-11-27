@@ -31,6 +31,7 @@ done
 
 # memfd memory backend in all modes: virtio-vga-gl blob resources require it,
 # and using it everywhere keeps the modes as close to each other as possible.
+# shellcheck disable=SC2054  # the commas belong to QEMU's options
 BASE=(
     qemu-system-x86_64
     -enable-kvm

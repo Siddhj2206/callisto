@@ -8,8 +8,8 @@ import qs.surfaces.launcher
 import qs.tokens
 
 // The launcher in its states with sample data, dark over light.
-// Headless: scripts/test-shell.sh --entry gallery-launcher.qml
-ShellRoot {
+// Run: scripts/test-shell.sh --gallery launcher
+Scope {
     id: shell
 
     function row(section, title, subtitle, quick) {
@@ -49,7 +49,7 @@ ShellRoot {
 
                     Image {
                         anchors.fill: parent
-                        source: Qt.resolvedUrl("board-wallpaper-1646.jpg")
+                        source: Qt.resolvedUrl("assets/wallpaper-1646.jpg")
                         fillMode: Image.PreserveAspectCrop
                         clip: true
                     }

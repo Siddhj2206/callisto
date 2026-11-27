@@ -91,7 +91,7 @@ def pairs(tokens, mode):
 
 def terminal(tokens, mode):
     """The terminal theme the engine would write for this scheme."""
-    loader = SourceFileLoader("engine", str(REPO / "scripts/engine/callisto-apply"))
+    loader = SourceFileLoader("engine", str(REPO / "bin/callisto-apply"))
     engine = module_from_spec(spec_from_loader(loader.name, loader))
     sys.dont_write_bytecode = True
     loader.exec_module(engine)

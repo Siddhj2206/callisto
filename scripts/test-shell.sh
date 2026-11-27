@@ -1,22 +1,16 @@
 #!/usr/bin/env bash
 # test-shell.sh — verify the Triton shell inside a headless sway container.
 #
-# The shell iteration loop without the ISO, a VM, or any contact with your
-# real session:
+# The shell iteration loop without the ISO, a VM, or your own session:
 #
-#   ./scripts/test-shell.sh           headless verification: boots sway
-#                                     headless + the shell, waits, captures a
-#                                     screenshot and the shell log, reports
-#                                     errors, exits non-zero on failure
+#   scripts/test-shell.sh                    boot the shell headless, take a
+#                                            screenshot, fail on errors
+#   scripts/test-shell.sh --gallery power    one gallery page instead
+#   scripts/test-shell.sh --entry greeter.qml
+#   scripts/test-shell.sh --shot out.png     keep the screenshot there
+#   scripts/test-shell.sh --nested           sway as a window, to look at it live
 #
-#   ./scripts/test-shell.sh --nested  interactive: sway nests as a window in
-#                                     your session so you can look at it live
-#
-#   ./scripts/test-shell.sh --shot out.png   headless, keep screenshot at path
-#
-# Headless mode is fully hermetic: no host Wayland socket, no host services,
-# the container is wiped on exit. State you care about (screenshot, log) is
-# copied out before teardown.
+# Headless mode touches nothing on the host. Output lands in .out/shell/.
 
 set -euo pipefail
 
@@ -29,6 +23,7 @@ SHOT_OUT=""
 WAIT_SECONDS=12
 
 QS_ENTRY="shell.qml"
+GALLERY=""
 INTER_SCRIPT=""
 
 while [[ $# -gt 0 ]]; do
@@ -37,6 +32,7 @@ while [[ $# -gt 0 ]]; do
         --shot) SHOT_OUT="$2"; shift 2 ;;
         --wait) WAIT_SECONDS="$2"; shift 2 ;;
         --entry) QS_ENTRY="$2"; shift 2 ;;
+        --gallery) QS_ENTRY="gallery.qml"; GALLERY="$2"; shift 2 ;;
         --script) INTER_SCRIPT="$2"; shift 2 ;;
         *) echo "test-shell: unknown argument: $1" >&2; exit 2 ;;
     esac
@@ -46,9 +42,10 @@ done
 mkdir -p "$REPO_ROOT/shell/triton/fonts"
 cp "$REPO_ROOT"/design/fonts/*.ttf "$REPO_ROOT/shell/triton/fonts/" 2>/dev/null || true
 
+# The image carries the theme engine and the system tokens.
 if ! podman image exists "$IMAGE"; then
     echo "==> Building $IMAGE (first run only)"
-    podman build -f "$REPO_ROOT/Dockerfile.shelltest" -t "$IMAGE" "$REPO_ROOT"
+    podman build -f "$REPO_ROOT/containers/shelltest.Dockerfile" -t "$IMAGE" "$REPO_ROOT"
 fi
 
 if [[ "$MODE" == "nested" ]]; then
@@ -63,11 +60,11 @@ if [[ "$MODE" == "nested" ]]; then
         -e XDG_RUNTIME_DIR=/home/triton/xdg \
         -e WLR_BACKENDS=wayland \
         -e QS_ENTRY="$QS_ENTRY" \
+        -e CALLISTO_GALLERY="$GALLERY" \
         -e CALLISTO_DENSITY="${CALLISTO_DENSITY:-compact}" \
         --tmpfs /home/triton/xdg:rw,exec,mode=0700,U \
         -v "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/wl/socket" \
         -v "$REPO_ROOT/shell/triton:/triton:ro" \
-    -v "$REPO_ROOT/scripts/intertest:/triton-intertest:ro" \
         "$IMAGE"
 fi
 
@@ -86,11 +83,11 @@ podman run -d --rm \
     --security-opt label=disable \
     -e XDG_RUNTIME_DIR=/home/triton/xdg \
     -e QS_ENTRY="$QS_ENTRY" \
+    -e CALLISTO_GALLERY="$GALLERY" \
     -e COMPOSITOR="${COMPOSITOR:-sway}" \
     -e CALLISTO_DENSITY="${CALLISTO_DENSITY:-compact}" \
     --tmpfs /home/triton/xdg:rw,exec,mode=0700,U \
     -v "$REPO_ROOT/shell/triton:/triton:ro" \
-    -v "$REPO_ROOT/scripts/intertest:/triton-intertest:ro" \
     "$IMAGE" >/dev/null
 
 sleep "$WAIT_SECONDS"
@@ -114,7 +111,7 @@ podman exec --user 1000:1000 "$CONTAINER" \
         grim /home/triton/shots/shell.png 2>/dev/null' \
     || echo "    (grim failed — compositor may not be up)"
 
-SHOT_DIR="$REPO_ROOT/.devtest"
+SHOT_DIR="$REPO_ROOT/.out/shell"
 mkdir -p "$SHOT_DIR"
 podman cp "$CONTAINER:/home/triton/shots/shell.png" "$SHOT_DIR/shell.png" 2>/dev/null \
     && echo "    screenshot: $SHOT_DIR/shell.png" \
@@ -128,7 +125,7 @@ fi
 echo "==> Shell log:"
 if [[ -f "$SHOT_DIR/quickshell.log" ]]; then
     cat "$SHOT_DIR/quickshell.log"
-    if grep -qE "ERROR|error" "$SHOT_DIR/quickshell.log"; then
+    if grep -qE "ERROR|error|is not installed|is not a type" "$SHOT_DIR/quickshell.log"; then
         echo "!! shell reported errors" >&2
         exit 1
     fi

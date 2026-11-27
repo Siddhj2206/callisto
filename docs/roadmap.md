@@ -72,7 +72,7 @@ before. The old shell code is a reference only. Rules and file layout are in
 - [x] Veil values in `generate-theme.py` fixed; dark and light schemes generated
 - [x] Motion: `Spring`, `Fade`, `Presence`. Spring checked on Quickshell 0.3.0: 9.45% overshoot (9.5% expected)
 - [x] Foundations and the primitives the bar and OSD use
-- [x] Component gallery, dark and light (`shell/triton/gallery.qml`, panels in `gallery-panels.qml`)
+- [x] Component gallery, dark and light (`shell/triton/gallery/`, run with `scripts/test-shell.sh --gallery <page>`)
 - [x] Drop-down panel (`Popover`), tile, slider, switch, button, list row, text field
 - [x] Literal lint for `primitives/`, `patterns/`, `surfaces/` (`scripts/lint-literals.py`; run by hand until CI exists)
 - [x] Desktop sizes approved "for now" (gallery)

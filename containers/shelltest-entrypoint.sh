@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# entrypoint-shelltest.sh — inside the callisto-shelltest container.
+# shelltest-entrypoint.sh — inside the callisto-shelltest container.
 #
 # Boots sway, then runs the Triton shell against it. Two modes:
 #
@@ -44,7 +44,8 @@ callisto-apply >/home/triton/callisto-apply.log 2>&1 || true
 
 # Give the virtual output usable geometry; the headless backend defaults
 # small. Config is regenerated every boot — never edited by hand.
-# QS_ENTRY selects the entry point: shell.qml production, a gallery*.qml page.
+# QS_ENTRY selects the entry point: shell.qml in production, gallery.qml with
+# CALLISTO_GALLERY naming the page.
 QS_ENTRY="${QS_ENTRY:-shell.qml}"
 # Production parity: the real session runs `qs -c triton` and IPC discovery
 # depends on it. Devshell harness entries are ad-hoc paths — they can't be

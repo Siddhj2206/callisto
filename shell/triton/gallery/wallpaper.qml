@@ -7,12 +7,12 @@ import qs.surfaces.wallpaper
 import qs.tokens
 
 // The wallpaper picker with the board images as sample wallpapers.
-// Headless: scripts/test-shell.sh --entry gallery-wallpaper.qml
-ShellRoot {
+// Run: scripts/test-shell.sh --gallery wallpaper
+Scope {
     Fonts {}
 
     function file(name) {
-        return Qt.resolvedUrl(name + ".jpg").toString().replace("file://", "");
+        return Qt.resolvedUrl("assets/" + name + ".jpg").toString().replace("file://", "");
     }
 
     FloatingWindow {
@@ -27,7 +27,7 @@ ShellRoot {
 
             Crossfade {
                 anchors.fill: parent
-                source: Qt.resolvedUrl("board-wallpaper-1646.jpg")
+                source: Qt.resolvedUrl("assets/wallpaper-1646.jpg")
             }
             PaletteCard {
                 anchors.right: parent.right
@@ -47,9 +47,9 @@ ShellRoot {
                 anchors.bottom: parent.bottom
                 anchors.margins: Metrics.panelPad
                 height: implicitHeight
-                current: file("board-wallpaper")
+                current: file("wallpaper")
                 selection: 1
-                items: ["board-wallpaper", "board-wallpaper-lock", "board-wallpaper-greeter", "board-wallpaper-overview"]
+                items: ["wallpaper", "wallpaper-lock", "wallpaper-greeter", "wallpaper-overview"]
                     .map(n => ({ path: file(n), name: n, source: "system" }))
             }
         }

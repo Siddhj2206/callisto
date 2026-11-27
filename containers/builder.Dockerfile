@@ -4,7 +4,7 @@
 # tooling required to produce callisto-amd64.hybrid.iso. The host distro and
 # its package versions never leak into the build.
 #
-# Build:  podman build -f Dockerfile.builder -t callisto-iso-builder .
+# Build:  podman build -f containers/builder.Dockerfile -t callisto-iso-builder .
 # Use:    see scripts/build-iso.sh
 
 FROM debian:trixie-slim

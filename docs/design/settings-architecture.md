@@ -37,7 +37,7 @@ Rules:
 
 ## Who writes the store
 
-`callisto-settingsd` (`scripts/engine/callisto-settingsd`) is the only writer.
+`callisto-settingsd` (`bin/callisto-settingsd`) is the only writer.
 It listens on `$XDG_RUNTIME_DIR/callisto/settingsd.sock` for JSON lines
 (`{"op":"set","key":"appearance.mode","value":"light"}`, `{"op":"get"}`),
 refuses keys and values outside its schema, writes the store atomically, and

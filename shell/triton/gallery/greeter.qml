@@ -7,8 +7,8 @@ import qs.foundations
 import qs.surfaces.greeter
 
 // The login screen with sample data.
-// Headless: scripts/test-shell.sh --entry gallery-greeter.qml
-ShellRoot {
+// Run: scripts/test-shell.sh --gallery greeter
+Scope {
     Fonts {}
 
     FloatingWindow {
@@ -23,7 +23,7 @@ ShellRoot {
 
             GreeterScreen {
                 anchors.fill: parent
-                wallpaper: Qt.resolvedUrl("board-wallpaper-1646.jpg")
+                wallpaper: Qt.resolvedUrl("assets/wallpaper-1646.jpg")
                 date: "Saturday, 21 November"
                 time: "21:41"
                 users: [{ login: "mia", name: "Mia" }, { login: "sid", name: "Sid" }, { login: "noor", name: "Noor" }]

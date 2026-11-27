@@ -8,8 +8,8 @@ import qs.surfaces.switcher
 import qs.tokens
 
 // The overview and the window switcher with sample windows (no live previews).
-// Headless: scripts/test-shell.sh --entry gallery-windows.qml
-ShellRoot {
+// Run: scripts/test-shell.sh --gallery windows
+Scope {
     id: shell
     Fonts {}
 
@@ -38,7 +38,7 @@ ShellRoot {
             OverviewScreen {
                 width: 1920
                 height: 720
-                wallpaper: Qt.resolvedUrl("board-wallpaper-1646.jpg")
+                wallpaper: Qt.resolvedUrl("assets/wallpaper-1646.jpg")
                 ribbons: [
                     { id: 1, active: true, windows: shell.windows.filter(w => w.workspace === 1) },
                     { id: 2, active: false, windows: shell.windows.filter(w => w.workspace === 2) },

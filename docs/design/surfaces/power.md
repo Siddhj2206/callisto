@@ -48,7 +48,7 @@ probe (new). Visual code: replace.
 ## As built
 
 `services/PowerService.qml`, `surfaces/power/{PowerHost,PowerMenu,PowerChoice}`,
-`primitives/WavyRing`, `patterns/KeyHint`, gallery `gallery-power.qml`.
+`primitives/WavyRing`, `patterns/KeyHint`, gallery `gallery/power.qml`.
 
 - One window per screen. All dim; the focused one shows the menu.
 - The backdrop is a translucent blue-black over the compositor's blur, not a

@@ -37,12 +37,12 @@ with tempfile.TemporaryDirectory() as tmp:
     # The engine reads the system tokens from /usr/share; point it at the tree.
     engine_dir = tmp / "engine"
     engine_dir.mkdir()
-    source = (REPO / "scripts/engine/callisto-apply").read_text()
+    source = (REPO / "bin/callisto-apply").read_text()
     source = source.replace("/usr/share/callisto/tokens.json", str(REPO / "design/tokens.json"))
     source = source.replace("/usr/share/callisto/default-settings.json",
                             str(REPO / "configs/callisto/default-settings.json"))
     (engine_dir / "callisto-apply").write_text(source)
-    shutil.copy(REPO / "scripts/engine/callisto-settingsd", engine_dir)
+    shutil.copy(REPO / "bin/callisto-settingsd", engine_dir)
 
     env = {"HOME": str(home), "XDG_RUNTIME_DIR": str(runtime), "PATH": f"{bin_dir}:/usr/bin:/bin"}
     daemon = subprocess.Popen([sys.executable, str(engine_dir / "callisto-settingsd")], env=env,

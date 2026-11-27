@@ -9,7 +9,7 @@ import qs.surfaces.settings
 import qs.tokens
 
 // The Settings app: its own program, sharing the shell's components and
-// services. Opened by scripts/callisto-settings; closing the window ends it.
+// services. Opened by bin/callisto-settings; closing the window ends it.
 ShellRoot {
     id: root
 

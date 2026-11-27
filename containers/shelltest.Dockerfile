@@ -11,7 +11,7 @@
 # and is packaged in trixie main. What it cannot test is Hyprland-specific IPC
 # (workspace pills); that integration is verified in QEMU against the ISO.
 #
-# Build:  podman build -f Dockerfile.shelltest -t callisto-shelltest .
+# Build:  podman build -f containers/shelltest.Dockerfile -t callisto-shelltest .
 # Run:    scripts/test-shell.sh
 
 FROM debian:trixie-slim
@@ -29,7 +29,6 @@ RUN echo 'deb http://deb.debian.org/debian trixie-backports main contrib non-fre
         hyprland \
         sway \
         xwayland \
-        fuzzel \
         foot \
         fonts-jetbrains-mono \
         fonts-inter \
@@ -55,12 +54,12 @@ RUN curl -fsSL --max-time 120 -o /tmp/matugen.tar.gz \
     && rm -f /tmp/matugen.tar.gz
 
 # The theme engine and system tokens mirror the ISO layout exactly.
-COPY scripts/engine/callisto-apply /usr/local/bin/callisto-apply
-COPY live-build/config/includes.chroot/usr/share/callisto/tokens.json /usr/share/callisto/tokens.json
-COPY live-build/config/includes.chroot/usr/share/callisto/default-settings.json /usr/share/callisto/default-settings.json
+COPY bin/callisto-apply /usr/local/bin/callisto-apply
+COPY design/tokens.json /usr/share/callisto/tokens.json
+COPY configs/callisto/default-settings.json /usr/share/callisto/default-settings.json
 RUN chmod 0755 /usr/local/bin/callisto-apply
 
-COPY scripts/entrypoint-shelltest.sh /entrypoint.sh
+COPY containers/shelltest-entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 USER triton

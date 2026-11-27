@@ -8,13 +8,13 @@ import qs.surfaces.clipboard
 import qs.tokens
 
 // The clipboard with sample entries, dark and light.
-// Headless: scripts/test-shell.sh --entry gallery-clipboard.qml
-ShellRoot {
+// Run: scripts/test-shell.sh --gallery clipboard
+Scope {
     id: shell
 
     function entry(key, kind, title, detail, pinned) {
         return { key: key, kind: kind, title: title, detail: detail, pinned: pinned === true,
-            path: kind === "image" ? Qt.resolvedUrl("board-wallpaper.jpg").toString().replace("file://", "") : "" };
+            path: kind === "image" ? Qt.resolvedUrl("assets/wallpaper.jpg").toString().replace("file://", "") : "" };
     }
 
     readonly property var entries: [
@@ -52,7 +52,7 @@ ShellRoot {
 
                     Image {
                         anchors.fill: parent
-                        source: Qt.resolvedUrl("board-wallpaper-1646.jpg")
+                        source: Qt.resolvedUrl("assets/wallpaper-1646.jpg")
                         fillMode: Image.PreserveAspectCrop
                         clip: true
                     }

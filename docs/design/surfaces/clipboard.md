@@ -62,9 +62,9 @@ sensitive-content hint before the masked state can be real). Visual: replace.
 
 Backend: `cliphist`, filled by `callisto-clipboard.service`
 (`wl-paste --watch callisto-clip-store`, which drops anything marked secret).
-`scripts/engine/callisto-clip` lists and changes the history and keeps pins.
+`bin/callisto-clip` lists and changes the history and keeps pins.
 Shell: `services/ClipboardState.qml`, `surfaces/clipboard/`, shared
-`patterns/{SearchHeader,ResultRow}`, gallery `gallery-clipboard.qml`.
+`patterns/{SearchHeader,ResultRow}`, gallery `gallery/clipboard.qml`.
 
 - Desktop size 760 x 520. Filters sit in the header; the preview never hides.
 - No scrim, like the launcher.

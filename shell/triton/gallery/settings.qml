@@ -4,8 +4,8 @@ import qs.foundations
 import qs.surfaces.settings
 
 // Settings with no services behind it.
-// Headless: scripts/test-shell.sh --entry gallery-settings.qml
-ShellRoot {
+// Run: scripts/test-shell.sh --gallery settings
+Scope {
     Fonts {}
 
     FloatingWindow {

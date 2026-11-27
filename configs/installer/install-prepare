@@ -23,7 +23,7 @@ done <"$root/usr/lib/callisto/live-only"
 
 # The layout chosen in the installer is every new account's starting point.
 if [ -f "$root/etc/default/keyboard" ]; then
-    XKBLAYOUT=us XKBVARIANT= XKBOPTIONS=
+    XKBLAYOUT=us XKBVARIANT='' XKBOPTIONS=''
     . "$root/etc/default/keyboard"
     case "$XKBLAYOUT$XKBVARIANT$XKBOPTIONS" in
         *[!A-Za-z0-9_,:+-]*) echo "ignoring odd keyboard layout" >&2 ;;
