@@ -149,6 +149,12 @@ install -D -m 0644 "$REPO_ROOT/configs/greeter/tmpfiles.conf" \
 rm -rf "$INCLUDES/usr/share/callisto/shell"
 cp -r "$REPO_ROOT/shell/triton" "$INCLUDES/usr/share/callisto/shell"
 
+# Session environment, default applications, and greetd's PAM stack.
+install -D -m 0644 "$REPO_ROOT/configs/session/uwsm-env" "$INCLUDES/etc/xdg/uwsm/env"
+install -D -m 0644 "$REPO_ROOT/configs/session/uwsm-env-hyprland" "$INCLUDES/etc/xdg/uwsm/env-hyprland"
+install -D -m 0644 "$REPO_ROOT/configs/session/mimeapps.list" "$INCLUDES/etc/xdg/mimeapps.list"
+install -D -m 0644 "$REPO_ROOT/configs/pam/greetd" "$INCLUDES/etc/pam.d/greetd"
+
 # The lock screen's own PAM stack.
 install -D -m 0644 "$REPO_ROOT/configs/pam/callisto-lock" "$INCLUDES/etc/pam.d/callisto-lock"
 

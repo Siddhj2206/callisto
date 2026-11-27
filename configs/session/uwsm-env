@@ -1,0 +1,18 @@
+# Callisto session environment — sourced by uwsm before the compositor starts.
+# Shell export format. Session-critical vars (XDG_CURRENT_DESKTOP etc.) are
+# uwsm's own job; everything here is toolkit/theming.
+
+# Qt: wayland first, xcb fallback. No useful platformtheme is autoselected on
+# Hyprland sessions, so it is set explicitly below.
+export QT_QPA_PLATFORM="wayland;xcb"
+export QT_QPA_PLATFORMTHEME=qt6ct
+
+# Electron: auto = wayland when possible without breaking capture keybinds
+# (forced wayland breaks Discord-style global shortcuts).
+export ELECTRON_OZONE_PLATFORM_HINT=auto
+
+# Cursor: the XCursor fallback path (Qt, Chromium, xwayland). hyprcursor is
+# configured in env-hyprland; GTK reads gsettings — the engine writes all
+# three channels on theme application.
+export XCURSOR_THEME=Adwaita
+export XCURSOR_SIZE=24

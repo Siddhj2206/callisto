@@ -1,0 +1,13 @@
+# PAM for greetd sessions. Standard Debian system-auth plus the session-keyring
+# unlock — a live user has the conventional password "live", and autologin
+# sessions skip the password prompt, so the keyring starts locked in either
+# case; the integration exists for correctness, not secrecy.
+auth    required    pam_unix.so
+auth    optional    pam_gnome_keyring.so
+
+account required    pam_unix.so
+
+session required    pam_unix.so
+session required    pam_loginuid.so
+session optional    pam_systemd.so
+session optional    pam_gnome_keyring.so auto_start

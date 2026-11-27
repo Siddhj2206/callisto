@@ -1,0 +1,3 @@
+# Compositor-internal environment (uwsm sources this only for hyprland).
+export HYPRCURSOR_THEME=Adwaita
+export HYPRCURSOR_SIZE=24

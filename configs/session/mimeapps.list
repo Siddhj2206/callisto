@@ -1,0 +1,7 @@
+# System-wide default application associations: Firefox is a Flatpak,
+# Nautilus comes from Debian.
+[Default Applications]
+x-scheme-handler/http=org.mozilla.firefox.desktop
+x-scheme-handler/https=org.mozilla.firefox.desktop
+text/html=org.mozilla.firefox.desktop
+inode/directory=org.gnome.Nautilus.desktop
