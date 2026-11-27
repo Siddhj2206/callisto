@@ -52,7 +52,8 @@ PanelWindow {
         width: Metrics.panelWidth
         items: NotificationState.toasts
         describe: n => NotificationEntry.of(n)
-        isSticky: n => NotificationEntry.of(n).critical
+        // A zero timeout is the sender asking to stay until answered.
+        isSticky: n => NotificationEntry.of(n).critical || n.expireTimeout === 0
         onExpired: n => NotificationState.hideToast(n)
         onClosed: n => NotificationState.dismiss(n)
         onActivated: n => NotificationState.activate(n)
