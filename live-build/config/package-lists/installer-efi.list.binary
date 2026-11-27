@@ -1,0 +1,9 @@
+# The bootloader for UEFI. Separate from BIOS: grub-pc and grub-efi conflict,
+# and live-build resolves each list on its own.
+grub-efi-amd64
+grub-efi-amd64-signed
+shim-signed
+efibootmgr
+cryptsetup
+cryptsetup-initramfs
+keyutils
