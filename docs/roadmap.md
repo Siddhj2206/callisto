@@ -73,7 +73,7 @@ before. The old shell code is a reference only. Rules and file layout are in
 - [x] Component gallery, dark and light (`shell/triton/gallery.qml`, panels in `gallery-panels.qml`)
 - [x] Drop-down panel (`Popover`), tile, slider, switch, button, list row, text field
 - [x] Literal lint for `primitives/`, `patterns/`, `surfaces/` (`scripts/lint-literals.py`; run by hand until CI exists)
-- [ ] **Approve the desktop sizes** (gallery)
+- [x] Desktop sizes approved "for now" (gallery)
 - [ ] Floating shadows (needs `qml6-module-qtquick-effects` and a higher `ignore_alpha`)
 - [ ] Screenshot-versus-board diff script (so far compared by eye)
 
@@ -104,7 +104,6 @@ definition of done is in `component-system.md` §7.
 - [x] Launcher (#12): ranked by match and habit, open windows, commands, arithmetic, app actions; apps start in their own systemd scope. Checked in QEMU
   - [ ] File search (`/`) and reveal in files
   - [ ] Spring out of the bar's wave button (it drops from the top)
-  - [ ] Decide: the dimmed screen behind it is blurred too, which the board does not show
 - [x] Quick Settings: main, Wi-Fi, Bluetooth and Sound pages. Clicks, slider, drill-in, Esc and click-outside checked in QEMU on Hyprland
   - [ ] Try Wi-Fi joining, Bluetooth and brightness on real hardware (the VM has none)
   - [ ] Arrow-key grid navigation between tiles (Tab works)

@@ -8,7 +8,8 @@ import qs.foundations
 import qs.services
 import qs.tokens
 
-// The launcher over a dimmed screen, on the focused monitor.
+// The launcher on the focused monitor. The window covers the screen, undimmed,
+// so that a click outside the panel closes it.
 PanelWindow {
     id: root
 
@@ -44,12 +45,6 @@ PanelWindow {
     Item {
         anchors.fill: parent
 
-        Rectangle {
-            anchors.fill: parent
-            color: Colors.current.scrim
-            opacity: root.open ? 1 : 0
-            Behavior on opacity { Fade {} }
-        }
         MouseArea {
             anchors.fill: parent
             onClicked: LauncherState.dismiss()

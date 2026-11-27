@@ -56,6 +56,9 @@ inline), loading (files search, `LoadingWave` in header trailing).
 audit defect #12. Filters are All, Apps and Windows; there is no file search
 yet. Tab shows the selected row's actions in place.
 
+No scrim: the screen behind the launcher is neither dimmed nor blurred, unlike
+the board and the tree above.
+
 ## Salvage
 Keep wholesale: `LauncherService` (scoring, `matchedApps`, `topHit`, calc
 evaluation, `launch`/`runCommand`, prefix modes), `LauncherState`.
