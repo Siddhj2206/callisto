@@ -38,6 +38,7 @@ The original 6-day execution plan that lived here is in git history.
 | Fingerprint | Not in the first release |
 | Updates | apt; image-based updates later if at all |
 | Installer | Calamares |
+| Installed-system login | Greeter with a password, and the installer recommends it. Automatic login is the live image only (it would leave the keyring locked) |
 
 ## 1. Broken basics
 
