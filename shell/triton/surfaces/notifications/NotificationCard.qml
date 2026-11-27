@@ -17,6 +17,8 @@ Item {
     readonly property bool hovered: hover.hovered
     // A half-typed reply must not time out from under the user.
     readonly property bool busy: reply.item?.typing ?? false
+    // The pointer is on a card that can be replied to, or the field is in use.
+    readonly property bool wantsKeyboard: entry.replyable && (hovered || (reply.item?.editing ?? false))
 
     signal clicked
     signal dismissed
@@ -155,7 +157,9 @@ Item {
             active: root.entry.replyable
             visible: active
             sourceComponent: Item {
-                readonly property bool typing: field.activeFocus && field.text !== ""
+                readonly property bool editing: field.editing
+                // Not tied to focus, which follows the pointer back to a window.
+                readonly property bool typing: field.text !== ""
 
                 function send() {
                     if (field.text !== "")

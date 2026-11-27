@@ -9,6 +9,8 @@ Item {
     property alias text: input.text
     property string placeholder: ""
     property bool password: false
+    // The wrapper itself never has active focus; the input inside does.
+    readonly property alias editing: input.activeFocus
 
     signal accepted
 

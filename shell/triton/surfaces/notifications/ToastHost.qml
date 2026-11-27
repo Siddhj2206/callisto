@@ -21,8 +21,9 @@ PanelWindow {
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
-    // Only a click into a reply field takes the keyboard.
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+    // Hyprland focuses a new layer that accepts the keyboard, so a toast would
+    // steal what is being typed. Ask for it only to let a reply be written.
+    WlrLayershell.keyboardFocus: stack.wantsKeyboard ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
     visible: NotificationState.toasts.length > 0
     mask: Region { item: stack }
 

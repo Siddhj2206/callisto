@@ -15,6 +15,7 @@ Column {
     property var isSticky: item => item.critical === true
     readonly property int limit: 4
     property int timeout: Motion.toastHold
+    readonly property bool wantsKeyboard: Array.from(children).some(child => child.wantsKeyboard === true)
 
     signal expired(var item)
     signal closed(var item)

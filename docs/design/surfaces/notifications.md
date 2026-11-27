@@ -61,3 +61,8 @@ withdrawals could not work. History is now the server's tracked list.
 ## Salvage
 Keep wholesale: `NotificationState` (server, groups, DND, overflow, unread,
 sweeping timer). Visual code: replace.
+
+Keyboard: toasts do not accept it, because Hyprland focuses any new layer that
+does, which stole keystrokes from the window being typed in. A replyable card
+asks for it while the pointer is on it or its field is in use. A reply with text
+in it holds the toast open, wherever focus goes.

@@ -10,6 +10,7 @@ Item {
     required property var entry
     property bool sticky: false
     property int timeout: Motion.toastHold
+    readonly property bool wantsKeyboard: !leaving && card.wantsKeyboard
 
     signal expired
     signal closed // dismissed by the user; fires after the fade
