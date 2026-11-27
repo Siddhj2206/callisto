@@ -25,4 +25,6 @@ QtObject {
     readonly property int powerCountdown: 5000
     readonly property int passwordReveal: 5000
     readonly property int switcherOpenDelay: 120
+    readonly property int captureSettle: 150
+    readonly property int shotCardHold: 5000
 }

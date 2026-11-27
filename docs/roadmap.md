@@ -120,7 +120,7 @@ definition of done is in `component-system.md` §7.
 - [x] Wallpaper picker (#15): the real desktop is the preview, system and Pictures wallpapers, colors shown before they are applied. In QEMU: preview, apply, revert. Open: more shipped wallpapers (only one exists), dynamic and solid sets, per-display, greeter wallpaper, light-image prompt
 - [x] Lock (#10, #14): pure view and host, shared backdrop, login card and password field. In QEMU: wrong and right password, restart while locked, with and without the blur module. Open: media pill, caps-lock chip, unlocking state, a look on real multi-monitor hardware
 - [x] Greeter: greetd running the shell's `greeter.qml`, tuigreet behind it. In QEMU: login, back after logout, wrong and right password, shut down, fallback. **Not yet in a built ISO**. Open: other users by name, keyboard layout and session pickers, multi-monitor
-- [ ] Screenshot (#10)
+- [x] Screenshot (#10): frozen screen, region, window and screen modes, delay, result card. In QEMU: region, whole screen and window captures reach the file and the clipboard. Open: video recording, markup editor, selection handles, private windows, multi-monitor, window hover on real hardware (the VM delivers motion without a pointer frame)
 - [ ] Settings app (#11)
 - [ ] Light mode and contrast pass
 - [ ] **Check blur on every surface.** ISO rebuilt at `fb763d0`; blur is on and looks right behind the launcher and power menu. Bar, OSD, quick settings, toasts and the center still need a look over a busy background

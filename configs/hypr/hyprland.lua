@@ -147,6 +147,10 @@ hl.bind(mod .. " + Space",       qsipc("launcher", "toggle"))
 hl.bind(mod .. " + SHIFT + E",   qsipc("power", "toggle"))
 hl.bind(mod .. " + Tab",         qsipc("overview", "toggle"))
 
+hl.bind("Print",              qsipc("screenshot", "open"))
+hl.bind("SHIFT + Print",      qsipc("screenshot", "screen"))
+hl.bind(mod .. " + SHIFT + S", qsipc("screenshot", "open"))
+
 -- Alt+Tab: held to cycle, released to switch. Global shortcuts reach the shell
 -- in order, which separately spawned commands could not promise.
 hl.bind("ALT + Tab",         hl.dsp.global("callisto:switcher-next"))

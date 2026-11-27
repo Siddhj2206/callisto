@@ -16,6 +16,7 @@ import qs.surfaces.wallpaper
 import qs.surfaces.notifications
 import qs.surfaces.osd
 import qs.surfaces.power
+import qs.surfaces.screenshot
 import qs.surfaces.quicksettings
 
 // Triton shell entry point. Thin by design: fonts, then one copy of each
@@ -66,6 +67,8 @@ ShellRoot {
     }
 
     ClipboardHost {}
+
+    ScreenshotHost {}
 
     OverviewHost {}
 
@@ -119,6 +122,11 @@ ShellRoot {
     IpcHandler {
         target: "power"
         function toggle(): void { PowerState.toggle(); }
+    }
+    IpcHandler {
+        target: "screenshot"
+        function open(): void { ScreenshotState.toggle(); }
+        function screen(): void { ScreenshotState.screenNow(); }
     }
     IpcHandler {
         target: "overview"

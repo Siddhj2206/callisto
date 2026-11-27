@@ -120,6 +120,9 @@ install -m 0755 "$REPO_ROOT/scripts/engine/callisto-clip" \
 install -D -m 0644 "$REPO_ROOT/configs/systemd/user/callisto-clipboard.service" \
     "$INCLUDES/usr/lib/systemd/user/callisto-clipboard.service"
 
+# Screenshots: the capture and crop helper.
+install -m 0755 "$REPO_ROOT/scripts/engine/callisto-shot" "$INCLUDES/usr/local/bin/"
+
 # The shell itself.
 install -D -m 0644 "$REPO_ROOT/configs/systemd/user/callisto-shell.service" \
     "$INCLUDES/usr/lib/systemd/user/callisto-shell.service"

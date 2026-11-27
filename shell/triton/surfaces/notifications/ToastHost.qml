@@ -24,7 +24,8 @@ PanelWindow {
     // Hyprland focuses a new layer that accepts the keyboard, so a toast would
     // steal what is being typed. Ask for it only to let a reply be written.
     WlrLayershell.keyboardFocus: stack.wantsKeyboard ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
-    visible: NotificationState.toasts.length > 0
+    // Never in a screenshot.
+    visible: NotificationState.toasts.length > 0 && !ScreenshotState.open
     mask: Region { item: stack }
 
     onVisibleChanged: {

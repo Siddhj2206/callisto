@@ -47,3 +47,23 @@ notifications never appear in the image. Recording shows the bar chip.
 Selection geometry code in `ScreenshotUI.qml` may be reused. Needs `grim`/`slurp`
 or `ScreencopyView` capture service and `wf-recorder` for video (new
 `ScreenshotService`). Visual code: replace.
+
+## As built
+
+`surfaces/screenshot/{ScreenshotHost,CaptureScreen,Countdown,ResultCard}`,
+`services/ScreenshotState` and `scripts/engine/callisto-shot`.
+
+- `callisto-shot` freezes each output with `grim` before the overlay maps, crops
+  from that frozen image, writes to Pictures/Screenshots and copies with
+  `wl-copy`. The frozen images are deleted when the capture ends.
+- Region, window and screen modes (Space or 1/2/3), delay, pointer toggle,
+  arrows nudge, Shift+Enter copies without saving. Print opens, Shift+Print
+  captures the screen, Super+Shift+S also opens. IPC `screenshot open|screen`.
+- The after-capture card offers view, show folder and delete, and holds for 5 s
+  (hover pauses it). The bar and toasts stay out of the way while capturing.
+- Not built: video recording, the markup editor, selection resize handles,
+  private-window handling and Tab between monitors.
+
+In the QEMU VM, hover does not follow the pointer until a click, in the shell and
+in `foot` alike: the Wayland log shows `wl_pointer.motion` with no `frame` after
+it. Check hover on real hardware.

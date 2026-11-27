@@ -18,7 +18,8 @@ Scope {
 
     readonly property string mode: SettingsService.get("shell", "barMode", "edge") // "edge" | "hidden" | "pinned"
     readonly property bool pinned: mode === "pinned"
-    readonly property bool shown: (pinned || BarState.revealed) && !WallpaperState.open
+    // A revealed bar leaves for screenshots; a pinned one is part of the screen.
+    readonly property bool shown: pinned ? !WallpaperState.open : BarState.revealed && !WallpaperState.open && !ScreenshotState.open
 
     // ---- Compositor ----
     readonly property HyprlandMonitor monitor: Hyprland.monitorFor(screen)

@@ -143,6 +143,11 @@ QtObject {
     readonly property real wallThumbWidth: board ? 200 : 160
     readonly property real wallThumbHeight: board ? 120 : 96
     readonly property real paletteWidth: board ? 370 : 300
+    readonly property real captureButton: board ? 64 : 48
+    readonly property real shotCard: board ? 340 : 280
+    readonly property real shotThumb: board ? 170 : 140
+    readonly property real countdownBadge: board ? 200 : 144
+    readonly property real minSelection: 4
     readonly property real lockSide: board ? 68 : 32
     readonly property real lockNotifications: board ? 380 : 300
     readonly property real lockField: board ? 56 : 44
