@@ -166,12 +166,14 @@ Missing
 ## 6. Release
 
 - [ ] Flatpak accent portal and color override (M16)
-- [x] Greeter on greetd and Calamares installer (M17): offline, UEFI and BIOS bootloaders on the medium, optional LUKS, ext4 or btrfs. In QEMU, offline: UEFI with encrypted ext4, and BIOS with encrypted btrfs; both boot, log in on a UK layout and have no failed units. Not tested: unencrypted, manual partitioning, dual boot
+- [x] Greeter on greetd and Calamares installer (M17): offline, UEFI and BIOS bootloaders on the medium, optional LUKS, ext4 or btrfs. In QEMU, offline: UEFI with encrypted ext4, and BIOS with encrypted btrfs; both boot, log in on a UK layout and have no failed units.
+- [ ] Try the ISO on a spare machine: the biggest unknown
+- [ ] Install checks not run yet: unencrypted, manual partitioning, dual boot
 - [ ] After a session is force-killed the greeter can fall back to tuigreet (the graphics device is still busy)
 - [ ] The installer closed once on the keyboard page; not reproduced
 - [ ] Disk passphrase prompt (GRUB) always uses the US layout
-- [ ] Updates for Callisto's own files on installed systems: needs a package and an apt repository
-- [ ] Secure Boot and real hardware untested
+- [ ] Updates for Callisto's own files on installed systems: needs a Callisto package and an apt repository. Hosting is undecided (GitHub Releases or Pages could work)
+- [ ] Secure Boot untested
 - [ ] Default to btrfs once there are snapshots and rollback
 - [ ] Plymouth and fwupd (M18)
 - [ ] In-shell polkit agent (M19, without fingerprint)
