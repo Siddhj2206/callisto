@@ -1,5 +1,6 @@
 pragma ComponentBehavior: Bound
 
+import Quickshell
 import QtQuick
 import qs
 import qs.foundations
@@ -210,25 +211,28 @@ Item {
                 spacing: Metrics.rowGap
                 clip: true
                 interactive: false
-                model: lane.ribbon.windows
+                // By address: a changed title must not rebuild the tiles and
+                // their live captures.
+                model: ScriptModel { values: lane.ribbon.windows.map(w => w.address) }
                 currentIndex: lane.current ? root.column : 0
                 highlightFollowsCurrentItem: true
                 highlightMoveDuration: Motion.reduce ? 0 : Motion.fadeSlow
 
                 delegate: Item {
                     id: tile
-                    required property var modelData
+                    required property string modelData
                     required property int index
+                    readonly property var win: lane.ribbon.windows.find(w => w.address === modelData) ?? ({})
                     readonly property bool selected: lane.current && index === root.column
 
-                    width: Math.round(Metrics.ribbonThumb * Math.max(Metrics.aspectMin, Math.min(Metrics.aspectMax, modelData.aspect)))
+                    width: Math.round(Metrics.ribbonThumb * Math.max(Metrics.aspectMin, Math.min(Metrics.aspectMax, (win.aspect ?? 1))))
                     height: Metrics.ribbonThumb
-                    opacity: root.dragged?.address === modelData.address ? Theme.stateDimmed : 1
+                    opacity: root.dragged?.address === modelData ? Theme.stateDimmed : 1
 
                     WindowPreview {
                         anchors.fill: parent
-                        capture: tile.modelData.capture
-                        icon: tile.modelData.icon
+                        capture: tile.win.capture ?? null
+                        icon: tile.win.icon ?? ""
                     }
                     Rectangle {
                         anchors.fill: parent
@@ -254,7 +258,7 @@ Item {
                             role: "labelSmall"
                             elide: Text.ElideRight
                             textFormat: Text.PlainText
-                            text: tile.modelData.title
+                            text: tile.win.title ?? ""
                         }
                     }
 
@@ -270,7 +274,7 @@ Item {
                             if (!(pressedButtons & Qt.LeftButton))
                                 return;
                             if (!root.dragged && Math.hypot(mouse.x - from.x, mouse.y - from.y) > Metrics.dragThreshold)
-                                root.dragged = tile.modelData;
+                                root.dragged = tile.win;
                             if (root.dragged)
                                 root.pointer = mapToItem(root, mouse.x, mouse.y);
                         }
@@ -279,9 +283,9 @@ Item {
                                 const at = mapToItem(root, mouse.x, mouse.y);
                                 root.dropAt(at.x, at.y);
                             } else if (mouse.button === Qt.MiddleButton) {
-                                root.closeRequested(tile.modelData.address);
+                                root.closeRequested(tile.modelData);
                             } else {
-                                root.activated(tile.modelData.address);
+                                root.activated(tile.modelData);
                             }
                         }
                         onCanceled: root.dragged = null

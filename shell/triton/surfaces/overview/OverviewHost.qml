@@ -29,6 +29,8 @@ Variants {
         }
         color: "transparent"
         exclusionMode: ExclusionMode.Ignore
+        // Opaque all over: its own namespace keeps compositor blur off it.
+        WlrLayershell.namespace: "triton-opaque"
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.keyboardFocus: OverviewState.open && focused ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
         visible: presence.mapped
