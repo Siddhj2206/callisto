@@ -128,7 +128,7 @@ with tempfile.TemporaryDirectory() as tmp:
         check("and survives a restart", 'mode = "1600x900@60.00"' in user_lua.read_text())
         try_mode("Virtual-1", "800x600@60.00")
         send({"op": "revert"})
-        check("revert returns to the kept mode", new_calls().rstrip().split("\n")[-1].count("1600x900") == 1)
+        check("revert returns to the kept mode", new_calls().split("hyprctl eval")[-1].count("1600x900") == 1)
         check("refuses a bad mode", not try_mode("Virtual-1", '1x1" })os.exit()--')["ok"]
               and not try_mode('a"b', "preferred")["ok"])
 

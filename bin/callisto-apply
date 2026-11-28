@@ -666,6 +666,12 @@ def hypr_eval(lua: str) -> None:
     run_quiet("hyprctl", "eval", lua)
 
 
+def show_mode(rule: str) -> None:
+    """A monitor rule, and Settings brought back onto a screen that shrank."""
+    hypr_eval(rule)
+    run_quiet("hyprctl", "dispatch", 'hl.dsp.window.center({ window = "class:org.callisto.Settings" })')
+
+
 def live_borders(active: dict) -> None:
     primary = active["color"]["dark"]["primary"].lstrip("#")
     hypr_eval('hl.config({ general = { col = { active_border = "rgba(%saa)",'
