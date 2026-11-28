@@ -18,8 +18,6 @@ Page {
     readonly property real scale: SettingsService.get("display", "scale", monitors[0]?.scale ?? 1)
 
     readonly property var trial: SettingsService.trial
-    // The display whose resolutions are listed.
-    property string opened: ""
     // The compositor was asked for the tried size and did not take it: some
     // graphics (virtual machines above all) only do so at the next sign-in.
     property bool refused: false
@@ -44,9 +42,16 @@ Page {
             if (w < 1024 || h < 720)
                 found.delete(size);
         }
-        const area = size => size.split("x").reduce((a, b) => a * b, 1);
-        return [...found].sort((a, b) => area(b[0]) - area(a[0]))
+        // Widest first, then tallest.
+        const parts = size => size.split("x").map(Number);
+        return [...found].sort((a, b) => parts(b[0])[0] - parts(a[0])[0] || parts(b[0])[1] - parts(a[0])[1])
             .map(([size, rates]) => ({ size: size, rates: rates.sort((a, b) => b - a) }));
+    }
+
+    // Whole hertz, unless two rates would then read the same.
+    function hertz(rate, rates) {
+        const whole = Math.round(rate);
+        return (rates.filter(r => Math.round(r) === whole).length > 1 ? Number(rate).toFixed(2) : whole) + " Hz";
     }
 
     // Hyprland announces neither a scale nor a mode change, so ask again.
@@ -116,7 +121,6 @@ Page {
                 // The listed rate nearest to the one in use.
                 readonly property string rate: rates.reduce((best, r) =>
                     Math.abs(r - info.refreshRate) < Math.abs(best - info.refreshRate) ? r : best, rates[0] ?? "")
-                readonly property bool open: root.opened === modelData.name
 
                 glyph: Icons.monitor
                 title: modelData.name
@@ -125,51 +129,46 @@ Page {
                     + ", scale " + Math.round(modelData.scale * 100) + "%"
                     + (root.trial === null && wanted !== "" && wanted !== size
                         ? ". " + wanted.replace("x", " × ") + " from your next sign-in" : "")
-                clickable: sizes.length > 0
-                onClicked: root.opened = open ? "" : modelData.name
-
-                Icon {
-                    visible: display.sizes.length > 0
-                    glyph: display.open ? Icons.keyboardArrowUp : Icons.keyboardArrowDown
-                }
 
                 // A Loader: hidden children would still be given their height.
                 below: Loader {
                     width: parent.width
-                    active: display.open
+                    active: display.sizes.length > 0
                     visible: active
-                    sourceComponent: Column {
-                        spacing: Metrics.cardActions
+                    sourceComponent: Flow {
+                        spacing: Metrics.panelPad
 
-                        AppText {
-                            role: "labelSmall"
-                            tone: "onsurfacevariant"
-                            text: "Resolution"
-                        }
-                        ChoiceChips {
-                            width: parent.width
-                            options: display.sizes.map(s => ({ value: s.size, label: s.size.replace("x", " × ") }))
-                            current: display.size
-                            onChosen: value => {
-                                if (value !== display.size)
-                                    SettingsService.tryMode(display.modelData.name,
-                                        value + "@" + display.sizes.find(s => s.size === value).rates[0]);
+                        Column {
+                            spacing: Metrics.cardActions
+
+                            AppText {
+                                role: "labelSmall"
+                                tone: "onsurfacevariant"
+                                text: "Resolution"
+                            }
+                            Dropdown {
+                                name: "Resolution of " + display.modelData.name
+                                options: display.sizes.map(s => ({ value: s.size, label: s.size.replace("x", " × ") }))
+                                current: display.size
+                                onChosen: value => SettingsService.tryMode(display.modelData.name,
+                                    value + "@" + display.sizes.find(s => s.size === value).rates[0])
                             }
                         }
-                        AppText {
+                        Column {
                             visible: display.rates.length > 1
-                            role: "labelSmall"
-                            tone: "onsurfacevariant"
-                            text: "Refresh rate"
-                        }
-                        ChoiceChips {
-                            visible: display.rates.length > 1
-                            width: parent.width
-                            options: display.rates.map(r => ({ value: r, label: Math.round(r) + " Hz" }))
-                            current: display.rate
-                            onChosen: value => {
-                                if (value !== display.rate)
-                                    SettingsService.tryMode(display.modelData.name, display.size + "@" + value);
+                            spacing: Metrics.cardActions
+
+                            AppText {
+                                role: "labelSmall"
+                                tone: "onsurfacevariant"
+                                text: "Refresh rate"
+                            }
+                            Dropdown {
+                                name: "Refresh rate of " + display.modelData.name
+                                options: display.rates.map(r => ({ value: r, label: root.hertz(r, display.rates) }))
+                                current: display.rate
+                                onChosen: value => SettingsService.tryMode(display.modelData.name,
+                                    display.size + "@" + value)
                             }
                         }
                     }
