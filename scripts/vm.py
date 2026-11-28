@@ -12,6 +12,7 @@
     vm.py click X Y          click at screenshot coordinates
     vm.py log                the shell's journal
     vm.py gpu                what renders the guest's graphics
+    vm.py perf               what the shell costs: startup, memory, idle cpu
     vm.py status | down
     vm.py smoke              boot the ISO as shipped and check it (CI)
 
@@ -657,6 +658,15 @@ def gpu(_args) -> None:
         sys.exit(1)
 
 
+def perf(_args) -> None:
+    need_running()
+    script = (REPO / "scripts/guest-perf.py").read_bytes()
+    status, output, errors = session(["python3", "-"], stdin=script, timeout=240)
+    sys.stdout.write(output.decode())
+    sys.stderr.write(errors.decode(errors="replace"))
+    sys.exit(status)
+
+
 # --- Smoke test --------------------------------------------------------------
 
 def smoke(args) -> None:
@@ -717,6 +727,7 @@ def main() -> None:
         sub.add_argument("argv", nargs=argparse.REMAINDER)
     command("log", log)
     command("gpu", gpu)
+    command("perf", perf)
 
     args = parser.parse_args()
     args.function(args)
