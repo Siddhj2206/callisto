@@ -147,60 +147,80 @@ hl.on("hyprland.start", function()
 end)
 
 -- --- Keybinds ----------------------------------------------------------------------------
+-- Which keys do what is data: the shipped shortcuts (keybindings.json, which
+-- Settings lists too) with the ones the user changed on top. This file only
+-- says what each name does.
+--
 -- Shell surfaces are driven through quickshell IPC — the shell is the single
 -- source of truth for its own visibility. Nothing here shells out to ad-hoc
 -- UI binaries; if a surface exists, it answers IPC.
+
+local keys = dofile("/usr/share/callisto/hypr/keys.lua")
+-- Hyprland puts a failed require on screen even inside pcall, so look first.
+local user = {}
+if package.searchpath("callisto-keys", package.path) then
+    local found, changed = pcall(require, "callisto-keys")
+    if found and type(changed) == "table" then user = changed end
+end
+for name, combo in pairs(user.keys or {}) do keys[name] = combo end
+
+local function bind(name, action)
+    if keys[name] and keys[name] ~= "" then hl.bind(keys[name], action) end
+end
 
 local function qsipc(target, fn)
     return hl.dsp.exec_cmd("uwsm app -- qs -c triton ipc call " .. target .. " " .. fn)
 end
 
 -- Triton surfaces
-hl.bind(mod .. " + Space",       qsipc("launcher", "toggle"))
-hl.bind(mod .. " + SHIFT + E",   qsipc("power", "toggle"))
-hl.bind(mod .. " + Tab",         qsipc("overview", "toggle"))
+bind("launcher",          qsipc("launcher", "toggle"))
+bind("power",             qsipc("power", "toggle"))
+bind("overview",          qsipc("overview", "toggle"))
+bind("screenshot",        qsipc("screenshot", "open"))
+bind("screenshot.alt",    qsipc("screenshot", "open"))
+bind("screenshot.screen", qsipc("screenshot", "screen"))
+bind("bar",               qsipc("bar", "toggle"))
+bind("clipboard",         qsipc("clipboard", "toggle"))
+bind("notifications",     qsipc("notifications", "toggle"))
+bind("quicksettings",     qsipc("quicksettings", "toggle"))
+bind("settings",          hl.dsp.exec_cmd("callisto-settings"))
+bind("wallpaper",         qsipc("wallpaper", "toggle"))
+-- Lock — the Triton lock surface owns auth presentation (ext-session-lock
+-- inside the shell). hyprlock remains installed as a manual fallback.
+bind("lock",              qsipc("lock", "lock"))
 
-hl.bind("Print",              qsipc("screenshot", "open"))
-hl.bind("SHIFT + Print",      qsipc("screenshot", "screen"))
-hl.bind(mod .. " + SHIFT + S", qsipc("screenshot", "open"))
+-- Apps
+bind("terminal", hl.dsp.exec_cmd("uwsm app -- foot"))
 
--- Alt+Tab: held to cycle, released to switch. Global shortcuts reach the shell
--- in order, which separately spawned commands could not promise.
+-- Window management
+bind("window.close",      hl.dsp.window.close())
+bind("window.float",      hl.dsp.window.float({ action = "toggle" }))
+bind("window.fullscreen", hl.dsp.window.fullscreen({ action = "toggle" }))
+
+for i = 1, 5 do
+    bind("workspace." .. i,      hl.dsp.focus({ workspace = i }))
+    bind("workspace.move." .. i, hl.dsp.window.move({ workspace = i }))
+end
+
+for _, direction in ipairs({ "left", "down", "up", "right" }) do
+    bind("focus." .. direction, hl.dsp.focus({ direction = direction }))
+    bind("move." .. direction,  hl.dsp.window.move({ direction = direction }))
+end
+
+-- The user's own.
+for _, own in ipairs(user.custom or {}) do
+    hl.bind(own.keys, hl.dsp.exec_cmd(own.command))
+end
+
+-- Not changeable: Alt+Tab is held to cycle and released to switch. Global
+-- shortcuts reach the shell in order, which separately spawned commands could
+-- not promise.
 hl.bind("ALT + Tab",         hl.dsp.global("callisto:switcher-next"))
 hl.bind("ALT + SHIFT + Tab", hl.dsp.global("callisto:switcher-previous"))
 hl.bind("ALT + grave",       hl.dsp.global("callisto:switcher-same-app"))
 hl.bind("ALT + Alt_L",       hl.dsp.global("callisto:switcher-commit"), { release = true, transparent = true })
-hl.bind(mod .. " + B",           qsipc("bar", "toggle"))
-hl.bind(mod .. " + V",           qsipc("clipboard", "toggle"))
-hl.bind(mod .. " + N",           qsipc("notifications", "toggle"))
-hl.bind(mod .. " + I",           qsipc("quicksettings", "toggle"))
-hl.bind(mod .. " + comma",       hl.dsp.exec_cmd("callisto-settings"))
-hl.bind(mod .. " + SHIFT + W",   qsipc("wallpaper", "toggle"))
 
--- Apps
-hl.bind(mod .. " + Return", hl.dsp.exec_cmd("uwsm app -- foot"))
-
--- Window management
-hl.bind(mod .. " + Q",     hl.dsp.window.close())
-hl.bind(mod .. " + F",     hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mod .. " + M",     hl.dsp.window.fullscreen({ action = "toggle" }))
-
-for i = 1, 5 do
-    hl.bind(mod .. " + " .. i,           hl.dsp.focus({ workspace = i }))
-    hl.bind(mod .. " + SHIFT + " .. i,   hl.dsp.window.move({ workspace = i }))
-end
-
-hl.bind(mod .. " + H", hl.dsp.focus({ direction = "left" }))
-hl.bind(mod .. " + J", hl.dsp.focus({ direction = "down" }))
-hl.bind(mod .. " + K", hl.dsp.focus({ direction = "up" }))
-hl.bind(mod .. " + L", hl.dsp.focus({ direction = "right" }))
-
-hl.bind(mod .. " + SHIFT + H", hl.dsp.window.move({ direction = "left" }))
-hl.bind(mod .. " + SHIFT + J", hl.dsp.window.move({ direction = "down" }))
-hl.bind(mod .. " + SHIFT + K", hl.dsp.window.move({ direction = "up" }))
-hl.bind(mod .. " + SHIFT + L", hl.dsp.window.move({ direction = "right" }))
-
--- Resize with mouse
+-- Move and resize with the mouse
 hl.bind(mod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
 hl.bind(mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
@@ -219,10 +239,6 @@ end
 hl.bind("XF86AudioPlay",         media("toggle", "play-pause"), { locked = true })
 hl.bind("XF86AudioNext",         media("next", "next"),         { locked = true })
 hl.bind("XF86AudioPrev",         media("previous", "previous"), { locked = true })
-
--- Lock — the Triton lock surface owns auth presentation (ext-session-lock
--- inside the shell). hyprlock remains installed as a manual fallback.
-hl.bind(mod .. " + Escape", qsipc("lock", "lock"))
 
 -- --- Settings-app-managed user overrides ---------------------------------------------
 -- Generated by callisto-apply. require() is protected per-file, so a broken

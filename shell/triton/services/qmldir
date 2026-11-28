@@ -30,3 +30,4 @@ singleton TrayState 1.0 TrayState.qml
 singleton RecordState 1.0 RecordState.qml
 singleton AppsService 1.0 AppsService.qml
 singleton MachineInfo 1.0 MachineInfo.qml
+singleton ShortcutsService 1.0 ShortcutsService.qml

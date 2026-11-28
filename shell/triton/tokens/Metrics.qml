@@ -124,6 +124,11 @@ QtObject {
     readonly property real resultRow: board ? 56 : 48
     readonly property real hintHeight: board ? 52 : 40
     readonly property real keycap: board ? 24 : 20
+    readonly property real scrollbar: board ? 6 : 4
+    readonly property real scrollbarWide: board ? 10 : 8
+    readonly property real scrollbarHit: board ? 18 : 14
+    readonly property real scrollbarInset: board ? 4 : 3
+    readonly property real scrollbarThumb: board ? 40 : 32
     readonly property real powerChoice: board ? 140 : 104
     readonly property real powerExpanded: board ? 300 : 232
     readonly property real powerInner: board ? 14 : 12
