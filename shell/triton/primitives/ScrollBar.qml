@@ -3,7 +3,8 @@ import qs.foundations
 import qs.tokens
 
 // Where one is in a list that does not fit, and a handle to drag. Put it in the
-// Flickable it follows, as `ScrollBar { parent: list; target: list }`.
+// Flickable it follows, as `ScrollBar { parent: list; target: list }`, and leave
+// `scrollbarHit` free at that side: it is drawn over whatever is there.
 Item {
     id: root
 
@@ -38,7 +39,7 @@ Item {
         width: root.engaged ? Metrics.scrollbarWide : Metrics.scrollbar
         height: root.thumbHeight
         radius: width / 2
-        color: root.engaged ? root.scheme.onsurfacevariant : root.scheme.outlineVariant
+        color: root.engaged ? root.scheme.onsurfacevariant : root.scheme.outline
         Behavior on color { ColorFade {} }
     }
 

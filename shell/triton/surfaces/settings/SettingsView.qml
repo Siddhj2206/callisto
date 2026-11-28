@@ -107,6 +107,8 @@ Item {
             anchors.margins: Metrics.panelPad
             anchors.left: parent.left
             anchors.right: parent.right
+            // The sidebar's padding on this side is the scrollbar's.
+            anchors.rightMargin: 0
             contentHeight: list.height
             boundsBehavior: Flickable.StopAtBounds
             clip: true
@@ -118,7 +120,7 @@ Item {
 
             Column {
                 id: list
-                width: parent.width
+                width: nav.width - Metrics.panelPad
 
                 Repeater {
                     model: SettingsCatalog.pages
