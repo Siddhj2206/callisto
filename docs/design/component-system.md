@@ -144,7 +144,7 @@ something not in `docs/research/design-board-map.md`.
 | Wave shape (identity) | bar button, avatars, album art, accent swatches, loading, OSD off disc, capture button, overview workspace badge, greeter users | `WaveShape` -> `WaveAvatar`, `Swatch`, `LoadingWave` |
 | Icon in tonal circle | list rows, launcher results, notification app icon, QS network rows | `IconDisc` |
 | Rounded segmented rows | settings, QS Wi-Fi list, containers, clipboard (different radii), launcher results | `ListGroup` + `ListRow` |
-| Filter / source chips | launcher filters, clipboard filters, wallpaper sources, preset widths, refresh rate | `Chip` (+ `ChipGroup`) |
+| Filter / source chips | launcher filters, clipboard filters, wallpaper sources, preset widths, refresh rate, resolution, keyboard layout | `Chip` (+ `ChipGroup`) |
 | Connected button group | screenshot toolbar, power menu, settings mode seg, QS? no, Top/Bottom, "Applying to", Day/Week/Month, view toggle | `SegmentedButton` |
 | Keycap | launcher footer, wallpaper hints, switcher hints, clipboard hints, power hints, settings shortcuts | `Keycap` (+ `KeyHintBar`) |
 | Floating label | overview window names, capture hints, settings "Floating" caption | `Pill` |

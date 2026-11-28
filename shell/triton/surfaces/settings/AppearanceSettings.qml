@@ -48,9 +48,11 @@ Page {
         SettingRow {
             title: "Mode"
             subtitle: "Auto is light from 07:00 to 19:00"
-            below: ChoiceChips {
+            below: SegmentedButton {
                 width: parent.width
-                options: [{ value: "dark", label: "Dark" }, { value: "light", label: "Light" }, { value: "auto", label: "Auto" }]
+                options: [{ value: "dark", label: "Dark", glyph: Icons.darkMode },
+                    { value: "light", label: "Light", glyph: Icons.lightMode },
+                    { value: "auto", label: "Auto", glyph: Icons.brightnessAuto }]
                 current: SettingsService.appearanceMode
                 onChosen: value => SettingsService.set("appearance", "mode", value)
             }
@@ -110,7 +112,7 @@ Page {
         SettingRow {
             title: "Contrast"
             subtitle: "Stronger text and edges"
-            below: ChoiceChips {
+            below: SegmentedButton {
                 width: parent.width
                 options: [{ value: 0, label: "Standard" }, { value: 0.5, label: "Medium" }, { value: 1, label: "High" }]
                 current: SettingsService.get("appearance", "contrast", 0)

@@ -2,7 +2,8 @@ import QtQuick
 import qs.primitives
 import qs.tokens
 
-// Pick one of a few. `options` is [{ value, label }]. Wraps when given a width.
+// Pick one of many. `options` is [{ value, label }]. Wraps when given a width.
+// A short, fixed set is a SegmentedButton.
 Flow {
     id: root
 

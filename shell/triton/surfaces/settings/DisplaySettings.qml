@@ -184,7 +184,7 @@ Page {
         SettingRow {
             title: "Scale"
             subtitle: "How large everything is drawn, on every display"
-            below: ChoiceChips {
+            below: SegmentedButton {
                 width: parent.width
                 options: [1, 1.25, 1.5, 1.75, 2].map(v => ({ value: v, label: v * 100 + "%" }))
                 current: root.scale
