@@ -10,3 +10,9 @@
 Package: hyprland hyprland-* hypridle hyprlock hyprsunset hyprpolkitagent xdg-desktop-portal-hyprland quickshell uwsm libaquamarine* libhypr* libxkbcommon* libxkbregistry* libinput* libwayland*
 Pin: release n=trixie-backports
 Pin-Priority: 600
+
+# Our own builds (patches/, scripts/build-debs.sh) over the backports ones they
+# are made from.
+Package: hyprland
+Pin: version /\+callisto/
+Pin-Priority: 700

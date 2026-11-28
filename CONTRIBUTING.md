@@ -6,7 +6,9 @@ Read [`docs/principles.md`](docs/principles.md) first: changes are held to it.
 
 You need rootless podman, Python 3, `shellcheck` and, for the VM, `/dev/kvm`.
 Nothing else comes from the host: the ISO builder, the shell harness and QEMU
-are containers, built the first time they are needed.
+are containers, built the first time they are needed. The first `make iso` also
+compiles the [patched Hyprland](docs/architecture.md#patched-packages), which
+takes a while.
 
 ```sh
 make            # list the commands

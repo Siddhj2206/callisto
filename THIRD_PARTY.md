@@ -21,6 +21,12 @@ see `/usr/share/doc/*/copyright`.
 | *Triton (artist's impression)*, the wallpaper: [ESO/L. Calçada](https://www.eso.org/public/images/eso1015a/). Resized, blurred and dimmed copies are used by the boards and galleries | `design/wallpaper.jpg`, `references/assets/`, `shell/triton/gallery/assets/` | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | React and ReactDOM (Meta), used only to open the design boards | `references/_runtime/` | MIT |
 
+## Patched
+
+| What | Where | Licence |
+|---|---|---|
+| [Hyprland](https://github.com/hyprwm/Hyprland), Debian's package rebuilt with an upstream fix | `patches/hyprland/` | BSD 3-Clause |
+
 ## Fetched at build time
 
 | What | Why | Licence |

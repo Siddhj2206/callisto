@@ -1,0 +1,18 @@
+Description: send a pointer frame after absolute pointer motion
+ Clients may hold motion until the frame that closes it. Without one, an
+ absolute pointer (virtual machines, some tablets) does not update a drag
+ until the button is released, nor hover until the pointer changes surface.
+Origin: upstream, https://github.com/hyprwm/Hyprland/commit/259866f60
+Applied-Upstream: 0.56.0
+
+--- a/src/managers/input/InputManager.cpp
++++ b/src/managers/input/InputManager.cpp
+@@ -166,6 +166,8 @@ void CInputManager::onMouseWarp(IPointer::SMotionAbsoluteEvent e) {
+ 
+     m_lastInputTouch  = false;
+     m_lastInputTablet = false;
++
++    g_pSeatManager->sendPointerFrame();
+ }
+ 
+ void CInputManager::simulateMouseMovement() {
