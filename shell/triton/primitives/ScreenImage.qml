@@ -1,7 +1,7 @@
 import Quickshell
 import QtQuick
 
-// A photo filling its box, decoded at the size it is shown and no larger: a
+// A photo in a box, decoded at the size it is shown and no larger: a
 // wallpaper at full size is tens of megabytes. Boxes of one size share a copy.
 Image {
     id: root
