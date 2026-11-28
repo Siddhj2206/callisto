@@ -294,7 +294,7 @@ class Daemon:
 
     def show_mode(self, output, mode) -> None:
         scale = self.effective().get("display", {}).get("scale", "auto")
-        asyncio.get_running_loop().run_in_executor(self.screen, engine.hypr_eval, engine.monitor_rule(scale, output, mode))
+        asyncio.get_running_loop().run_in_executor(self.screen, engine.show_mode, engine.monitor_rule(scale, output, mode))
 
     def try_mode(self, output, mode) -> None:
         if not modes({output: mode}) or not output:

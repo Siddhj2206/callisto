@@ -34,4 +34,5 @@ QtObject {
     readonly property int monitorRefresh: 600
     readonly property int positionTick: 1000
     readonly property int modeTrial: 15000
+    readonly property int monitorSettle: 400
 }
