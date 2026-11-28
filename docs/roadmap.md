@@ -74,7 +74,7 @@ before. The old shell code is a reference only. Rules and file layout are in
 - [x] Veil values in `generate-theme.py` fixed; dark and light schemes generated
 - [x] Motion: `Spring`, `Fade`, `Presence`. Spring checked on Quickshell 0.3.0: 9.45% overshoot (9.5% expected)
 - [x] Foundations and the primitives the bar and OSD use
-- [x] Component gallery, dark and light (`shell/triton/gallery/`, run with `scripts/test-shell.sh --gallery <page>`)
+- [x] Component gallery, dark and light (`shell/triton/gallery/`, run with `scripts/shell.py <page>`)
 - [x] Drop-down panel (`Popover`), tile, slider, switch, button, list row, text field
 - [x] Literal lint for `primitives/`, `patterns/`, `surfaces/` (`scripts/lint-literals.py`; part of `make check`)
 - [x] Desktop sizes approved "for now" (gallery)
@@ -194,6 +194,8 @@ the live session.
 - [x] Repo hygiene (#18): stray files and old harnesses removed, programs in `bin/`, one gallery entry, docs rewritten, third-party notices
 - [x] CI: `make check`, the shell harness, and an ISO build that is booted and checked (`.github/workflows/`)
 - [x] Renovate for actions, container base images and matugen
+- [x] Developer loop: the shell in a reused container; a VM with 3D (virgl), pushing the working tree onto it, screenshots and input (`CONTRIBUTING.md`). Checked on one AMD host; container screenshots match the old harness's. Not checked: the changed CI workflows, an Intel or NVIDIA host
+- [ ] Vulkan in the VM (venus): no instance could be created with it on, so it is not offered
 - [ ] CI: `qmllint`; the installer is not tested
 - [ ] Published releases: the ISO is over GitHub's 2 GB per-file limit
 - [x] Licence: GPL-3.0-or-later

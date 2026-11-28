@@ -53,7 +53,7 @@ good image-based one: it is easy to use, hard to break, and easy to maintain.
 | 10 | Boot time and memory use are not measured |
 | 12 | Our files are copied into the image, so installed systems cannot get changes |
 | 14 | Debian mirrors are not pinned by default |
-| 15 | Trying a change on a running system means rebuilding the image or copying by hand |
+| 15 | Packages and the setup hook still need a rebuilt image to be seen |
 | 16 | CI boots the image but does not install it or drive the desktop |
 
 The [roadmap](roadmap.md) tracks the work.

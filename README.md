@@ -36,7 +36,7 @@ has and has not been checked.
 
 ## Try it
 
-You need rootless podman, and QEMU with KVM to boot the result. Builds of
+You need rootless podman, and `/dev/kvm` to boot the result. Builds of
 `main` can also be downloaded from the [iso workflow](https://github.com/siddhj2206/callisto/actions/workflows/iso.yml) for a week.
 
 ```sh
@@ -65,6 +65,8 @@ the launcher.
 ```sh
 make          # all commands
 make check    # lint, generated files, contrast, daemon tests
+make shell-test  # load every part of the shell, in a container
+make vm       # boot the ISO headless with 3D, then make vm-push after a change
 ```
 
 - [Contributing](CONTRIBUTING.md): setup, the rules, how changes are checked

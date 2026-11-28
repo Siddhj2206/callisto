@@ -13,7 +13,7 @@ configs/      system and session configuration, one folder per subject
 shell/triton/ the shell and the Settings app (QML)
 design/       tokens, fonts, logo and wallpaper: the source of visual values
 live-build/   the ISO definition: package lists, hooks, `lb config`
-containers/   the ISO builder and the headless shell harness
+containers/   the ISO builder, the headless shell harness and QEMU
 scripts/      build, test and code-generation tools
 references/   the design boards
 docs/         you are here
@@ -115,9 +115,22 @@ the live session. See [`../configs/installer/`](../configs/installer/README.md).
 | Command | Needs | Checks |
 |---|---|---|
 | `make check` | Python, shellcheck | Scripts, generated tokens, QML literals, contrast, settings daemon |
-| `make shell-test` | podman | Every entry point and gallery page loads; screenshots in `.out/shell-all/` |
-| `scripts/test-shell.sh --gallery <page>` | podman | One component group, to look at |
-| `make smoke` | QEMU, KVM | The built ISO boots, no unit fails and the session is up; screenshot in `.out/iso/` |
+| `make shell-test` | podman | Every entry point and gallery page loads and draws; screenshots in `.out/shell/` |
+| `make smoke` | podman, KVM | The built ISO boots as shipped, no unit fails and the session is up; screenshot in `.out/vm/` |
+| `make vm`, `make vm-push` | podman, KVM, an ISO | Your tree on the running system, to look at and drive |
+
+`scripts/shell.py` keeps one container with headless sway and loads each page in
+it. A page is ready when Quickshell says its configuration loaded and two frames
+in a row are the same.
+
+`scripts/vm.py` runs QEMU in a container with the host's render node, so the
+guest has 3D without a window. The ISO's kernel is booted directly, and the
+development agent (`scripts/vm-agent.py`) arrives as a systemd credential in the
+machine's SMBIOS table and talks over a virtio serial port. `smoke` uses neither:
+it boots through the ISO's boot menu and logs in on the serial console.
+
+With 3D there are no VM snapshots (QEMU cannot save virgl's state), and QMP's
+`screendump` has no picture, so the emulated screen is read over VNC.
 
 ## CI
 

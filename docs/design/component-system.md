@@ -976,7 +976,7 @@ hosts import `services`.
 
 A surface is done when, for each state its document names:
 
-1. It renders in a gallery page (`scripts/test-shell.sh --gallery <page>`),
+1. It renders in a gallery page (`scripts/shell.py <page>`),
    dark and light, and compares well by eye with the board.
 2. Nothing overflows, overlaps or clips at other screen sizes.
 3. `make check` passes: no literals outside the tokens
