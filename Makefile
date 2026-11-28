@@ -12,7 +12,7 @@ SHELL_SCRIPTS = scripts/*.sh bin/callisto-clip-store bin/callisto-greeter bin/ca
 
 .DEFAULT_GOAL := help
 .PHONY: help check lint tokens iso sync shell shell-watch shell-window shell-test \
-	vm vm-push vm-watch vm-shot vm-gpu vm-down run run-sw smoke down images clean clean-all
+	vm vm-push vm-watch vm-shot vm-gpu vm-perf vm-down run run-sw smoke down images clean clean-all
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-13s\033[0m %s\n", $$1, $$2}'
@@ -64,6 +64,9 @@ vm-shot: ## Screenshot to .out/vm/shot.png, or NAME=launcher
 
 vm-gpu: ## Check that the guest's graphics are accelerated
 	scripts/vm.py gpu
+
+vm-perf: ## Measure the shell: startup, memory, idle cpu
+	scripts/vm.py perf
 
 vm-down: ## Stop the machine
 	scripts/vm.py down
