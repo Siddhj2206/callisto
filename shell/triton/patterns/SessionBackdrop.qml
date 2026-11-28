@@ -1,5 +1,6 @@
 import QtQuick
 import qs.foundations
+import qs.primitives
 import qs.tokens
 import qs
 
@@ -16,12 +17,10 @@ Item {
         anchors.fill: parent
         color: root.scheme.surface
     }
-    Image {
+    ScreenImage {
         id: wallpaper
         anchors.fill: parent
-        source: root.source
-        fillMode: Image.PreserveAspectCrop
-        asynchronous: true
+        file: root.source
     }
     Loader {
         id: blur
