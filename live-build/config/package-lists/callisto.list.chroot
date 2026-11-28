@@ -52,6 +52,9 @@ xdg-desktop-portal-gtk
 
 # --- Compositor & shell (trixie-backports, see archives/backports.pref.chroot) -
 hyprland
+# Hyprland's own dialogs ("not responding" and the like); it warns at every
+# login without them.
+hyprland-guiutils
 quickshell
 uwsm
 qt6-wayland
