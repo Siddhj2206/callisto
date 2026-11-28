@@ -200,3 +200,22 @@ the live session.
 - [x] An attributed wallpaper: ESO's artist's impression of Triton, CC BY 4.0 (`THIRD_PARTY.md`)
 - [x] History rewritten before the first push: no test captures, build output or old wallpaper
 - [ ] The step that cuts the icon font subsets is not in the repository
+
+## 7. First install by hand
+
+- [ ] Missing `hyprland-guiutils` (a warning at login): added; not yet seen on a built image
+- [ ] Settings → Displays can change resolution and refresh rate, with a keep-or-revert countdown: daemon tests; not yet tried on a display
+- [ ] Settings → Shortcuts lists, changes, removes and adds shortcuts: daemon tests, `Hyprland --verify-config`, a harness screenshot; capturing keys not yet tried under Hyprland
+- [ ] Scrollbars in Settings: harness screenshot; dragging not tried
+
+## 8. Shell performance (read-through audit, nothing measured)
+
+- [x] Overview tiles and Settings network rows are no longer rebuilt on changes; only picture avatars are clipped offscreen; no blur under the overview or capture screen. Harness only
+- [ ] Wallpapers decode at full size, once per screen, and the hidden crossfade layer keeps the old one: set `sourceSize`
+- [ ] Every surface is built at startup and kept, and the launcher makes a row per app: `LazyLoader`, after measuring
+- [ ] Hidden launcher, overview and window lists recompute on every title change
+- [ ] Theme and settings are applied twice at login (`start-callisto`, then settingsd)
+- [ ] Recording status spawns processes every second
+- [ ] Capture buffers and clipboard images stay in memory after their surface closes
+- [ ] Notification action buttons are likely rebuilt each minute
+
