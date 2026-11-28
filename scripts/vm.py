@@ -614,6 +614,30 @@ def click(args) -> None:
                     events=[{"type": "btn", "data": {"button": args.button, "down": down_}}])
 
 
+def drag(args) -> None:
+    """Press at one place and move to another, a step at a time. With --shot,
+    a screenshot is taken before letting go: what a drag shows meanwhile."""
+    def at(x: int, y: int) -> list:
+        return [{"type": "abs", "data": {"axis": axis, "value": value * 32767 // (size - 1)}}
+                for axis, value, size in (("x", x, SIZE[0]), ("y", y, SIZE[1]))]
+
+    def button(down_: bool) -> dict:
+        return {"type": "btn", "data": {"button": "left", "down": down_}}
+
+    with qmp() as monitor:
+        monitor("input-send-event", events=at(args.x, args.y))
+        time.sleep(0.1)
+        monitor("input-send-event", events=[button(True)])
+        for step in range(1, args.steps + 1):
+            time.sleep(0.03)
+            monitor("input-send-event", events=at(args.x + (args.to_x - args.x) * step // args.steps,
+                                                  args.y + (args.to_y - args.y) * step // args.steps))
+        if args.shot:
+            time.sleep(0.7)
+            shot(argparse.Namespace(name=args.shot, screen=False))
+        monitor("input-send-event", events=[button(False)])
+
+
 def run_command(args) -> None:
     need_running()
     argv = args.argv[1:] if args.argv[:1] == ["--"] else args.argv
@@ -721,6 +745,11 @@ def main() -> None:
         sub.add_argument("x", type=int)
         sub.add_argument("y", type=int)
         sub.add_argument("--button", choices=("left", "middle", "right"), default="left")
+    sub = command("drag", drag)
+    for name in ("x", "y", "to_x", "to_y"):
+        sub.add_argument(name, type=int)
+    sub.add_argument("--steps", type=int, default=12)
+    sub.add_argument("--shot", metavar="NAME", help="screenshot while still held")
     for name in ("run", "root"):
         sub = command(name, run_command)
         sub.add_argument("--timeout", type=int, default=60)
