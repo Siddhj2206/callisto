@@ -257,17 +257,15 @@ Item {
             anchors.centerIn: parent
             spacing: Metrics.rowGap
 
-            Repeater {
-                model: [{ id: "region", label: "Region" }, { id: "window", label: "Window" }, { id: "screen", label: "Screen" }]
-
-                Chip {
-                    required property var modelData
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: modelData.label
-                    selected: root.mode === modelData.id
-                    activeFocusOnTab: false
-                    onClicked: root.modePicked(modelData.id)
-                }
+            SegmentedButton {
+                anchors.verticalCenter: parent.verticalCenter
+                large: true
+                takesFocus: false
+                options: [{ value: "region", label: "Region", glyph: Icons.screenshotRegion },
+                    { value: "window", label: "Window", glyph: Icons.selectWindow },
+                    { value: "screen", label: "Screen", glyph: Icons.desktopWindows }]
+                current: root.mode
+                onChosen: mode => root.modePicked(mode)
             }
             Button {
                 anchors.verticalCenter: parent.verticalCenter
