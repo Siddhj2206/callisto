@@ -41,8 +41,8 @@ smoke: ## Boot it headless and keep screenshots in .out/iso/
 sync: ## Stage the repository into live-build's includes.chroot
 	scripts/sync-configs.sh
 
-shell-test: ## Run the shell headless in a container
-	scripts/test-shell.sh
+shell-test: ## Load every entry point and gallery page in a container
+	scripts/test-shell-all.sh
 
 images: ## (Re)build the two container images
 	podman build -f containers/builder.Dockerfile -t callisto-iso-builder .

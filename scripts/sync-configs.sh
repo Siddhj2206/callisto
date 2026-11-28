@@ -43,6 +43,8 @@ put 0644 configs/applications/org.callisto.Settings.desktop usr/share/applicatio
 # /usr/share/callisto holds shipped defaults. Nothing writes there after
 # install, so an update never overwrites what a user chose.
 put 0644 design/tokens.json usr/share/callisto/tokens.json
+# What the setup hook fetches.
+put 0644 configs/matugen.env usr/share/callisto/matugen.env
 put 0644 configs/callisto/default-settings.json usr/share/callisto/default-settings.json
 put 0644 live-build/config/package-lists/callisto.flatpaks.txt usr/share/callisto/flatpaks.txt
 put 0644 design/wallpaper.jpg usr/share/backgrounds/callisto/wallpaper.jpg

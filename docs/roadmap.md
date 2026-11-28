@@ -192,8 +192,10 @@ the live session.
 - [ ] In-shell polkit agent (M19, without fingerprint)
 - [ ] Sunrise-based auto dark mode and night light (M20)
 - [x] Repo hygiene (#18): stray files and old harnesses removed, programs in `bin/`, one gallery entry, docs rewritten, third-party notices
-- [x] CI runs `make check` (`.github/workflows/check.yml`); not yet seen to run, as nothing is pushed
-- [ ] CI: `qmllint`, shell harness, ISO build, QEMU smoke test
+- [x] CI: `make check`, the shell harness, and an ISO build that is booted and checked (`.github/workflows/`)
+- [x] Renovate for actions, container base images and matugen
+- [ ] CI: `qmllint`; the installer is not tested
+- [ ] Published releases: the ISO is over GitHub's 2 GB per-file limit
 - [x] Licence: GPL-3.0-or-later
 - [x] An attributed wallpaper: ESO's artist's impression of Triton, CC BY 4.0 (`THIRD_PARTY.md`)
 - [x] History rewritten before the first push: no test captures, build output or old wallpaper

@@ -47,17 +47,20 @@ RUN useradd -m -u 1000 -s /bin/bash triton
 
 # matugen: same upstream release binary the ISO hook fetches — the harness
 # must run the real theme pipeline, not a degraded copy of it.
-RUN curl -fsSL --max-time 120 -o /tmp/matugen.tar.gz \
-        "https://github.com/InioX/matugen/releases/download/v4.2.0/matugen-4.2.0-x86_64.tar.gz" \
-    && echo "a2e3b50e49ed6439999ba3c252ed04fabd98ee4e9d12e5e5dff2e66370569751  /tmp/matugen.tar.gz" | sha256sum -c - \
-    && tar -xzf /tmp/matugen.tar.gz -C /usr/local/bin \
+COPY configs/matugen.env /tmp/matugen.env
+RUN . /tmp/matugen.env \
+    && curl -fsSL --retry 3 --max-time 120 -o /tmp/matugen.tar.gz \
+        "https://github.com/InioX/matugen/releases/download/$MATUGEN_VERSION/matugen-${MATUGEN_VERSION#v}-x86_64.tar.gz" \
+    && echo "$MATUGEN_SHA256  /tmp/matugen.tar.gz" | sha256sum -c - \
+    && tar -xzf /tmp/matugen.tar.gz -C /usr/local/bin matugen \
     && chmod 0755 /usr/local/bin/matugen \
-    && rm -f /tmp/matugen.tar.gz
+    && rm -f /tmp/matugen.tar.gz /tmp/matugen.env
 
-# The theme engine and system tokens mirror the ISO layout exactly.
+# The theme engine, system tokens and wallpaper mirror the ISO layout exactly.
 COPY bin/callisto-apply /usr/local/bin/callisto-apply
 COPY design/tokens.json /usr/share/callisto/tokens.json
 COPY configs/callisto/default-settings.json /usr/share/callisto/default-settings.json
+COPY design/wallpaper.jpg /usr/share/backgrounds/callisto/wallpaper.jpg
 RUN chmod 0755 /usr/local/bin/callisto-apply
 
 COPY containers/shelltest-entrypoint.sh /entrypoint.sh
