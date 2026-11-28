@@ -33,7 +33,7 @@ SettingRow {
         }
     }
 
-    subtitle: taken ? wanted.replace(/ \+ /g, "+") + (taken.fixed ? " cannot be changed: " : " is used by: ") + taken.title
+    subtitle: taken ? caps.label(wanted) + (taken.fixed ? " cannot be changed: " : " is used by: ") + taken.title
         : listening ? "Press the new keys. Escape cancels." : about
     tone: taken ? "error" : listening ? "primary" : "onsurfacevariant"
     clickable: !fixed
@@ -45,6 +45,7 @@ SettingRow {
     }
 
     KeyCombo {
+        id: caps
         anchors.verticalCenter: parent.verticalCenter
         keys: row.taken ? row.wanted : row.keys
     }
