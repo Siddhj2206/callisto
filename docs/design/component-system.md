@@ -145,6 +145,7 @@ something not in `docs/research/design-board-map.md`.
 | Icon in tonal circle | list rows, launcher results, notification app icon, QS network rows | `IconDisc` |
 | Rounded segmented rows | settings, QS Wi-Fi list, containers, clipboard (different radii), launcher results | `ListGroup` + `ListRow` |
 | Filter / source chips | launcher filters, clipboard filters, wallpaper sources, preset widths, refresh rate, resolution, keyboard layout | `Chip` (+ `ChipGroup`) |
+| Dropdown (a field over a menu) | settings resolution, refresh rate | `Dropdown` |
 | Connected button group | screenshot toolbar, power menu, settings mode seg, QS? no, Top/Bottom, "Applying to", Day/Week/Month, view toggle | `SegmentedButton` |
 | Keycap | launcher footer, wallpaper hints, switcher hints, clipboard hints, power hints, settings shortcuts | `Keycap` (+ `KeyHintBar`) |
 | Floating label | overview window names, capture hints, settings "Floating" caption | `Pill` |

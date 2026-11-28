@@ -108,6 +108,7 @@ QtObject {
     readonly property real cardPad: board ? 16 : 12
     readonly property real cardGap: board ? 12 : 10
     readonly property real cardActions: 8
+    readonly property real menuHeight: board ? 384 : 288
     readonly property real segmentGap: 3
     readonly property real segmentInner: board ? 8 : 6
     readonly property real disc: board ? 48 : 36
