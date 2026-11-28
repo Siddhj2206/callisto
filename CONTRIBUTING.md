@@ -64,6 +64,7 @@ scripts/vm.py shot boot --screen       # the emulated screen: boot, greeter, han
 scripts/vm.py run 'hyprctl clients'    # in the session; `root` for root
 scripts/vm.py log                      # the shell's journal
 make vm-gpu                            # fails unless the guest renders on virgl
+make vm-perf                           # shell startup, memory and idle CPU
 ```
 
 With a `/dev/dri` render node on the host the guest gets 3D (virgl); without
