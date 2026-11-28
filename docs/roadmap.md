@@ -205,10 +205,12 @@ the live session.
 
 ## 7. First install by hand
 
-- [ ] Missing `hyprland-guiutils` (a warning at login): added; not yet seen on a built image
-- [ ] Settings → Displays can change resolution and refresh rate, with a keep-or-revert countdown: daemon tests; not yet tried on a display
-- [ ] Settings → Shortcuts lists, changes, removes and adds shortcuts: daemon tests, `Hyprland --verify-config`, a harness screenshot; capturing keys not yet tried under Hyprland
-- [ ] Scrollbars in Settings: harness screenshot; dragging not tried
+- [x] Missing `hyprland-guiutils` (a warning at login): added; installed in the VM, no config errors
+- [x] Settings → Displays changes resolution and refresh rate, with a keep-or-revert countdown: tried in the 3D VM
+- [x] Settings → Shortcuts lists, changes, removes and adds shortcuts: key capture, conflicts, replace, reset and a custom command tried in the 3D VM
+- [ ] Scrollbars in Settings: shown and track clicks tried in the VM; dragging not tried
+- [ ] Raising the resolution without signing out again, on virtio-gpu and some HDMI outputs: aquamarine 0.11.0 tests the new mode against the old, smaller buffer ([aquamarine#330](https://github.com/hyprwm/aquamarine/pull/330), merged, not in Debian). Settings offers "Use at next sign-in" meanwhile; fixing it needs a newer package or our own build
+- [ ] The papercut fixes on a built ISO and on real hardware
 
 ## 8. Shell performance (read-through audit, nothing measured)
 
