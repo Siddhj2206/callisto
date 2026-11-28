@@ -42,8 +42,18 @@ It listens on `$XDG_RUNTIME_DIR/callisto/settingsd.sock` for JSON lines
 (`{"op":"set","key":"appearance.mode","value":"light"}`, `{"op":"get"}`),
 refuses keys and values outside its schema, writes the store atomically, and
 after 120 ms of quiet runs the engine for the domains that changed (palette,
-material, input, display, nightlight, idle). `shell.*` and
+material, input, display, nightlight, idle, keys). `shell.*` and
 `notifications.*` keys run nothing: the shell reads them from the store.
+
+A display mode can leave a screen black, so it is not simply set:
+`{"op":"trial","output":…,"mode":…}` shows it, and the daemon puts the old one
+back after 15 seconds unless `{"op":"keep"}` arrives.
+
+Keyboard shortcuts are listed once, in `configs/hypr/keybindings.json`.
+Settings reads that list and the image build turns it into
+`/usr/share/callisto/hypr/keys.lua` for `hyprland.lua`. The store holds only
+what the user changed (`keyboard.shortcuts`, `keyboard.custom`), compiled to
+`~/.config/hypr/callisto-keys.lua`, so an update can add shortcuts.
 
 A new setting needs a schema entry in the daemon, and a domain if something
 outside the shell must follow it. `scripts/test-settingsd.py` exercises the
@@ -55,9 +65,10 @@ daemon without a session.
 |---|---|---|---|
 | Connect | Network | NetworkManager (nmcli/dbus) | system service, live |
 | Connect | Bluetooth | bluez (dbus) | system service, live |
-| Devices | Displays | hyprctl/monitors | hyprctl keyword, live |
+| Devices | Displays | hyprctl/monitors | hyprctl eval, live |
 | Devices | Sound | wireplumber/pipewire (dbus) | live |
-| Devices | Keyboard | hyprland input section | hyprctl keyword, live |
+| Devices | Keyboard | hyprland input section | hyprctl eval, live |
+| Devices | Shortcuts | settings store → hyprland binds | hyprctl reload |
 | Devices | Mouse & touchpad | hyprland input section | hyprctl keyword, live |
 | Devices | Power | power-profiles-daemon, hypridle | dbus + config, live |
 | Triton | Appearance | settings store → theme engine | live |
@@ -92,3 +103,4 @@ persisted in the store.
 | Qt colors | `~/.config/qt6ct/`, `kdeglobals` | Qt apps from Debian |
 | foot colors | `~/.config/callisto/foot-theme.ini` | foot.ini `include=` |
 | hyprland colors | `~/.config/hypr/callisto-user.lua` | hyprland.lua `require` |
+| shortcuts | `~/.config/hypr/callisto-keys.lua` | hyprland.lua `require` |

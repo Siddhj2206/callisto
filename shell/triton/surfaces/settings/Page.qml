@@ -1,5 +1,6 @@
 import QtQuick
 import qs.foundations
+import qs.primitives
 import qs.tokens
 
 // The frame of a settings page: it scrolls, and its column stops growing at a
@@ -15,6 +16,11 @@ Flickable {
     contentHeight: column.height + Metrics.settingsPad * 2
     boundsBehavior: Flickable.StopAtBounds
     clip: true
+
+    ScrollBar {
+        parent: root
+        target: root
+    }
 
     // Keep what the keyboard has reached in view.
     readonly property Item focused: Window.activeFocusItem

@@ -5,11 +5,17 @@ Listens on $XDG_RUNTIME_DIR/callisto/settingsd.sock for JSON lines:
 
     {"op": "set", "key": "appearance.mode", "value": "light"}
     {"op": "get"}
+    {"op": "trial", "output": "DP-1", "mode": "1920x1080@60.00"}
+    {"op": "keep"}      {"op": "revert"}
 
 and answers each with one line, {"ok": true, ...} or {"ok": false, "error"}.
 A change is written to the store at once, then compiled after a short quiet
 period, and only for the domains it touches. Changes that arrive while an
 apply is running are picked up by the next one.
+
+A display mode can leave a screen black, so it is tried before it is stored:
+unless "keep" follows in time, the daemon puts the old mode back, whatever has
+become of the window that asked.
 
 See docs/design/settings-architecture.md.
 """
@@ -22,11 +28,14 @@ import re
 import socket
 import sys
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
 from pathlib import Path
 
 DEBOUNCE = 0.12
+# How long a tried display mode lasts unless it is kept.
+TRIAL = float(os.environ.get("CALLISTO_TRIAL_SECONDS", 15))
 # How often to check whether "auto" has crossed from day to night.
 SCHEDULE_TICK = 60
 
@@ -70,6 +79,56 @@ def matching(pattern):
     return lambda value: isinstance(value, str) and re.fullmatch(pattern, value) is not None
 
 
+OUTPUT = r"[A-Za-z0-9_-]{1,32}"
+MODE = r"preferred|\d{3,5}x\d{3,5}@\d{1,3}(\.\d{1,3})?"
+
+# Key names Hyprland knows. An unknown one is an error on screen at login.
+PLAIN_KEYS = {*"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", "Space", "Return", "Tab", "Escape", "BackSpace",
+              "Delete", "Insert", "Home", "End", "Prior", "Next", "Left", "Right", "Up", "Down",
+              "comma", "period", "slash", "backslash", "semicolon", "apostrophe", "bracketleft",
+              "bracketright", "minus", "equal", "grave"}
+# These type nothing, so they may be bound on their own.
+LONE_KEYS = {"Print", "Pause", *(f"F{n}" for n in range(1, 25))}
+MODIFIERS = ("SUPER", "CTRL", "ALT", "SHIFT")
+
+
+def shortcut(value):
+    """"SUPER + SHIFT + E", or "" for none."""
+    if not isinstance(value, str):
+        return False
+    if value == "":
+        return True
+    *modifiers, key = value.split(" + ")
+    if modifiers != [m for m in MODIFIERS if m in modifiers]:
+        return False
+    if key in LONE_KEYS:
+        return True
+    # SHIFT alone would take a capital letter away from typing.
+    return key in PLAIN_KEYS and any(m != "SHIFT" for m in modifiers)
+
+
+def modes(value):
+    return isinstance(value, dict) and len(value) <= 16 and all(
+        re.fullmatch(OUTPUT, output) and isinstance(mode, str) and re.fullmatch(MODE, mode)
+        for output, mode in value.items())
+
+
+def shortcuts(value):
+    return isinstance(value, dict) and len(value) <= 128 and all(
+        re.fullmatch(r"[a-z0-9.-]{1,40}", name) and shortcut(keys) for name, keys in value.items())
+
+
+def line(text, limit):
+    return isinstance(text, str) and 0 < len(text) <= limit and text.isprintable()
+
+
+def custom_shortcuts(value):
+    return isinstance(value, list) and len(value) <= 64 and all(
+        isinstance(c, dict) and set(c) == {"title", "keys", "command"}
+        and line(c["title"], 60) and line(c["command"], 500) and shortcut(c["keys"])
+        for c in value)
+
+
 SCHEMA = {
     "appearance.mode": one_of("dark", "light", "auto"),
     "appearance.accent": matching(r"wallpaper|planet|hull|rock|shadow|haze|#[0-9A-Fa-f]{6}"),
@@ -100,11 +159,13 @@ SCHEMA = {
     "notifications.dnd": boolean,
     "notifications.lockscreenNotifications": boolean,
     "display.scale": number(0.5, 4),
-    "display.refreshRate": one_of("60", "120", "auto"),
+    "display.modes": modes,
     "display.vrr": boolean,
     "display.nightLight": boolean,
     "power.dimIdle": boolean,
     "power.suspendIdle": boolean,
+    "keyboard.shortcuts": shortcuts,
+    "keyboard.custom": custom_shortcuts,
 }
 
 # Which domain of the engine a key needs. Keys not listed (shell.*,
@@ -127,11 +188,13 @@ DOMAIN_OF = {
     "input.repeatDelay": "input",
     "input.sensitivity": "input",
     "display.scale": "display",
-    "display.refreshRate": "display",
+    "display.modes": "display",
     "display.vrr": "display",
     "display.nightLight": "nightlight",
     "power.dimIdle": "idle",
     "power.suspendIdle": "idle",
+    "keyboard.shortcuts": "keys",
+    "keyboard.custom": "keys",
 }
 
 
@@ -189,6 +252,9 @@ class Daemon:
         self.dirty = set()
         self.wake = asyncio.Event()
         self.mode = None
+        self.trial = None  # (output, mode, mode before, timer)
+        # One at a time: a revert must never overtake the mode it undoes.
+        self.screen = ThreadPoolExecutor(max_workers=1)
         if not engine.STORE.exists():
             write_store(engine.STORE, self.store)
 
@@ -226,6 +292,40 @@ class Daemon:
         if key in DOMAIN_OF:
             self.mark(DOMAIN_OF[key])
 
+    def show_mode(self, output, mode) -> None:
+        scale = self.effective().get("display", {}).get("scale", "auto")
+        asyncio.get_running_loop().run_in_executor(self.screen, engine.hypr_eval, engine.monitor_rule(scale, output, mode))
+
+    def try_mode(self, output, mode) -> None:
+        if not modes({output: mode}) or not output:
+            raise ValueError(f"invalid display mode {output!r} {mode!r}")
+        if self.trial and self.trial[0] != output:
+            self.revert()
+        if self.trial:
+            self.trial[3].cancel()
+            before = self.trial[2]
+        else:
+            before = self.effective().get("display", {}).get("modes", {}).get(output, "preferred")
+        self.show_mode(output, mode)
+        self.trial = (output, mode, before, asyncio.get_running_loop().call_later(TRIAL, self.revert))
+
+    def end_trial(self):
+        if not self.trial:
+            raise ValueError("no display mode is being tried")
+        trial, self.trial = self.trial, None
+        trial[3].cancel()
+        return trial
+
+    def keep(self) -> None:
+        output, mode, _, _ = self.end_trial()
+        current = self.store.get("display", {}).get("modes", {})
+        self.set("display.modes", {**current, output: mode})
+
+    def revert(self) -> None:
+        output, _, before, _ = self.end_trial()
+        self.show_mode(output, before)
+        log(f"{output} is back to {before}")
+
     def handle(self, line: bytes) -> dict:
         try:
             request = json.loads(line)
@@ -234,6 +334,15 @@ class Daemon:
                 return {"ok": True}
             if request.get("op") == "get":
                 return {"ok": True, "store": self.effective()}
+            if request.get("op") == "trial":
+                self.try_mode(request.get("output"), request.get("mode"))
+                return {"ok": True}
+            if request.get("op") == "keep":
+                self.keep()
+                return {"ok": True}
+            if request.get("op") == "revert":
+                self.revert()
+                return {"ok": True}
             raise ValueError("unknown op")
         except (ValueError, AttributeError, OSError) as error:
             log(str(error))

@@ -19,6 +19,43 @@ Singleton {
     property bool loaded: false
     // Changes the daemon has not taken yet, newest value per key.
     property var pending: ({})
+    // Other requests it has not taken yet.
+    property var requests: []
+
+    // A display mode on trial: { output, mode, left (seconds) }, or null. The
+    // daemon puts the old one back by itself; this only counts along.
+    property var trial: null
+
+    Timer {
+        interval: 1000
+        repeat: true
+        running: root.trial !== null
+        onTriggered: root.trial = root.trial.left > 1
+            ? Object.assign({}, root.trial, { left: root.trial.left - 1 }) : null
+    }
+
+    function send(request) {
+        requests = [...requests, request];
+        flush();
+    }
+
+    function tryMode(output, mode) {
+        trial = { output: output, mode: mode, left: Math.round(Motion.modeTrial / 1000) };
+        send({ op: "trial", output: output, mode: mode });
+    }
+
+    function keepMode() {
+        const modes = Object.assign({}, get("display", "modes", {}));
+        modes[trial.output] = trial.mode;
+        store = merged(store, { "display.modes": modes });
+        trial = null;
+        send({ op: "keep" });
+    }
+
+    function revertMode() {
+        trial = null;
+        send({ op: "revert" });
+    }
 
     FileView {
         path: Quickshell.env("HOME") + "/.config/callisto/settings.json"
@@ -83,7 +120,7 @@ Singleton {
             return;
         link = null;
         socket.destroy();
-        if (Object.keys(pending).length > 0)
+        if (Object.keys(pending).length > 0 || requests.length > 0)
             retry.restart();
     }
 
@@ -106,7 +143,7 @@ Singleton {
     }
 
     function flush() {
-        if (Object.keys(pending).length === 0)
+        if (Object.keys(pending).length === 0 && requests.length === 0)
             return;
         if (!link) {
             link = linkComponent.createObject(root);
@@ -117,8 +154,11 @@ Singleton {
             return;
         for (const key in pending)
             link.write(JSON.stringify({ op: "set", key: key, value: pending[key] }) + "\n");
+        for (const request of requests)
+            link.write(JSON.stringify(request) + "\n");
         link.flush();
         pending = ({});
+        requests = [];
     }
 
     function get(section, key, fallback) {

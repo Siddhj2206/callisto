@@ -27,7 +27,7 @@ Page {
                     id: choices
                     model: [
                         { value: "edge", title: "Reveal on edge", caption: "Hidden until the pointer reaches the top" },
-                        { value: "hidden", title: "Hidden", caption: "Only on Super+B" },
+                        { value: "hidden", title: "Hidden", caption: ShortcutsService.keysOf("bar") ? "Only on its shortcut" : "Until a shortcut is set" },
                         { value: "pinned", title: "Pinned", caption: "Always there, windows sit below" },
                     ]
 

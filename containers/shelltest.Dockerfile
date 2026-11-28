@@ -61,6 +61,7 @@ COPY bin/callisto-apply /usr/local/bin/callisto-apply
 COPY design/tokens.json /usr/share/callisto/tokens.json
 COPY configs/callisto/default-settings.json /usr/share/callisto/default-settings.json
 COPY design/wallpaper.jpg /usr/share/backgrounds/callisto/wallpaper.jpg
+COPY configs/hypr/keybindings.json /usr/share/callisto/keybindings.json
 RUN chmod 0755 /usr/local/bin/callisto-apply
 
 COPY containers/shelltest-entrypoint.sh /entrypoint.sh

@@ -64,6 +64,11 @@ done
 
 # --- Session -----------------------------------------------------------------
 put 0644 configs/hypr/hyprland.lua usr/share/callisto/hypr/hyprland.lua
+# The shortcuts, once for Settings to list and once for Hyprland to bind.
+put 0644 configs/hypr/keybindings.json usr/share/callisto/keybindings.json
+python3 -B "$REPO/bin/callisto-apply" --default-keys "$REPO/configs/hypr/keybindings.json" \
+    > "$ROOT/usr/share/callisto/hypr/keys.lua"
+chmod 0644 "$ROOT/usr/share/callisto/hypr/keys.lua"
 put 0644 configs/hypr/user-stub.lua etc/skel/.config/hypr/hyprland.lua
 put 0644 configs/session/uwsm-env etc/xdg/uwsm/env
 put 0644 configs/session/uwsm-env-hyprland etc/xdg/uwsm/env-hyprland

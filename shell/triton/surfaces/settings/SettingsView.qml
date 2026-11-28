@@ -21,7 +21,8 @@ Item {
     readonly property Scheme scheme: Theming.of(root)
     readonly property var files: ({
         network: "NetworkSettings", bluetooth: "BluetoothSettings", displays: "DisplaySettings",
-        sound: "SoundSettings", keyboard: "KeyboardSettings", mouse: "MouseSettings", power: "PowerSettings",
+        sound: "SoundSettings", keyboard: "KeyboardSettings", shortcuts: "ShortcutSettings", mouse: "MouseSettings",
+        power: "PowerSettings",
         appearance: "AppearanceSettings", bar: "BarSettings", windows: "WindowSettings",
         notifications: "NotificationSettings", apps: "AppSettings", users: "UserSettings", about: "AboutSettings",
     })
@@ -109,6 +110,11 @@ Item {
             contentHeight: list.height
             boundsBehavior: Flickable.StopAtBounds
             clip: true
+
+            ScrollBar {
+                parent: nav
+                target: nav
+            }
 
             Column {
                 id: list

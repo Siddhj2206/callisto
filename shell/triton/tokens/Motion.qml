@@ -33,4 +33,5 @@ QtObject {
     readonly property int shotCardHold: 5000
     readonly property int monitorRefresh: 600
     readonly property int positionTick: 1000
+    readonly property int modeTrial: 15000
 }
