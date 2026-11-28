@@ -71,6 +71,9 @@ def run_options() -> list[str]:
     options = [
         # The host user is the image's, whatever its number here (CI: 1001).
         "--userns=keep-id:uid=1000,gid=1000", "--user", "1000:1000", "--security-opt", "label=disable",
+        # Without a GPU every frame goes through shared memory, and podman's
+        # 64 MB runs out with several compositors: grim then dies with SIGBUS.
+        "--shm-size=1g",
         "-e", "CALLISTO_DENSITY=" + os.environ.get("CALLISTO_DENSITY", "compact"),
         "-v", f"{REPO / 'shell/triton'}:/triton:ro",
         "-v", f"{REPO / 'containers'}:/harness:ro",
