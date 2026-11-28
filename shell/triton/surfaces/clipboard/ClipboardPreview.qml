@@ -30,13 +30,12 @@ Item {
         color: root.scheme.veil
         clip: true
 
-        Image {
+        ScreenImage {
             visible: root.kind === "image"
             anchors.fill: parent
             anchors.margins: Metrics.cardPad
-            source: root.kind === "image" ? "file://" + root.entry.path : ""
+            file: root.kind === "image" ? "file://" + root.entry.path : ""
             fillMode: Image.PreserveAspectFit
-            asynchronous: true
             cache: false
         }
 
