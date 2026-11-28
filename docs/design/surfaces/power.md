@@ -37,7 +37,7 @@ linearly over 5 s (time-based); any key/click cancels. Reduce motion: fades.
 Opens focused on Lock (safest first). Left/Right (and h/l) move focus, 1-5
 jump, Enter confirms, Esc cancels. Lock and Sleep skip the countdown; Log out,
 Restart and Shut down start it (and the unsaved-work dialog if needed).
-IPC `power toggle` (Super+Shift+E) exists.
+IPC `power toggle` (Super+X) exists.
 
 ## Salvage
 `PowerState` (open/toggle/dismiss); the action commands inside `PowerMenu.qml`

@@ -33,9 +33,9 @@ FocusScope {
         { id: "shutdown", text: "Shut down", glyph: Icons.powerSettingsNew, countdown: "Shutting down", ends: true }
     ]
 
-    function reset() {
+    function reset(action) {
         stop();
-        current = 0;
+        current = Math.max(0, actions.findIndex(a => a.id === action));
     }
 
     function stop() {
@@ -90,7 +90,7 @@ FocusScope {
             root.step(-1);
         else if (event.key === Qt.Key_Right || event.key === Qt.Key_L || event.key === Qt.Key_Tab)
             root.step(1);
-        else if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter) && !event.isAutoRepeat)
+        else if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) && !event.isAutoRepeat)
             root.confirm(root.current);
         else if (event.key === Qt.Key_Escape)
             root.cancelled();

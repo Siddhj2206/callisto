@@ -39,6 +39,7 @@ PanelWindow {
     }
 
     readonly property bool underBar: BarState.revealed || SettingsService.barMode === "pinned"
+        || BarState.auto && BarState.free(Hyprland.focusedMonitor)
 
     Spring {
         id: top

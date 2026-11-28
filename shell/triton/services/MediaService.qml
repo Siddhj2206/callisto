@@ -25,6 +25,11 @@ Singleton {
 
     property bool popoverOpen: false
 
+    // Nothing to show without a player.
+    function togglePopover() {
+        popoverOpen = present && !popoverOpen;
+    }
+
     onPlayingChanged: {
         if (playing) {
             faded = false;

@@ -42,7 +42,7 @@ toggle = `shapeMorph` (round to square, Q1) + `colorShift`; slider `sliderReleas
 Arrow keys move between tiles (grid navigation), Enter/Space toggles, Right or
 Enter on a drillable tile drills in, Left/Backspace/Esc back (Esc on main page
 closes); Tab cycles regions (tiles, sliders, footer). IPC `quicksettings toggle`
-(Super+I) exists.
+(Super+A) exists.
 
 ## States
 tile on/off; drillable; Wi-Fi disabled (list replaced by EmptyState "Wi-Fi is

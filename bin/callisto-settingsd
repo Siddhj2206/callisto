@@ -138,7 +138,7 @@ SCHEMA = {
     "appearance.wallpaperOnLock": boolean,
     "appearance.themeApps": boolean,
     "shell.barPosition": one_of("top", "bottom"),
-    "shell.barMode": one_of("edge", "hidden", "pinned"),
+    "shell.barMode": one_of("auto", "edge", "hidden", "pinned"),
     "shell.revealDelay": number(0, 2000, integer=True),
     "shell.revealOnUrgent": boolean,
     "shell.showWindowTitle": boolean,

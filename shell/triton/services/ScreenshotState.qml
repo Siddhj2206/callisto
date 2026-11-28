@@ -47,6 +47,14 @@ Singleton {
             start("screen");
     }
 
+    // The focused window, at once.
+    function windowNow() {
+        if (open || !Hyprland.activeToplevel)
+            return;
+        Hyprland.refreshToplevels(); // where it is now
+        start("window");
+    }
+
     property string pending: "" // what to do once the screen has settled
     property var request: null // the capture waiting for that
 
@@ -139,6 +147,12 @@ Singleton {
                 freezer.command = ["callisto-shot", "freeze"].concat(root.pointer ? ["--pointer"] : [],
                     [root.frozenDir], Quickshell.screens.map(s => s.name));
                 freezer.running = true;
+            } else if (root.pending === "window") {
+                const window = Hyprland.activeToplevel?.lastIpcObject;
+                if (window?.at)
+                    root.run(["callisto-shot", "grab", "-g", window.at[0] + "," + window.at[1] + " " + window.size[0] + "x" + window.size[1]], false);
+                else
+                    root.failed();
             } else if (root.pending === "screen") {
                 root.run(["callisto-shot", "grab", "-o", Hyprland.focusedMonitor.name], false);
             } else if (root.request.record) {
@@ -197,12 +211,12 @@ Singleton {
 
     // ---- what to do with it ----------------------------------------------------
     function view() {
-        Quickshell.execDetached(["uwsm", "app", "--", "xdg-open", result.path]);
+        Quickshell.execDetached(["uwsm-app", "--", "xdg-open", result.path]);
         result = null;
     }
 
     function showFolder() {
-        Quickshell.execDetached(["uwsm", "app", "--", "xdg-open",
+        Quickshell.execDetached(["uwsm-app", "--", "xdg-open",
             result.path.slice(0, result.path.lastIndexOf("/"))]);
         result = null;
     }

@@ -39,7 +39,8 @@ progress time-based (hover pauses), countdown number swap `colorShift`+scale
 
 ## Keyboard / behaviour
 Print opens (remembers mode), Shift+Print = whole screen now. Drag to select,
-Space window mode, Enter capture, Shift = copy only, Alt includes private
+Space or Enter capture (the board has Space pick window mode; 1, 2 and 3 pick
+the mode instead), Shift = copy only, Alt includes private
 windows, Tab next monitor, arrows nudge selection, Esc cancel. Chrome, bar and
 notifications never appear in the image. Recording shows the bar chip.
 
@@ -58,7 +59,8 @@ or `ScreencopyView` capture service and `wf-recorder` for video (new
   `wl-copy`. The frozen images are deleted when the capture ends.
 - Region, window and screen modes (Space or 1/2/3), delay, pointer toggle,
   arrows nudge, Shift+Enter copies without saving. Print opens, Shift+Print
-  captures the screen, Super+Shift+S also opens. IPC `screenshot open|screen`.
+  captures the screen, Ctrl+Print captures the whole screen, Alt+Print the focused
+  window. IPC `screenshot open|screen|window`.
 - The after-capture card offers view, show folder and delete, and holds for 5 s
   (hover pauses it). The bar and toasts stay out of the way while capturing.
 - Video (`V` or the camera button): countdown of at least 3 s, then

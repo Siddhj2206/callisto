@@ -10,7 +10,7 @@
   },
   "shell": {
     "barPosition": "top",
-    "barMode": "edge",
+    "barMode": "auto",
     "revealDelay": 120,
     "clockFormat": "24h",
     "reduceMotion": false
