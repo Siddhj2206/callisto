@@ -19,6 +19,11 @@ Row {
         bracketright: "]", minus: "-", equal: "=", grave: "`",
     })
 
+    // The same names as running text: "Super+Shift+E".
+    function label(keys) {
+        return keys.split(" + ").map(key => names[key] ?? key).join("+");
+    }
+
     spacing: Metrics.buttonGap
 
     Repeater {
