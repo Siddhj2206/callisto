@@ -1,0 +1,6 @@
+# What no Dockerfile here copies, and is too big to hand to every build.
+.git
+.out
+live-build
+references
+*.iso

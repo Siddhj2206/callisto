@@ -9,7 +9,7 @@ import qs.surfaces.tray
 import qs.tokens
 
 // Background apps and privacy chips with sample data, dark over light.
-// Run: scripts/test-shell.sh --gallery tray
+// Run: scripts/shell.py tray
 Scope {
     id: shell
 

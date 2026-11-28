@@ -7,7 +7,7 @@ import qs.foundations
 import qs.surfaces.greeter
 
 // The login screen with sample data.
-// Run: scripts/test-shell.sh --gallery greeter
+// Run: scripts/shell.py gallery-greeter
 Scope {
     Fonts {}
 

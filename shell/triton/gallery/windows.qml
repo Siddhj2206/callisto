@@ -8,7 +8,7 @@ import qs.surfaces.switcher
 import qs.tokens
 
 // The overview and the window switcher with sample windows (no live previews).
-// Run: scripts/test-shell.sh --gallery windows
+// Run: scripts/shell.py windows
 Scope {
     id: shell
     Fonts {}

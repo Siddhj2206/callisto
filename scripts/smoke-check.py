@@ -10,8 +10,12 @@ import time
 UNITS = ("callisto-shell.service", "callisto-settingsd.socket", "callisto-clipboard.service", "hypridle.service")
 
 # Run in the guest. The end marker is split so the echoed command cannot match.
+# The desktop session starts beside this login: wait for its units (they are
+# judged below either way), then a moment for one that starts only to die.
 CHECK = (
     "export XDG_RUNTIME_DIR=/run/user/$(id -u); "
+    f"for i in $(seq 90); do [ $(systemctl --user is-active {' '.join(UNITS)} | grep -cx active) = {len(UNITS)} ] && break; sleep 1; done; "
+    "sleep 5; "
     "echo SYSTEM=$(timeout 120 systemctl is-system-running --wait); "
     "systemctl --failed --no-legend --plain; systemctl --user --failed --no-legend --plain; "
     f"for u in {' '.join(UNITS)}; do echo UNIT $u $(systemctl --user is-active $u); done; "
@@ -61,13 +65,11 @@ def main() -> int:
     if console.wait_for("assword", 30) is None:
         return fail("no password prompt")
     console.send("live")
-    # The desktop session starts beside this login; give it time to settle.
-    time.sleep(45)
     console.send("stty -echo")
     time.sleep(1)
     console.seen = ""
     console.send(CHECK)
-    output = console.wait_for("SMOKEDONE", 180)
+    output = console.wait_for("SMOKEDONE", 300)
     if output is None:
         return fail("the checks did not finish", console.seen)
 

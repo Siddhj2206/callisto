@@ -4,7 +4,7 @@ import qs.foundations
 import qs.surfaces.settings
 
 // Settings with no services behind it.
-// Run: scripts/test-shell.sh --gallery settings
+// Run: scripts/shell.py settings
 Scope {
     Fonts {}
 

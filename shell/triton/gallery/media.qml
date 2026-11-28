@@ -11,7 +11,7 @@ import qs.surfaces.osd
 import qs.tokens
 
 // Media controls with sample players, dark over light.
-// Run: scripts/test-shell.sh --gallery media
+// Run: scripts/shell.py media
 Scope {
     id: shell
 

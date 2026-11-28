@@ -8,7 +8,7 @@ import qs.surfaces.clipboard
 import qs.tokens
 
 // The clipboard with sample entries, dark and light.
-// Run: scripts/test-shell.sh --gallery clipboard
+// Run: scripts/shell.py clipboard
 Scope {
     id: shell
 
