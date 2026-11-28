@@ -11,7 +11,7 @@ import qs.tokens
 
 // Every shared component in dark and light, with sample data. "Replay motion"
 // shows enter and exit; CALLISTO_DENSITY=board shows the design-board sizes.
-// Run: scripts/test-shell.sh --gallery controls
+// Run: scripts/shell.py controls
 Scope {
     Fonts {}
 

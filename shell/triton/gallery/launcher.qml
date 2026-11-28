@@ -8,7 +8,7 @@ import qs.surfaces.launcher
 import qs.tokens
 
 // The launcher in its states with sample data, dark over light.
-// Run: scripts/test-shell.sh --gallery launcher
+// Run: scripts/shell.py launcher
 Scope {
     id: shell
 

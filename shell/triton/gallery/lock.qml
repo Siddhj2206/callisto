@@ -8,7 +8,7 @@ import qs.surfaces.lock
 
 // The lock screen with sample data: idle, and after a wrong password on a
 // short, narrow screen.
-// Run: scripts/test-shell.sh --gallery lock
+// Run: scripts/shell.py lock
 Scope {
     Fonts {}
 

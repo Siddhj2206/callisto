@@ -34,6 +34,6 @@ jobs:
         if: always()
         with:
           name: shell-screenshots
-          path: .out/shell-all/
+          path: .out/shell/
           include-hidden-files: true
           retention-days: 14

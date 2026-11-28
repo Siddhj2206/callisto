@@ -7,7 +7,7 @@ import qs.surfaces.wallpaper
 import qs.tokens
 
 // The wallpaper picker with the board images as sample wallpapers.
-// Run: scripts/test-shell.sh --gallery wallpaper
+// Run: scripts/shell.py wallpaper
 Scope {
     Fonts {}
 

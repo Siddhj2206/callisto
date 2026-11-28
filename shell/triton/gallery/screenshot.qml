@@ -7,7 +7,7 @@ import qs.surfaces.screenshot
 import qs.tokens
 
 // The capture tool with a selection, the result card and the countdown.
-// Run: scripts/test-shell.sh --gallery screenshot
+// Run: scripts/shell.py screenshot
 Scope {
     Fonts {}
 

@@ -27,7 +27,7 @@ import qs.tokens
 
 // The galleries: every component with sample data and no services, one page per
 // file in gallery/. CALLISTO_GALLERY picks the page.
-//   scripts/test-shell.sh --gallery power
+//   scripts/shell.py power
 ShellRoot {
     id: root
 

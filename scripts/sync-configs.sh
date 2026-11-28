@@ -9,7 +9,8 @@
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-ROOT="$REPO/live-build/config/includes.chroot"
+# STAGE_DIR: vm.py stages elsewhere, to push onto a running machine.
+ROOT="${STAGE_DIR:-$REPO/live-build/config/includes.chroot}"
 
 # put MODE SOURCE TARGET: SOURCE relative to the repository, TARGET to the image.
 put() {

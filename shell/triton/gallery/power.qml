@@ -8,7 +8,7 @@ import qs.tokens
 
 // The power menu with sample data: opened, on Restart with a note, and
 // counting down.
-// Run: scripts/test-shell.sh --gallery power
+// Run: scripts/shell.py power
 Scope {
     Fonts {}
 

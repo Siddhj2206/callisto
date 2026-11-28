@@ -8,7 +8,7 @@ import qs.surfaces.quicksettings
 import qs.tokens
 
 // Drop-down panels with sample data, dark over light. Headless:
-// scripts/test-shell.sh --gallery panels
+// scripts/shell.py panels
 Scope {
     Fonts {}
 

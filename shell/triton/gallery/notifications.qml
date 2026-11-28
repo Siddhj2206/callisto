@@ -8,7 +8,7 @@ import qs.surfaces.notifications
 import qs.tokens
 
 // Toasts and the notification center with sample data, dark and light.
-// Run: scripts/test-shell.sh --gallery notifications
+// Run: scripts/shell.py notifications
 Scope {
     id: shell
 
