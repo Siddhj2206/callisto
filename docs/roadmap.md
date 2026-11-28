@@ -212,14 +212,24 @@ the live session.
 - [ ] Raising the resolution without signing out again, on virtio-gpu and some HDMI outputs: aquamarine 0.11.0 tests the new mode against the old, smaller buffer ([aquamarine#330](https://github.com/hyprwm/aquamarine/pull/330), merged, not in Debian). Settings offers "Use at next sign-in" meanwhile; fixing it needs a newer package or our own build
 - [ ] The papercut fixes on a built ISO and on real hardware
 
-## 8. Shell performance (read-through audit, nothing measured)
+## 8. Shell performance
 
-- [x] Overview tiles and Settings network rows are no longer rebuilt on changes; only picture avatars are clipped offscreen; no blur under the overview or capture screen. Harness only
-- [ ] Wallpapers decode at full size, once per screen, and the hidden crossfade layer keeps the old one: set `sourceSize`
-- [ ] Every surface is built at startup and kept, and the launcher makes a row per app: `LazyLoader`, after measuring
-- [ ] Hidden launcher, overview and window lists recompute on every title change
-- [ ] Theme and settings are applied twice at login (`start-callisto`, then settingsd)
-- [ ] Recording status spawns processes every second
-- [ ] Capture buffers and clipboard images stay in memory after their surface closes
-- [ ] Notification action buttons are likely rebuilt each minute
+Measured with `make vm-perf` in the 3D VM at 1920x1080, one terminal open:
 
+| | before | after |
+|---|---|---|
+| Shell memory at rest | 227 MiB | 185 MiB |
+| After opening every surface | 248 MiB | 216 MiB |
+| Restart to desktop and bar | about 480 ms | no change |
+| CPU at rest | none to speak of | the same |
+
+For scale, Quickshell with a single window takes 93 to 98 MiB.
+
+- [x] Wallpapers decode at screen size, desktop, overview and lock share one copy, and the crossfade lets the old one go
+- [x] The launcher only builds the rows in sight
+- [x] Clipboard image previews decode at the size shown
+- [x] Overview tiles and Settings network rows are no longer rebuilt on changes; only picture avatars are clipped offscreen; no blur under the overview or capture screen
+- Not done, `LazyLoader` for hidden surfaces: after the above, removing the overview, wallpaper picker, power menu, clipboard or capture tool saves about 1 MiB each, for a slower first open
+- Not done, theme applied twice at login: the run before the compositor takes about 130 ms and the shell needs its output; the daemon's own run does not block
+- Not done, small and unmeasured: window lists recompute on title changes, recording status polls with processes while recording, notification action buttons are likely rebuilt each minute
+- [ ] Frame times, and any of this on real hardware
