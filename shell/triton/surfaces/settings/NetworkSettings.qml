@@ -1,5 +1,6 @@
 pragma ComponentBehavior: Bound
 
+import Quickshell
 import QtQuick
 import qs
 import qs.patterns
@@ -44,8 +45,9 @@ Page {
         title: "Networks"
         visible: NetworkService.wifiDevice !== null && NetworkService.wifiEnabled
 
+        // ScriptModel keeps rows (and a half-typed password) across rescans.
         Repeater {
-            model: NetworkService.networks
+            model: ScriptModel { values: NetworkService.networks }
 
             SettingRow {
                 id: row
