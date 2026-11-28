@@ -68,10 +68,8 @@ Item {
         const step = event.modifiers & Qt.ControlModifier ? Metrics.dragThreshold : 1;
         if (event.key === Qt.Key_Escape)
             cancelled();
-        else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter)
+        else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space)
             take(event.modifiers & Qt.ShiftModifier);
-        else if (event.key === Qt.Key_Space)
-            modePicked(mode === "window" ? "region" : "window");
         else if (event.key === Qt.Key_1)
             modePicked("region");
         else if (event.key === Qt.Key_2)
@@ -214,11 +212,11 @@ Item {
             spacing: Metrics.panelPad
 
             KeyHint {
-                keys: ["Space"]
-                text: "window"
+                keys: ["1", "2", "3"]
+                text: "mode"
             }
             KeyHint {
-                keys: ["Enter"]
+                keys: ["Space"]
                 text: root.video ? "record" : "capture"
             }
             KeyHint {

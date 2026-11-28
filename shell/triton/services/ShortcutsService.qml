@@ -30,6 +30,15 @@ Singleton {
         return bindings.find(b => b.id === id)?.keys ?? "";
     }
 
+    // The other keys that do the same, as hyprland.lua binds them: none once the
+    // shortcut is changed, and never keys the user has put to another use.
+    function alsoOf(id) {
+        if (id in changes)
+            return [];
+        const chosen = Object.values(changes).concat(custom.map(c => c.keys));
+        return (shipped.find(b => b.id === id)?.also ?? []).filter(keys => !chosen.includes(keys) && !keys.includes("mouse_"));
+    }
+
     // What already answers to these keys, other than `except` (a shipped id or
     // the index of a custom one).
     function owner(keys, except) {

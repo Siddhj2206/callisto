@@ -39,7 +39,7 @@ PanelWindow {
         primary = Quickshell.screens.some(s => s.name === focused)
             ? focused === screen.name : Quickshell.screens[0] === screen;
         PowerService.refresh();
-        menu.reset();
+        menu.reset(PowerState.highlight);
         menu.forceActiveFocus();
     }
 

@@ -74,7 +74,18 @@ with tempfile.TemporaryDirectory() as tmp:
             calls.write_text("")
             return text
 
-        first = new_calls(3)
+        # All of what starting up runs, however slow the machine: a fixed wait let
+        # the end of it spill into the next check.
+        def size():
+            return calls.stat().st_size if calls.exists() else 0
+
+        before = -1
+        for _ in range(20):
+            time.sleep(1.5)
+            if size() == before and before > 0:
+                break
+            before = size()
+        first = new_calls(0)
         check("applies everything on start", "hyprsunset" in first and "gsettings" in first)
         check("creates the store", json.loads(store.read_text()) == {"version": 1})
         check("no monitor rule before a scale is chosen", "hl.monitor" not in user_lua.read_text())
@@ -142,7 +153,7 @@ with tempfile.TemporaryDirectory() as tmp:
         check("a custom shortcut is accepted", put("keyboard.custom", [
             {"title": "Say", "keys": "SUPER + SHIFT + Y", "command": command}])["ok"])
         new_calls()
-        check("its command is quoted for the shell and Lua", 'keys = "SUPER + SHIFT + Y", command = "uwsm app -- sh -c '
+        check("its command is quoted for the shell and Lua", 'keys = "SUPER + SHIFT + Y", command = "uwsm-app -- sh -c '
               in user_keys.read_text())
         for keys in ("A", "SHIFT + A", "SUPER + NotAKey", 'SUPER + "', "SHIFT + SUPER + A", "SUPER + SUPER + A"):
             check(f"refuses the shortcut {keys!r}", not put("keyboard.shortcuts", {"launcher": keys})["ok"])
@@ -152,11 +163,13 @@ with tempfile.TemporaryDirectory() as tmp:
         bindings = json.loads((REPO / "configs/hypr/keybindings.json").read_text())
         shipped = {b["id"]: b["keys"] for b in bindings if not b.get("fixed")}
         check("the shipped shortcuts are valid ones", put("keyboard.shortcuts", shipped)["ok"])
-        check("no two shipped shortcuts share keys", len({b["keys"] for b in bindings}) == len(bindings))
+        every = [k for b in bindings for k in [b["keys"], *b.get("also", [])]]
+        check("no two shipped shortcuts share keys", len(set(every)) == len(every))
         lua = (REPO / "configs/hypr/hyprland.lua").read_text()
         names = set(re.findall(r'bind\("([a-z.]+)",', lua))
-        for prefix, parts in (("workspace.", "12345"), ("workspace.move.", "12345"),
-                              ("focus.", ("left", "down", "up", "right")), ("move.", ("left", "down", "up", "right"))):
+        directions = ("left", "down", "up", "right")
+        for prefix, parts in (("workspace.", "123456789"), ("workspace.move.", "123456789"), ("focus.", directions),
+                              ("move.", directions), ("monitor.focus.", directions), ("monitor.move.", directions)):
             names |= {prefix + part for part in parts}
         check("Hyprland binds exactly the listed shortcuts", names == set(shipped))
 
@@ -164,7 +177,7 @@ with tempfile.TemporaryDirectory() as tmp:
                            ("display.scale", True), ("nope.key", 1), ("appearance.mode", "blue")):
             check(f"refuses {key}={value!r}", not put(key, value)["ok"])
         reply = send({"op": "get"})
-        check("get merges the defaults", reply["store"]["shell"]["barMode"] == "edge"
+        check("get merges the defaults", reply["store"]["shell"]["barMode"] == "auto"
               and reply["store"]["shell"]["clockFormat"] == "12h")
         idle = (home / ".config/hypr/hypridle.conf")
         put("power.dimIdle", True)

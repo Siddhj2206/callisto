@@ -3,4 +3,4 @@
 sleep 4
 action=$(notify-send --app-name=Callisto --expire-time=0 --action=install="Install Callisto" \
     "You are trying Callisto" "Nothing is saved until you install. Super+Space opens the launcher.")
-[ "$action" = install ] && exec uwsm app -- callisto-install
+[ "$action" = install ] && exec uwsm-app -- callisto-install

@@ -176,7 +176,7 @@ Singleton {
     readonly property string appearanceMode: get("appearance", "mode", "dark")
     readonly property string accent: get("appearance", "accent", "planet")
     readonly property string material: get("appearance", "material", "mica")
-    readonly property string barMode: get("shell", "barMode", "edge") // "edge" | "hidden" | "pinned"
+    readonly property string barMode: get("shell", "barMode", "auto") // "auto" | "edge" | "hidden" | "pinned"
     readonly property int revealDelay: get("shell", "revealDelay", Motion.barRevealDwell)
     readonly property bool revealOnUrgent: get("shell", "revealOnUrgent", true)
     readonly property bool showWindowTitle: get("shell", "showWindowTitle", true)

@@ -139,7 +139,7 @@ hl.layer_rule({ match = { namespace = "^(triton-glass)$" }, blur = true, ignore_
 -- The shell IS the wallpaper renderer (Desktop.qml layer surface) — no swaybg
 -- or hyprpaper. It runs as callisto-shell.service, which restarts it if it dies,
 -- and the polkit agent is a unit too (hyprpolkitagent, enabled globally).
--- Everything user-facing spawns through `uwsm app --` so apps land in proper
+-- Everything user-facing spawns through `uwsm-app` so apps land in proper
 -- systemd scopes instead of inside the compositor unit.
 hl.on("hyprland.start", function()
     -- Only for start-callisto's last resort, a session without uwsm.
@@ -151,11 +151,14 @@ end)
 -- Settings lists too) with the ones the user changed on top. This file only
 -- says what each name does.
 --
--- Shell surfaces are driven through quickshell IPC — the shell is the single
--- source of truth for its own visibility. Nothing here shells out to ad-hoc
--- UI binaries; if a surface exists, it answers IPC.
+-- The shell's own keys are global shortcuts: the running shell gets them
+-- straight from the compositor, with no process in between. `qs ipc call` does
+-- the same things, for scripts. Apps start through uwsm-app, which hands them
+-- their own systemd scope by way of a daemon that is already running.
 
 local keys = dofile("/usr/share/callisto/hypr/keys.lua")
+local also = keys.also or {}
+keys.also = nil
 -- Hyprland puts a failed require on screen even inside pcall, so look first.
 local user = {}
 if package.searchpath("callisto-keys", package.path) then
@@ -164,48 +167,86 @@ if package.searchpath("callisto-keys", package.path) then
 end
 for name, combo in pairs(user.keys or {}) do keys[name] = combo end
 
-local function bind(name, action)
-    if keys[name] and keys[name] ~= "" then hl.bind(keys[name], action) end
+-- What the user chose wins: their own keys are never also bound to a second
+-- thing, and a shortcut they changed keeps no other keys.
+local chosen = {}
+for _, combo in pairs(user.keys or {}) do chosen[combo] = true end
+for _, own in ipairs(user.custom or {}) do chosen[own.keys] = true end
+
+local function bind(name, action, options)
+    if keys[name] and keys[name] ~= "" then hl.bind(keys[name], action, options) end
+    if (user.keys or {})[name] then return end
+    for _, combo in ipairs(also[name] or {}) do
+        if not chosen[combo] then hl.bind(combo, action, options) end
+    end
 end
 
-local function qsipc(target, fn)
-    return hl.dsp.exec_cmd("uwsm app -- qs -c triton ipc call " .. target .. " " .. fn)
+local function shell(name)
+    return hl.dsp.global("callisto:" .. name)
 end
 
 -- Triton surfaces
-bind("launcher",          qsipc("launcher", "toggle"))
-bind("power",             qsipc("power", "toggle"))
-bind("overview",          qsipc("overview", "toggle"))
-bind("screenshot",        qsipc("screenshot", "open"))
-bind("screenshot.alt",    qsipc("screenshot", "open"))
-bind("screenshot.screen", qsipc("screenshot", "screen"))
-bind("bar",               qsipc("bar", "toggle"))
-bind("clipboard",         qsipc("clipboard", "toggle"))
-bind("notifications",     qsipc("notifications", "toggle"))
-bind("quicksettings",     qsipc("quicksettings", "toggle"))
+bind("launcher",          shell("launcher"))
+bind("power",             shell("power"))
+bind("overview",          shell("overview"))
+bind("screenshot",        shell("screenshot"))
+bind("screenshot.screen", shell("screenshot-screen"))
+bind("screenshot.window", shell("screenshot-window"))
+bind("media",             shell("media"))
+bind("bar",               shell("bar"))
+bind("clipboard",         shell("clipboard"))
+bind("notifications",     shell("notifications"))
+bind("quicksettings",     shell("quicksettings"))
+bind("nightlight",        shell("nightlight"))
 bind("settings",          hl.dsp.exec_cmd("callisto-settings"))
-bind("wallpaper",         qsipc("wallpaper", "toggle"))
+bind("shortcuts",         hl.dsp.exec_cmd("callisto-settings shortcuts"))
+bind("wallpaper",         shell("wallpaper"))
 -- Lock — the Triton lock surface owns auth presentation (ext-session-lock
 -- inside the shell). hyprlock remains installed as a manual fallback.
-bind("lock",              qsipc("lock", "lock"))
+bind("lock",              shell("lock"))
+bind("dpms",              hl.dsp.dpms({ action = "toggle" }))
 
 -- Apps
-bind("terminal", hl.dsp.exec_cmd("uwsm app -- foot"))
+bind("terminal", hl.dsp.exec_cmd("uwsm-app -- foot"))
 
 -- Window management
 bind("window.close",      hl.dsp.window.close())
 bind("window.float",      hl.dsp.window.float({ action = "toggle" }))
-bind("window.fullscreen", hl.dsp.window.fullscreen({ action = "toggle" }))
+bind("window.maximize",   hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" }))
+bind("window.fullscreen", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 
-for i = 1, 5 do
+for i = 1, 9 do
     bind("workspace." .. i,      hl.dsp.focus({ workspace = i }))
     bind("workspace.move." .. i, hl.dsp.window.move({ workspace = i }))
 end
+bind("workspace.next",          hl.dsp.focus({ workspace = "e+1" }))
+bind("workspace.previous",      hl.dsp.focus({ workspace = "e-1" }))
+bind("workspace.move.next",     hl.dsp.window.move({ workspace = "e+1" }))
+bind("workspace.move.previous", hl.dsp.window.move({ workspace = "e-1" }))
+
+bind("scratchpad.toggle", hl.dsp.workspace.toggle_special())
+bind("scratchpad.send",   hl.dsp.window.move({ workspace = "special", follow = false }))
+bind("scratchpad.return", hl.dsp.window.move({ workspace = "+0" }))
 
 for _, direction in ipairs({ "left", "down", "up", "right" }) do
-    bind("focus." .. direction, hl.dsp.focus({ direction = direction }))
-    bind("move." .. direction,  hl.dsp.window.move({ direction = direction }))
+    bind("focus." .. direction,         hl.dsp.focus({ direction = direction }))
+    bind("move." .. direction,          hl.dsp.window.move({ direction = direction }))
+    bind("monitor.focus." .. direction, hl.dsp.focus({ monitor = direction:sub(1, 1) }))
+    bind("monitor.move." .. direction,  hl.dsp.window.move({ monitor = direction:sub(1, 1) }))
 end
+bind("focus.first", hl.dsp.focus({ window = "first" }))
+bind("focus.last",  hl.dsp.focus({ window = "last" }))
+
+-- Layout
+bind("layout.togglesplit",     hl.dsp.layout("togglesplit"))
+bind("layout.preselect.left",  hl.dsp.layout("preselect l"))
+bind("layout.preselect.right", hl.dsp.layout("preselect r"))
+bind("layout.group",           hl.dsp.group.toggle())
+local held = { repeating = true }
+bind("resize.narrower", hl.dsp.window.resize({ x = -100, y = 0, relative = true }), held)
+bind("resize.wider",    hl.dsp.window.resize({ x = 100, y = 0, relative = true }), held)
+bind("resize.shorter",  hl.dsp.window.resize({ x = 0, y = -100, relative = true }), held)
+bind("resize.taller",   hl.dsp.window.resize({ x = 0, y = 100, relative = true }), held)
 
 -- The user's own.
 for _, own in ipairs(user.custom or {}) do
@@ -225,12 +266,12 @@ hl.bind(mod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
 hl.bind(mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
 -- Media keys — the shell's OSD observes these changes (Pipewire/UPower).
-hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("uwsm app -- wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+"), { repeating = true, locked = true })
-hl.bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd("uwsm app -- wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),        { repeating = true, locked = true })
-hl.bind("XF86AudioMute",         hl.dsp.exec_cmd("uwsm app -- wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),       { repeating = true, locked = true })
-hl.bind("XF86AudioMicMute",      hl.dsp.exec_cmd("uwsm app -- wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),     { repeating = true, locked = true })
-hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("uwsm app -- brightnessctl set 5%+"),                            { repeating = true, locked = true })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("uwsm app -- brightnessctl set 5%-"),                            { repeating = true, locked = true })
+hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+"), { repeating = true, locked = true })
+hl.bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),        { repeating = true, locked = true })
+hl.bind("XF86AudioMute",         hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),       { repeating = true, locked = true })
+hl.bind("XF86AudioMicMute",      hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),     { repeating = true, locked = true })
+hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl set 5%+"),                            { repeating = true, locked = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"),                            { repeating = true, locked = true })
 -- Media keys go through the shell, which says what is playing; playerctl is
 -- there for when it is not.
 local function media(fn, fallback)
@@ -239,6 +280,10 @@ end
 hl.bind("XF86AudioPlay",         media("toggle", "play-pause"), { locked = true })
 hl.bind("XF86AudioNext",         media("next", "next"),         { locked = true })
 hl.bind("XF86AudioPrev",         media("previous", "previous"), { locked = true })
+hl.bind("XF86AudioPause",        media("toggle", "play-pause"), { locked = true })
+-- With Ctrl, the volume keys are the player's own volume.
+hl.bind("CTRL + XF86AudioRaiseVolume", hl.dsp.exec_cmd("playerctl volume 0.03+"), { repeating = true, locked = true })
+hl.bind("CTRL + XF86AudioLowerVolume", hl.dsp.exec_cmd("playerctl volume 0.03-"), { repeating = true, locked = true })
 
 -- --- Settings-app-managed user overrides ---------------------------------------------
 -- Generated by callisto-apply. require() is protected per-file, so a broken

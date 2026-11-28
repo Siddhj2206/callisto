@@ -26,7 +26,8 @@ Page {
                 Repeater {
                     id: choices
                     model: [
-                        { value: "edge", title: "Reveal on edge", caption: "Hidden until the pointer reaches the top" },
+                        { value: "auto", title: "Auto hide", caption: "Hides when a window needs the space" },
+                        { value: "edge", title: "Reveal on edge", caption: "Shows when the pointer is at the top" },
                         { value: "hidden", title: "Hidden", caption: ShortcutsService.keysOf("bar") ? "Only on its shortcut" : "Until a shortcut is set" },
                         { value: "pinned", title: "Pinned", caption: "Always there, windows sit below" },
                     ]
@@ -61,7 +62,7 @@ Page {
             }
         }
         SettingRow {
-            visible: root.mode === "edge"
+            visible: root.mode === "edge" || root.mode === "auto"
             title: "Reveal delay"
             subtitle: root.revealDelay + " ms at the edge"
             Slider {

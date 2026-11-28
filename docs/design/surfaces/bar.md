@@ -7,6 +7,7 @@ Replaces: `bar/Bar.qml`, `Island.qml`, `Clock.qml`, `StatusGroup.qml`, `WaveButt
 
 | Mode | Board | Window | Material | Reserves space |
 |---|---|---|---|---|
+| auto ("Auto hide", the default): shown while no window needs its place, else as below | 1 + 2 | `free()` in `BarState`; tiled windows always need it, floating ones if they reach into the strip | glass islands | no |
 | hidden (autohide, "Reveal on edge") | 1 + 2 | `SurfaceWindow` mapped only while revealed; separate 2 px `EdgeSensor` window | glass islands | no |
 | floating (revealed) | 2 | layer top, margin `Space.screenMargin` top/sides | `glass` islands | no |
 | pinned | 3 | layer top, full width | `mica` strip, square, edge to edge | yes (`exclusive`, height `Size.bar`) |

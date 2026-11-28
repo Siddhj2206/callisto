@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 
 import Quickshell
 import Quickshell.Io
+import Quickshell.Hyprland
 import QtQuick
 import "services"
 import qs.foundations
@@ -109,6 +110,7 @@ ShellRoot {
         target: "screenshot"
         function open(): void { ScreenshotState.toggle(); }
         function screen(): void { ScreenshotState.screenNow(); }
+        function window(): void { ScreenshotState.windowNow(); }
         function stop(): void { RecordState.stop(); }
     }
     IpcHandler {
@@ -139,6 +141,25 @@ ShellRoot {
         target: "wallpaper"
         function toggle(): void { WallpaperState.toggle(); }
     }
+
+    // The same, for the keys: no process is started to deliver them.
+    component Shortcut: GlobalShortcut {
+        appid: "callisto"
+    }
+    Shortcut { name: "launcher"; description: "Open the launcher"; onPressed: LauncherState.toggle() }
+    Shortcut { name: "quicksettings"; description: "Quick settings"; onPressed: QuickSettingsState.toggle() }
+    Shortcut { name: "notifications"; description: "Notifications"; onPressed: NotificationState.toggle() }
+    Shortcut { name: "clipboard"; description: "Clipboard history"; onPressed: ClipboardState.toggle() }
+    Shortcut { name: "power"; description: "Power menu"; onPressed: PowerState.toggle() }
+    Shortcut { name: "screenshot"; description: "Take a screenshot"; onPressed: ScreenshotState.toggle() }
+    Shortcut { name: "screenshot-screen"; description: "Capture the whole screen"; onPressed: ScreenshotState.screenNow() }
+    Shortcut { name: "screenshot-window"; description: "Capture the focused window"; onPressed: ScreenshotState.windowNow() }
+    Shortcut { name: "media"; description: "Media controls"; onPressed: MediaService.togglePopover() }
+    Shortcut { name: "nightlight"; description: "Night light on or off"; onPressed: SettingsService.set("display", "nightLight", !SettingsService.nightLight) }
+    Shortcut { name: "overview"; description: "Overview of workspaces"; onPressed: OverviewState.toggle() }
+    Shortcut { name: "bar"; description: "Show or hide the bar"; onPressed: BarState.toggle() }
+    Shortcut { name: "lock"; description: "Lock the screen"; onPressed: LockState.lock() }
+    Shortcut { name: "wallpaper"; description: "Choose a wallpaper"; onPressed: WallpaperState.toggle() }
 
     ThemeSync {}
 }

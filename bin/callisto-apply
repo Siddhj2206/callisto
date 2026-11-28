@@ -634,6 +634,12 @@ def emit_default_keys(bindings: list) -> str:
     """The shipped shortcuts for hyprland.lua, made when the image is built."""
     lines = ["-- GENERATED from keybindings.json — do not edit.", "return {"]
     lines += ["    [%s] = %s," % (lua_string(b["id"]), lua_string(b["keys"])) for b in bindings if not b.get("fixed")]
+    # Other keys that do the same, kept apart: hyprland.lua drops one that the
+    # user has put to another use.
+    lines += ["    also = {"]
+    lines += ["        [%s] = { %s }," % (lua_string(b["id"]), ", ".join(map(lua_string, b["also"])))
+              for b in bindings if b.get("also")]
+    lines += ["    },"]
     return "\n".join(lines + ["}", ""])
 
 
@@ -646,7 +652,7 @@ def emit_user_keys(store: dict) -> str:
               for name, keys in keyboard.get("shortcuts", {}).items()]
     lines += ["    },", "    custom = {"]
     lines += ["        { keys = %s, command = %s }," % (
-                  lua_string(c["keys"]), lua_string("uwsm app -- sh -c " + shlex.quote(c["command"])))
+                  lua_string(c["keys"]), lua_string("uwsm-app -- sh -c " + shlex.quote(c["command"])))
               for c in keyboard.get("custom", []) if c["keys"]]
     return "\n".join(lines + ["    },", "}", ""])
 

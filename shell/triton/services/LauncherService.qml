@@ -165,14 +165,19 @@ Singleton {
             command("wallpaper", Icons.wallpaper, "Change wallpaper", "Appearance", () => WallpaperState.show()),
             command("settings", Icons.settings, "Open Settings", "System", () => SettingsAppState.show()),
             command("lock", Icons.lock, "Lock the screen", "Session", () => LockState.lock()),
-            command("power", Icons.powerSettingsNew, "Power off, restart or log out", "Session", () => PowerState.open = true)
+            // Each opens the power menu on its own action. The second word of
+            // the subtitle is what else it is found by.
+            command("sleep", Icons.bedtime, "Sleep", "Power · suspend", () => PowerState.show("sleep")),
+            command("logout", Icons.logout, "Log out", "Power · sign out", () => PowerState.show("logout")),
+            command("restart", Icons.restartAlt, "Restart", "Power · reboot", () => PowerState.show("restart")),
+            command("shutdown", Icons.powerSettingsNew, "Shut down", "Power · turn off", () => PowerState.show("shutdown"))
         ];
         const q = term;
         const found = q === "" ? all : all.filter(c => match(q, c.title, c.subtitle) > 0);
         if (mode === "commands" && q !== "") {
             const line = query.slice(1).trim();
             found.push(command("shell", Icons.terminal, line, "Run in a shell",
-                () => Quickshell.execDetached(["uwsm", "app", "--", "sh", "-c", line])));
+                () => Quickshell.execDetached(["uwsm-app", "--", "sh", "-c", line])));
         }
         return found;
     }
@@ -222,7 +227,7 @@ Singleton {
         if (entry.runInTerminal)
             command = ["foot", "-e"].concat(command);
         Quickshell.execDetached({
-            command: ["uwsm", "app", "-a", entry.id, "--"].concat(command),
+            command: ["uwsm-app", "-a", entry.id, "--"].concat(command),
             workingDirectory: entry.workingDirectory || Quickshell.env("HOME")
         });
     }

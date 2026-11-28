@@ -16,6 +16,7 @@ see `/usr/share/doc/*/copyright`.
 | Jost | `design/fonts/Jost-*` | [OFL 1.1](licenses/OFL-Jost.txt) |
 | JetBrains Mono | `design/fonts/JetBrainsMono-*` | [OFL 1.1](licenses/OFL-JetBrainsMono.txt) |
 | Material Symbols (Google), subsetted and renamed "Triton Symbols" | `design/fonts/TritonSymbols*` | [Apache 2.0](licenses/Apache-2.0-MaterialSymbols.txt) |
+| Default keyboard shortcuts, after [dux-shell](https://github.com/duxlabs-dev/dux-shell) (Avenge Media) | `configs/hypr/keybindings.json` | [MIT](licenses/MIT-dux-shell.txt) |
 | GTK and KDE color templates, after [dux-shell](https://github.com/duxlabs-dev/dux-shell) (Avenge Media) | `GTK_COLORS` and `kde_colors` in `bin/callisto-apply` | [MIT](licenses/MIT-dux-shell.txt) |
 | *Triton (artist's impression)*, the wallpaper: [ESO/L. Calçada](https://www.eso.org/public/images/eso1015a/). Resized, blurred and dimmed copies are used by the boards and galleries | `design/wallpaper.jpg`, `references/assets/`, `shell/triton/gallery/assets/` | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | React and ReactDOM (Meta), used only to open the design boards | `references/_runtime/` | MIT |

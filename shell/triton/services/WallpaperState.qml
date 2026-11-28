@@ -49,7 +49,7 @@ Singleton {
     function openFolder() {
         close();
         Quickshell.execDetached(["sh", "-c",
-            'd="$(xdg-user-dir PICTURES)"; [ "$d" = "$HOME" ] && d="$HOME/Pictures"; mkdir -p "$d/Wallpapers" && exec uwsm app -- xdg-open "$d/Wallpapers"']);
+            'd="$(xdg-user-dir PICTURES)"; [ "$d" = "$HOME" ] && d="$HOME/Pictures"; mkdir -p "$d/Wallpapers" && exec uwsm-app -- xdg-open "$d/Wallpapers"']);
     }
 
     // For other programs (Settings): the picker belongs to the shell, because

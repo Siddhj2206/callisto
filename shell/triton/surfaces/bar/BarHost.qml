@@ -17,10 +17,12 @@ Scope {
 
     required property ShellScreen screen
 
-    readonly property string mode: SettingsService.barMode // "edge" | "hidden" | "pinned"
+    readonly property string mode: SettingsService.barMode // "auto" | "edge" | "hidden" | "pinned"
     readonly property bool pinned: mode === "pinned"
-    // A revealed bar leaves for screenshots; a pinned one is part of the screen.
-    readonly property bool shown: pinned ? !WallpaperState.open : BarState.revealed && !WallpaperState.open && !ScreenshotState.open
+    // A floating bar leaves for screenshots; a pinned one is part of the screen.
+    readonly property bool roomy: mode === "auto" && BarState.free(monitor)
+    readonly property bool shown: pinned ? !WallpaperState.open
+        : (BarState.revealed || roomy) && !WallpaperState.open && !ScreenshotState.open
 
     // ---- Compositor ----
     readonly property HyprlandMonitor monitor: Hyprland.monitorFor(screen)
@@ -164,7 +166,7 @@ Scope {
             right: true
         }
         implicitHeight: 2
-        visible: host.mode === "edge"
+        visible: host.mode === "edge" || host.mode === "auto"
         exclusionMode: ExclusionMode.Ignore
         color: "transparent"
         WlrLayershell.namespace: "triton-glass"

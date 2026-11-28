@@ -2,6 +2,9 @@
 Description=Callisto shell (Triton)
 PartOf=graphical-session.target
 After=graphical-session.target
+# What the shell and the keys start apps through. Up with the session, so that
+# the first launch does not wait for it.
+Wants=wayland-wm-app-daemon.service
 ConditionEnvironment=WAYLAND_DISPLAY
 StartLimitIntervalSec=30
 StartLimitBurst=5

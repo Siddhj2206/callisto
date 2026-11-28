@@ -20,6 +20,7 @@ QtObject {
 
     readonly property int barRevealDwell: 120
     readonly property int barHideDelay: 600
+    readonly property int barSpacePoll: 500
     readonly property int urgentPeek: 4000
     readonly property int osdHold: 1200
     readonly property int osdAction: 6000

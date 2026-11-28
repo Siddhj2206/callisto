@@ -36,7 +36,7 @@ Item {
     Keys.onPressed: event => {
         if (event.key === Qt.Key_Escape)
             cancelled();
-        else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter)
+        else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space)
             committed();
         else if (event.key === Qt.Key_Left)
             stepped(-1);

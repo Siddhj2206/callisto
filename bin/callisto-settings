@@ -11,6 +11,6 @@ fi
 
 export CALLISTO_SETTINGS_PAGE="$1"
 if command -v uwsm >/dev/null 2>&1; then
-    exec uwsm app -a callisto-settings -- qs -n -p "$config"
+    exec uwsm-app -a callisto-settings -- qs -n -p "$config"
 fi
 exec qs -n -p "$config"

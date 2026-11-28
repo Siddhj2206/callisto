@@ -26,6 +26,12 @@ Page {
         enabled: root.listening !== null
     }
 
+    // Only for its names of keys.
+    KeyCombo {
+        id: labels
+        visible: false
+    }
+
     function listen(ident, on) {
         if (on)
             listening = ident;
@@ -158,6 +164,8 @@ Page {
 
                     ident: modelData.id
                     title: modelData.title
+                    readonly property var also: ShortcutsService.alsoOf(modelData.id)
+                    about: also.length ? "Also " + also.map(keys => labels.label(keys)).join(", ") : ""
                     keys: ShortcutsService.keysOf(modelData.id)
                     fixed: modelData.fixed === true
                     listening: root.listening === modelData.id
