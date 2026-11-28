@@ -38,7 +38,7 @@ Item {
         header.query = "";
         selection = 0;
         action = -1;
-        list.contentY = 0;
+        list.positionViewAtBeginning();
     }
 
     function focusInput() {
@@ -54,13 +54,11 @@ Item {
     }
 
     function reveal() {
-        const item = repeater.itemAt(selection - (hasTopHit ? 1 : 0));
-        if (!item)
-            list.contentY = 0;
-        else if (item.y < list.contentY)
-            list.contentY = item.y;
-        else if (item.y + item.height > list.contentY + list.height)
-            list.contentY = item.y + item.height - list.height;
+        const at = selection - (hasTopHit ? 1 : 0);
+        if (at < 0)
+            list.positionViewAtBeginning();
+        else
+            list.positionViewAtIndex(at, ListView.Contain);
     }
 
     function run(index, actionId) {
@@ -124,7 +122,7 @@ Item {
             placeholder: "Search apps, > commands, = math"
             onEdited: text => {
                 root.selection = 0;
-                list.contentY = 0;
+                list.positionViewAtBeginning();
                 root.queryEdited(text);
             }
             onKeyPressed: event => event.accepted = root.handle(event.key, event.modifiers)
@@ -215,7 +213,9 @@ Item {
                 }
             }
 
-            Flickable {
+            // A view, so that only the rows in sight exist: there is one per
+            // installed app.
+            ListView {
                 id: list
                 anchors.left: hit.right
                 anchors.leftMargin: root.hasTopHit ? Metrics.panelPad : 0
@@ -225,46 +225,35 @@ Item {
                 anchors.topMargin: Metrics.cardActions
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: Metrics.cardActions
-                contentWidth: width
-                contentHeight: rows.implicitHeight
                 boundsBehavior: Flickable.StopAtBounds
                 clip: true
+                model: root.listed.length
 
-                Column {
-                    id: rows
-                    width: parent.width
+                delegate: Column {
+                    id: slot
+                    required property int index
+                    readonly property var row: root.listed[index]
+                    readonly property int at: index + (root.hasTopHit ? 1 : 0)
 
-                    Repeater {
-                        id: repeater
-                        model: root.listed.length
+                    width: ListView.view.width
 
-                        Column {
-                            id: slot
-                            required property int index
-                            readonly property var row: root.listed[index]
-                            readonly property int at: index + (root.hasTopHit ? 1 : 0)
-
-                            width: rows.width
-
-                            AppText {
-                                visible: slot.index === 0 || root.listed[slot.index - 1]?.section !== slot.row?.section
-                                x: Metrics.cardActions
-                                height: Metrics.chipHeight
-                                role: "labelSmall"
-                                tone: "onsurfacevariant"
-                                text: slot.row?.section.toUpperCase() ?? ""
-                            }
-                            ResultRow {
-                                width: parent.width
-                                row: slot.row
-                                selected: root.selection === slot.at
-                                choosing: selected && root.action >= 0
-                                action: root.action
-                                activeFocusOnTab: false
-                                onClicked: root.run(slot.at, "")
-                                onActionTriggered: id => root.run(slot.at, id)
-                            }
-                        }
+                    AppText {
+                        visible: slot.index === 0 || root.listed[slot.index - 1]?.section !== slot.row?.section
+                        x: Metrics.cardActions
+                        height: Metrics.chipHeight
+                        role: "labelSmall"
+                        tone: "onsurfacevariant"
+                        text: slot.row?.section.toUpperCase() ?? ""
+                    }
+                    ResultRow {
+                        width: parent.width
+                        row: slot.row
+                        selected: root.selection === slot.at
+                        choosing: selected && root.action >= 0
+                        action: root.action
+                        activeFocusOnTab: false
+                        onClicked: root.run(slot.at, "")
+                        onActionTriggered: id => root.run(slot.at, id)
                     }
                 }
             }
