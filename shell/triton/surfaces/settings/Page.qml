@@ -17,9 +17,12 @@ Flickable {
     boundsBehavior: Flickable.StopAtBounds
     clip: true
 
+    // Short of the ends, where the window's corners are round.
     ScrollBar {
         parent: root
         target: root
+        anchors.topMargin: Metrics.radiusPanelS
+        anchors.bottomMargin: Metrics.radiusPanelS
     }
 
     // Keep what the keyboard has reached in view.
