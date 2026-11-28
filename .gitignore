@@ -23,6 +23,8 @@
 /live-build/callisto-amd64.*
 # Rebuilt by scripts/sync-configs.sh from shell/, bin/, configs/ and design/
 /live-build/config/includes.chroot/
+# The packages we patch, built by scripts/build-debs.sh
+/live-build/config/packages.chroot/
 
 # Copied from design/fonts so the shell can load them from its own tree
 /shell/triton/fonts/

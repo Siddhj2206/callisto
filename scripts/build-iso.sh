@@ -30,6 +30,9 @@ echo "==> SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH ($(date -ud "@$SOURCE_DATE_EPOCH"
 echo "==> Syncing configuration into includes.chroot"
 "$REPO_ROOT/scripts/sync-configs.sh"
 
+# --- Packages we patch ---------------------------------------------------------
+"$REPO_ROOT/scripts/build-debs.sh"
+
 # --- Build container image ----------------------------------------------------
 if ! podman image exists "$IMAGE"; then
     echo "==> Building $IMAGE"
@@ -70,6 +73,12 @@ podman run --rm --privileged \
         lb binary
         lb source
     '
+
+# apt takes Debian's own package if the pin for ours ever stops matching.
+if ! grep -q '^hyprland[[:space:]].*+callisto' "$REPO_ROOT/live-build/callisto-amd64.packages"; then
+    echo "!! ERROR: the image does not have the patched Hyprland" >&2
+    exit 1
+fi
 
 # --- Collect artifact -----------------------------------------------------------
 if [[ -f "$REPO_ROOT/live-build/callisto-amd64.hybrid.iso" ]]; then

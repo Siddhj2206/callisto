@@ -83,7 +83,7 @@ before. The old shell code is a reference only. Rules and file layout are in
 
 ## 4. Platform architecture
 
-- [ ] Keybinds through `GlobalShortcut`; media keys without `uwsm app` (#7, M7)
+- [x] Keybinds through `GlobalShortcut`; media keys without `uwsm app` (#7, M7)
 - [x] Shell as `callisto-shell.service`, with lock restore (M8). In QEMU: killed while locked, it restarts and locks again. The unit starts on a built ISO
 - [x] `callisto-settingsd` (#3, #4, #5, M9): socket-activated, validates values, applies only what changed, owns the day/night schedule. `callisto-apply` stays as its compiler, and for seeding before the session. In QEMU, not yet in a built ISO. Open: the portal Settings backend (with M16), night light on a schedule, the power profile still passes through the store (M10)
 - [x] Power profile set by the shell (M10), out of the settings store. In QEMU
@@ -208,7 +208,7 @@ the live session.
 - [x] Missing `hyprland-guiutils` (a warning at login): added; installed in the VM, no config errors
 - [x] Settings → Displays changes resolution and refresh rate, with a keep-or-revert countdown: tried in the 3D VM
 - [x] Settings → Shortcuts lists, changes, removes and adds shortcuts: key capture, conflicts, replace, reset and a custom command tried in the 3D VM
-- [ ] Scrollbars in Settings: shown and track clicks tried in the VM; dragging not tried
+- [x] Scrollbars in Settings: dragging did nothing until release (see §9)
 - [ ] Raising the resolution without signing out again, on virtio-gpu and some HDMI outputs: aquamarine 0.11.0 tests the new mode against the old, smaller buffer ([aquamarine#330](https://github.com/hyprwm/aquamarine/pull/330), merged, not in Debian). Settings offers "Use at next sign-in" meanwhile; fixing it needs a newer package or our own build
 - [ ] The papercut fixes on a built ISO and on real hardware
 
@@ -232,4 +232,15 @@ For scale, Quickshell with a single window takes 93 to 98 MiB.
 - Not done, `LazyLoader` for hidden surfaces: after the above, removing the overview, wallpaper picker, power menu, clipboard or capture tool saves about 1 MiB each, for a slower first open
 - Not done, theme applied twice at login: the run before the compositor takes about 130 ms and the shell needs its output; the daemon's own run does not block
 - Not done, small and unmeasured: window lists recompute on title changes, recording status polls with processes while recording, notification action buttons are likely rebuilt each minute
-- [ ] Frame times, and any of this on real hardware
+- [x] Frame times: with 3D, 14 to 19 ms at 75 Hz while surfaces open; without it (software rendering) 30 to 100 ms, nearly all of it the compositor's CPU
+- [ ] Any of this on real hardware
+
+## 9. Interactivity and lag
+
+- [x] Drags (scrollbar, capture region, sliders) showed nothing until the button was released, and hover lagged: Hyprland 0.55 sends no `wl_pointer.frame` after absolute pointer motion (virtual machines, some tablets), and Qt holds motion until one comes. Upstream's fix ([259866f](https://github.com/hyprwm/Hyprland/commit/259866f60), in 0.56) is backported: `patches/hyprland`, built by `scripts/build-debs.sh`. Drop it once backports has 0.56
+- [x] A keybinding took about 700 ms to show anything: each one ran `uwsm app -- qs ipc call`. Global shortcuts now, about 35 ms; apps through `uwsm-app`, a terminal in 210 ms instead of 660
+- [x] Space captures in the capture tool, and activates the highlighted item in the power menu, overview, wallpaper picker and window switcher
+- [x] Bar "Auto hide", the default: hidden only while a tiled window, or a floating one reaching into its strip, is on the workspace. Floating and tiling raise no event, so it looks every half second while a window is on screen (about 0.3% CPU in the VM)
+- [x] The launcher has Sleep, Log out, Restart and Shut down, each opening the power menu on its action
+- [x] Default shortcuts follow dux-shell, for what Callisto has. Not taken, for want of the feature: notepad, color picker, process list, dashboard, keep-awake, window rules, workspace rename, display profiles
+- [ ] Software rendering stays slow: use a machine, or a virtual one, with 3D

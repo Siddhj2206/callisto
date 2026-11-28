@@ -13,6 +13,7 @@ configs/      system and session configuration, one folder per subject
 shell/triton/ the shell and the Settings app (QML)
 design/       tokens, fonts, logo and wallpaper: the source of visual values
 live-build/   the ISO definition: package lists, hooks, `lb config`
+patches/      fixes to Debian packages, one folder per package
 containers/   the ISO builder, the headless shell harness and QEMU
 scripts/      build, test and code-generation tools
 references/   the design boards
@@ -26,11 +27,20 @@ docs/         you are here
 That tree is generated and rebuilt from nothing every time. The script is the
 map from each file here to its path on the image.
 
-`scripts/build-iso.sh` runs it, then live-build inside the rootless podman
+`scripts/build-iso.sh` runs it, builds any patched package, then live-build inside the rootless podman
 image from `containers/builder.Dockerfile`. The package lists are in
 `live-build/config/package-lists/`; the one setup hook
 (`config/hooks/live/010-callisto-setup.hook.chroot`) sets the OS identity,
 creates the live user, enables services, and installs matugen and the Flatpaks.
+
+## Patched packages
+
+A fix that Debian does not ship yet goes in `patches/<package>/`.
+`scripts/build-debs.sh` rebuilds Debian's source package with it
+(`containers/hyprland.Dockerfile`) into `live-build/config/packages.chroot/`,
+as Debian's version plus `+callisto1`. The only one is Hyprland: version 0.55
+does not update a drag with an absolute pointer until the button is released.
+Remove it once trixie-backports has 0.56.
 
 ## Session
 
